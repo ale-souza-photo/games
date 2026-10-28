@@ -1835,6 +1835,48 @@ W.SFX={
 };
 })(window);
 
+/* ===== Acabamento de filme/papel fotográfico anos 90: bloom, aberração, grão, cor desbotada, poeira ===== */
+(function(W){
+function rngf(sd){return function(){sd=(Math.imul(sd,1664525)+1013904223)|0;return ((sd>>>8)&65535)/65535}}
+function cv(w,h){var c=document.createElement('canvas');c.width=w;c.height=h;return c}
+W.Film={
+ apply:function(c,seed,o){
+  o=o||{};var w=c.width,h=c.height,g=c.getContext('2d'),R=rngf(seed|0);
+  /* 1) foco suave de lente barata de compacta */
+  var t=cv(w,h),tg=t.getContext('2d');tg.drawImage(c,0,0);
+  g.globalAlpha=0.38;g.filter='blur(1.1px)';g.drawImage(t,0,0);g.filter='none';g.globalAlpha=1;
+  /* 2) bloom nas altas luzes (flash e lâmpadas estourando) */
+  var b=cv(w/4|0,h/4|0),bg=b.getContext('2d');bg.filter='brightness(1.25) contrast(1.9) blur(2px)';bg.drawImage(c,0,0,b.width,b.height);bg.filter='none';
+  g.save();g.globalCompositeOperation='screen';g.globalAlpha=o.bloom==null?0.28:o.bloom;g.filter='blur(6px)';g.drawImage(b,0,0,w,h);g.filter='none';g.restore();
+  /* 3) aberração cromática e curva de cor de filme ISO 400 */
+  var im=g.getImageData(0,0,w,h),d=im.data,src=new Uint8ClampedArray(d),cx=w/2,cy=h/2,mx=Math.max(1,w/2);
+  var warm=o.warm==null?1:o.warm;
+  for(var y=0;y<h;y++)for(var x=0;x<w;x++){
+   var p=(y*w+x)*4,dx=(x-cx)/mx,sh=Math.round(dx*dx*dx*2.4+dx*0.8),xr=Math.min(w-1,Math.max(0,x+sh)),xb=Math.min(w-1,Math.max(0,x-sh));
+   var r=src[(y*w+xr)*4],gg=src[p+1],bl=src[(y*w+xb)*4+2];
+   /* pretos levantados e desbotados, sombras esverdeadas, realces quentes */
+   var l=(r+gg+bl)/3,sd=1-l/255;
+   r=r*0.92+14+(1-sd)*10*warm;gg=gg*0.92+16;bl=bl*0.88+18+sd*8-(1-sd)*8*warm;
+   /* grão: luminância forte nas sombras + crominância leve */
+   var amp=(o.grain||24)*(0.55+sd*0.9),n=(R()-0.5)*amp,nc=(R()-0.5)*8;
+   d[p]=r+n+nc;d[p+1]=gg+n-nc*0.5;d[p+2]=bl+n+nc*0.7;
+  }
+  g.putImageData(im,0,0);
+  /* 4) poeira, fiapos e riscos de scanner de laboratório */
+  for(var i=0;i<(o.dust||26);i++){
+   var px=R()*w,py=R()*h,s=0.6+R()*1.8,light=R()<0.7;
+   g.fillStyle=light?'rgba(240,238,225,'+(0.25+R()*0.5)+')':'rgba(15,12,10,'+(0.25+R()*0.45)+')';
+   g.beginPath();g.arc(px,py,s,0,6.3);g.fill();
+   if(R()<0.18){g.strokeStyle=g.fillStyle;g.lineWidth=0.6;g.beginPath();g.moveTo(px,py);g.bezierCurveTo(px+8,py+3,px+14,py-5,px+22,py+2+R()*8);g.stroke()}
+  }
+  if(R()<0.55){var sx=R()*w;g.strokeStyle='rgba(245,240,225,'+(0.12+R()*0.18)+')';g.lineWidth=0.8;g.beginPath();g.moveTo(sx,0);g.lineTo(sx+(R()-0.5)*8,h);g.stroke()}
+  /* 5) leve mancha de luz vazando na borda (filme velho) */
+  var lk=g.createLinearGradient(0,0,w*0.16,0);lk.addColorStop(0,'rgba(255,120,40,'+(0.06+R()*0.08)+')');lk.addColorStop(1,'rgba(255,120,40,0)');g.fillStyle=lk;g.fillRect(0,0,w*0.16,h);
+  return c;
+ }
+};
+})(window);
+
 /* ===== Fotos de perícia em cores: superfícies, objetos, sangue, flash, grão e data laranja ===== */
 (function(W){
 'use strict';
@@ -2285,6 +2327,7 @@ W.Photo={
   placard(g,info.n);ruler(g);
   blurEdges(c);
   grade(c,L.R=rngf(hsh(id)+(mode==='uv'?5:3)),mode,dateStr(info.dt));
+  if(window.Film&&mode!=='uv')Film.apply(c,hsh(id)+11,{grain:26,dust:34});
   var out=mk(W0,H0+34),og=out.getContext('2d');og.fillStyle='#e9e5da';og.fillRect(0,0,W0,H0+34);og.drawImage(c,0,0);
   og.fillStyle='#16150f';og.font='15px "Special Elite","Courier New",monospace';og.fillText((E.data[1]||E.name).slice(0,64),8,H0+23);
   og.strokeStyle='#a9a69d';og.strokeRect(0.5,0.5,W0-1,H0+33);
@@ -2433,6 +2476,7 @@ W.Scene={
   var fl=g.createRadialGradient(bx,by-20,10,bx,by-20,260);fl.addColorStop(0,'rgba(255,250,225,.30)');fl.addColorStop(1,'rgba(255,250,225,0)');g.fillStyle=fl;g.fillRect(0,0,CW,CH);
   tape(g);
   grade(c,R,def.floor==='linoleum'||def.floor==='concrete'||room==='server');
+  if(window.Film)Film.apply(c,hsh(room+seed)+5,{grain:30,dust:40,warm:0.8,bloom:0.12});
   CACHE[key]=c;return c;
  }
 };
@@ -2568,6 +2612,7 @@ function cctv(d,info,id){
  for(i=0;i<p.length;i+=4){var px=(i/4)%W,py=((i/4)/W)|0,vx=(px-W/2)/(W/2),vy=(py-H/2)/(H/2),vg=1-0.5*(vx*vx*0.9+vy*vy),n=(R()-0.5)*26,l=p[i]*vg+n,sl=(py%3===0)?0.86:1;
   p[i]=Math.max(0,Math.min(255,l*0.86*sl));p[i+1]=Math.max(0,Math.min(255,l*1.0*sl));p[i+2]=Math.max(0,Math.min(255,l*0.92*sl))}
  g.putImageData(im,0,0);
+ if(window.Film)Film.apply(c,hsh(id)+3,{grain:14,dust:16,warm:0});
  /* texto nítido por cima (overlay da câmera) */
  g.font='bold 13px "Courier New",monospace';g.textBaseline='top';
  [[d[0],10,8],[(info.dt||'')+'  '+(d[1]||''),10,H-22]].forEach(function(t){g.fillStyle='#000';g.fillText(t[0],t[1]+1,t[2]+1);g.fillStyle='#e9efe9';g.fillText(t[0],t[1],t[2])});
