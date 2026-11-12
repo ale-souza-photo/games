@@ -740,7 +740,8 @@ const cueIn = ctx.createGain(), cueMaster = ctx.createGain(), cueVol = ctx.creat
 cueVol.gain.value = 0.8;
 let cueMixV = +lsGet('nd_cmix', '0') || 0;
 // fone: com PFL ligado toca SO os canais em PFL (mix 0); sem nenhum PFL, toca o master
-function cueMix() { const any = decks.a.pfl || decks.b.pfl, m = any ? cueMixV : 1; cueIn.gain.setTargetAtTime(1 - m, ctx.currentTime, 0.015); cueMaster.gain.setTargetAtTime(m, ctx.currentTime, 0.015); }
+// fone = so pre-escuta: sem PFL ligado fica mudo (o master vai so para a mesa); com PFL, mistura o master conforme o slider
+function cueMix() { const any = decks.a.pfl || decks.b.pfl, m = any ? cueMixV : 0; cueIn.gain.setTargetAtTime(1 - m, ctx.currentTime, 0.015); cueMaster.gain.setTargetAtTime(m, ctx.currentTime, 0.015); }
 cueIn.connect(cueVol); limiter.connect(cueMaster); cueMaster.connect(cueVol); cueVol.connect(cueDest);
 const recDest = ctx.createMediaStreamDestination(); limiter.connect(recDest);
 // modo split: uma unica saida estereo, master em mono no canal esquerdo e fone em mono no direito
