@@ -94,7 +94,7 @@ button{font-family:inherit;color:inherit}
 .jogglow{position:absolute;inset:-6px;border-radius:50%;pointer-events:none;box-shadow:0 0 36px color-mix(in srgb,var(--c) 55%,transparent);opacity:.4}
 .jogring{width:240px;height:240px;padding:7px;border-radius:50%}
 .platter{position:relative;width:100%;height:100%;border-radius:50%;border:2px solid #07080F;background:repeating-radial-gradient(circle at 50% 50%,#13152C 0 3px,#0A0B18 3px 6px);display:flex;align-items:center;justify-content:center;overflow:hidden}
-.spin{position:absolute;inset:0}
+.spin{position:absolute;inset:0;will-change:transform}
 .tick{position:absolute;left:50%;top:6px;width:4px;height:30px;margin-left:-2px;border-radius:2px;background:color-mix(in srgb,var(--c) 30%,transparent);transform-origin:50% 112px}
 .tick.t0{background:var(--c);box-shadow:0 0 10px var(--c)}
 .tick.t1{transform:rotate(90deg)} .tick.t2{transform:rotate(180deg)} .tick.t3{transform:rotate(270deg)}
@@ -922,7 +922,7 @@ function detectBPM(buf) {
 const decode = ab => new Promise((res, rej) => { ctx.decodeAudioData(ab, res, rej); });
 const tick = () => new Promise(r => setTimeout(r, 30));
 function applyBuffer(d, buf, meta, bpm, first) {
-  halt(d); d.buf = buf; d.peaks = computePeaks(buf); d.bpm = bpm; d.first = first;
+  halt(d); d.buf = buf; d.peaks = computePeaks(buf); d.bpm = bpm; d.first = first; if (d._tiles) d._tiles.clear();
   d.name = meta.name; d.artist = meta.artist; d.key = meta.key || '';
   d.pos = 0; d.cue = 0; d.cues = [null, null, null, null]; d.loop.on = false; d.pitch = 0; d.rate = 1; d.synced = false; d.busy = false;
 }
@@ -1241,34 +1241,40 @@ function sizeCanvases() {
   const k = clamp((window.devicePixelRatio || 1) * scale, 0.6, 1.5);
   for (const id of ['a', 'b']) { const c = canv[id], w = c.parentElement; c.width = Math.max(10, Math.round(w.clientWidth * k)); c.height = Math.max(10, Math.round(w.clientHeight * k)); c._k = k; }
 }
+const TW = 2048; // largura de cada tile da onda (px)
+function waveTile(d, cv, i) {
+  // devolve o tile i (trecho da faixa ja desenhado: barras + grade de batidas); cache pequeno por deck
+  const W = cv.width, H = cv.height, k = cv._k || 1, pps = W / 10, tsec = TW / pps;
+  const key = i + ':' + W + 'x' + H + ':' + d.gen;
+  let tc = d._tiles || (d._tiles = new Map()); const hit = tc.get(key); if (hit) return hit;
+  if (tc.size >= 6) tc.delete(tc.keys().next().value);
+  const o = document.createElement('canvas'); o.width = TW; o.height = H; const g = o.getContext('2d');
+  const ts = i * tsec, pk = d.peaks, bl = beatLen(d);
+  if (bl > 0) { const kStart = Math.ceil((ts - d.first) / bl);
+    for (let kk = kStart; ; kk++) { const t = d.first + kk * bl; if (t > ts + tsec) break;
+      const x = Math.round((t - ts) * pps); g.fillStyle = (((kk % 4) + 4) % 4 === 0) ? 'rgba(255,255,255,.4)' : 'rgba(255,255,255,.14)'; g.fillRect(x, 0, Math.max(1, k), H); } }
+  const bw = 3 * k, step = 4 * k, half = H * 0.44, path = new Path2D();
+  for (let x = 0; x < TW; x += step) {
+    const ta = ts + x / pps, tb = ts + (x + bw) / pps;
+    let i0 = Math.floor(ta * 100), i1 = Math.floor(tb * 100); if (i1 < 0 || i0 >= pk.length) continue;
+    i0 = Math.max(0, i0); i1 = Math.min(pk.length - 1, Math.max(i0, i1));
+    let m = 0; for (let j = i0; j <= i1; j++) if (pk[j] > m) m = pk[j];
+    const h = Math.max(1.5 * k, m * half); path.rect(x, H / 2 - h, bw, h * 2);
+  }
+  g.fillStyle = d.color; g.fill(path);
+  tc.set(key, o); return o;
+}
 function drawWave(d) {
   const cv = canv[d.id], g = cv.getContext('2d'), W = cv.width, H = cv.height, k = cv._k || 1;
   g.clearRect(0, 0, W, H);
   if (!d.buf) { g.fillStyle = 'rgba(140,147,184,.7)'; g.font = '600 ' + Math.round(14 * k) + 'px Rajdhani,sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(d.busy ? 'CARREGANDO…' : 'SEM FAIXA', W / 2, H / 2); return; }
-  const secs = 10, pps = W / secs, p = getPos(d), t0 = p - secs / 2, col = d.color, pk = d.peaks;
-  const bl = beatLen(d);
-  // loop
+  const secs = 10, pps = W / secs, p = getPos(d), t0 = p - secs / 2, tsec = TW / pps;
   if (d.loop.on) { const x1 = (d.loop.start - t0) * pps, x2 = (d.loop.end - t0) * pps; g.fillStyle = 'rgba(138,92,255,.25)'; g.fillRect(x1, 0, x2 - x1, H); }
-  // grade de batidas
-  const kStart = Math.ceil((t0 - d.first) / bl);
-  for (let kk = kStart; ; kk++) {
-    const t = d.first + kk * bl; if (t > t0 + secs) break;
-    const x = Math.round((t - t0) * pps); g.fillStyle = (((kk % 4) + 4) % 4 === 0) ? 'rgba(255,255,255,.4)' : 'rgba(255,255,255,.14)'; g.fillRect(x, 0, Math.max(1, k), H);
-  }
-  // barras
-  const bw = 3 * k, step = 4 * k, half = H * 0.44;
-  const played = new Path2D(), ahead = new Path2D();
-  for (let x = 0; x < W; x += step) {
-    const ta = t0 + x / pps, tb = t0 + (x + bw) / pps;
-    let i0 = Math.floor(ta * 100), i1 = Math.floor(tb * 100); if (i1 < 0 || i0 >= pk.length) continue;
-    i0 = Math.max(0, i0); i1 = Math.min(pk.length - 1, Math.max(i0, i1));
-    let m = 0; for (let i = i0; i <= i1; i++) if (pk[i] > m) m = pk[i];
-    const h = Math.max(1.5 * k, m * half);
-    (x + bw / 2 < W / 2 ? played : ahead).rect(x, H / 2 - h, bw, h * 2);
-  }
-  g.fillStyle = col; g.globalAlpha = 0.4; g.fill(played); g.globalAlpha = 1;
-  g.fill(ahead);
-  // marcadores
+  const i0 = Math.max(0, Math.floor(t0 / tsec)), i1 = Math.floor((t0 + secs) / tsec), tiles = [];
+  for (let i = i0; i <= i1; i++) tiles.push([waveTile(d, cv, i), (i * tsec - t0) * pps]);
+  // metade ja tocada (esquerda) mais apagada, metade a tocar (direita) cheia
+  g.save(); g.beginPath(); g.rect(0, 0, W / 2, H); g.clip(); g.globalAlpha = 0.4; for (const [t, x] of tiles) g.drawImage(t, x, 0); g.restore();
+  g.save(); g.beginPath(); g.rect(W / 2, 0, W / 2, H); g.clip(); for (const [t, x] of tiles) g.drawImage(t, x, 0); g.restore();
   const mark = (t, c, label) => {
     const x = Math.round((t - t0) * pps); if (x < -10 || x > W + 10) return;
     g.fillStyle = c; g.fillRect(x, 0, Math.max(2, 2 * k), H);
@@ -1280,8 +1286,11 @@ function drawWave(d) {
 }
 
 /* ---------- laco de animacao ---------- */
-function updateDeck(d) {
+function drawOnly(d) { const u = d.ui, p = getPos(d), dur = d.buf ? d.buf.duration : 0;
+  const el = fmtT(p), rm = '-' + fmtT(dur - p); if (el !== d._el) { d._el = el; d.laneEl.textContent = el; } if (rm !== d._rm) { d._rm = rm; d.laneRm.textContent = rm; } }
+function updateDeck(d, half) {
   const u = d.ui, p = getPos(d), dur = d.buf ? d.buf.duration : 0;
+  if (!d.laneEl) { const lane = $('#lane' + d.id.toUpperCase()); d.laneEl = lane.querySelector('[data-r=el]'); d.laneRm = lane.querySelector('[data-r=rm]'); }
   setTxt(d, 'title', d.title || (d.buf ? d.name : 'Sem faixa'));
   setTxt(d, 'sub', d.busy ? d.sub : (d.buf ? d.artist : 'Carregue uma música da biblioteca'));
   const eff = d.bpm ? d.bpm * d.rate : 0;
@@ -1301,23 +1310,23 @@ function updateDeck(d) {
     const t = d.cues[i], key = 'pad' + i, v = t == null ? '' : fmtT(t);
     if (d.cache[key] !== v) { d.cache[key] = v; b.classList.toggle('set', t != null); b.lastElementChild.textContent = t == null ? '—' : v.slice(0, 5); }
   });
-  u.spin.style.transform = 'rotate(' + (((p / 1.8) * 360) % 360).toFixed(1) + 'deg)';
+  if (half) u.spin.style.transform = 'rotate(' + (((p / 1.8) * 360) % 360).toFixed(1) + 'deg)';
   const prog = dur ? (p / dur) * 100 : 0;
   const pq = prog.toFixed(1); if (pq !== d._pq) { d._pq = pq; u.ring.style.background = 'conic-gradient(' + d.color + ' 0 ' + pq + '%, #1A1C36 ' + pq + '% 100%)'; }
-  const lane = $('#lane' + d.id.toUpperCase());
-  lane.querySelector('[data-r=el]').textContent = fmtT(p); lane.querySelector('[data-r=rm]').textContent = '-' + fmtT(dur - p);
-  // niveis e reacao
+  { const el = fmtT(p), rm = '-' + fmtT(dur - p); if (el !== d._el) { d._el = el; d.laneEl.textContent = el; } if (rm !== d._rm) { d._rm = rm; d.laneRm.textContent = rm; } }
+  if (!half) { drawOnly(d); return; }
+  // niveis e reacao (30x por segundo por deck; decaimentos ajustados para essa cadencia)
   const l = clamp(rms(d.anL) * 3.4, 0, 1), rr = clamp(rms(d.anR) * 3.4, 0, 1);
-  d.lvL = l > d.lvL ? l : d.lvL * 0.88; d.lvR = rr > d.lvR ? rr : d.lvR * 0.88;
+  d.lvL = l > d.lvL ? l : d.lvL * 0.77; d.lvR = rr > d.lvR ? rr : d.lvR * 0.77;
   setMeter(d.vul, Math.round(d.lvL * 10)); setMeter(d.vur, Math.round(d.lvR * 10));
   d.anL.getByteFrequencyData(fbuf);
   const bass = (fbuf[0] + fbuf[1] + fbuf[2]) / (3 * 255);
   let pulse = 0;
   if (d.playing && d.bpm) { const ph = ((p - d.first) / beatLen(d)); pulse = Math.exp(-(ph - Math.floor(ph)) * 5) * 0.6 * (d.fader.gain.value > 0.02 ? 1 : 0); }
-  const kk = clamp(Math.max(bass * 1.15, pulse), 0, 1); d.kick = kk > d.kick ? kk : d.kick * 0.86;
+  const kk = clamp(Math.max(bass * 1.15, pulse), 0, 1); d.kick = kk > d.kick ? kk : d.kick * 0.74;
   u.glow.style.opacity = (0.3 + 0.7 * d.kick).toFixed(2);
   // VU ambar classico + pontos de batida (acompanham o pitch, pois seguem a posicao real da faixa)
-  { const lvl = Math.max(d.lvL, d.lvR), n = Math.round(lvl * 18); d.pk = Math.max(n, (d.pk || 0) - 0.25); const pk = Math.round(d.pk);
+  { const lvl = Math.max(d.lvL, d.lvR), n = Math.round(lvl * 18); d.pk = Math.max(n, (d.pk || 0) - 0.5); const pk = Math.round(d.pk);
     if (n !== d._vn || pk !== d._vp) { d._vn = n; d._vp = pk; const sg = u.amseg.children; for (let i = 0; i < 18; i++) { const c = sg[i].classList; c.toggle('on', i < n); c.toggle('pk', i === pk - 1 && pk > n); } }
     let bi = -1; if (d.playing && d.bpm) { const bt = Math.floor((p - d.first) / beatLen(d)); bi = ((bt % 4) + 4) % 4; }
     if (bi !== d._bi) { d._bi = bi; const bs = u.ambeats.children; for (let i = 0; i < 4; i++) bs[i].classList.toggle('on', i === bi); } }
@@ -1327,9 +1336,9 @@ function updateDeck(d) {
 }
 function frame() {
   fpsN++;
-  const A = decks.a, B = decks.b;
-  updateDeck(A); updateDeck(B);
-  setMeter(meters.mlL, Math.round(clamp(rms(mAnL) * 3.0, 0, 1) * 28)); setMeter(meters.mlR, Math.round(clamp(rms(mAnR) * 3.0, 0, 1) * 28));
+  const A = decks.a, B = decks.b, odd = (fpsN & 1) === 1;
+  updateDeck(A, odd); updateDeck(B, !odd);
+  if (fpsN % 3 === 0) { setMeter(meters.mlL, Math.round(clamp(rms(mAnL) * 3.0, 0, 1) * 28)); setMeter(meters.mlR, Math.round(clamp(rms(mAnR) * 3.0, 0, 1) * 28)); }
   const mb = masterBpm();
   if (Math.abs(mb - lastFxBpm) > 0.05) { lastFxBpm = mb; updateFx(); }
   const txt = mb ? mb.toFixed(1) : '---.-'; if ($('#mbpm').textContent !== txt) $('#mbpm').textContent = txt;
