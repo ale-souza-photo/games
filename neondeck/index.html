@@ -1886,6 +1886,9 @@ const cueEl = new Audio(); cueEl.srcObject = cueDest.stream; cueEl.autoplay = fa
 const canSink = typeof ctx.setSinkId === 'function', canSinkEl = typeof cueEl.setSinkId === 'function';
 let cueOn = false, sinkM = lsGet('nd_sinkM', ''), sinkC = lsGet('nd_sinkC', ''), cueCtx = null, devLabels = {};
 const aMsg = t => { $('#aMsg').textContent = t; };
+// dentro de iframe (preview do artifact) o navegador bloqueia microfone e escolha de saida: avisa em vez de falhar em silencio
+const inFrame = (() => { try { return window.self !== window.top; } catch (_) { return true; } })();
+const FRAME_MSG = 'Você está no preview, onde o navegador bloqueia o microfone e a escolha de saída. Abra o NEONDECK pelo endereço do GitHub Pages (https://ale-souza-photo.github.io/games/neondeck/) e use ATUALIZAR LISTA lá.';
 const errTxt = e => (e && e.name ? e.name + ': ' : '') + (e && e.message || e);
 let fpsN = 0, fpsV = 0; setInterval(() => { fpsV = fpsN; fpsN = 0; if (!$('#aud').hidden) { const lm = Math.round(((ctx.baseLatency || 0) + (ctx.outputLatency || 0)) * 1000), lc = cueCtx ? Math.round(((cueCtx.baseLatency || 0) + (cueCtx.outputLatency || 0)) * 1000) : null; $('#aLat').textContent = 'Latência master: ' + lm + ' ms' + (lc !== null ? ' · fone: ' + lc + ' ms' : '') + ' · tela: ' + fpsV + ' fps'; } }, 1000);
 function showState() {
@@ -1922,6 +1925,7 @@ async function applyCue(id) {
 let lastPermErr = null;
 let known = []; try { known = JSON.parse(lsGet('nd_devs', '[]')) || []; } catch (_) { known = []; }
 async function refreshDevices(askPerm) {
+  if (inFrame) { aMsg(FRAME_MSG); return; }
   if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) { aMsg('Este navegador não lista as saídas de áudio.'); return; }
   let st = null;
   if (askPerm) {
