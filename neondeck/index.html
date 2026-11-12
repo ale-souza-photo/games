@@ -1337,7 +1337,7 @@ function buildMixer() {
     root.querySelectorAll('.knob').forEach(k => makeKnob(k, d.v[k.dataset.k], v => { d.v[k.dataset.k] = v; applyMix(d); }));
     const pb = root.querySelector('[data-pfl]');
     pb.addEventListener('click', () => {
-      if (!cueOn && !d.pfl) toast('Escolha a saída do FONE no painel de áudio (ícone de fone no topo).');
+      if (!cueOn && !d.pfl) toast(sinkC ? 'O fone ainda não está ativo: toque em qualquer lugar da tela e tente de novo.' : 'Escolha a saída do FONE no painel de áudio (ícone de fone no topo).');
       d.pfl = !d.pfl; d.cueG.gain.setTargetAtTime(d.pfl ? 1 : 0, ctx.currentTime, 0.01); cueMix(); pb.classList.toggle('on', d.pfl); pb.setAttribute('aria-pressed', d.pfl);
     });
     const tr = root.querySelector('.vtrack'), h = tr.querySelector('.vhandle');
@@ -1893,7 +1893,7 @@ const FRAME_MSG = 'Você está no preview, onde o navegador bloqueia o microfone
 const errTxt = e => (e && e.name ? e.name + ': ' : '') + (e && e.message || e);
 let fpsN = 0, fpsV = 0; setInterval(() => { fpsV = fpsN; fpsN = 0; if (!$('#aud').hidden) { const lm = Math.round(((ctx.baseLatency || 0) + (ctx.outputLatency || 0)) * 1000), lc = cueCtx ? Math.round(((cueCtx.baseLatency || 0) + (cueCtx.outputLatency || 0)) * 1000) : null; $('#aLat').textContent = 'Latência master: ' + lm + ' ms' + (lc !== null ? ' · fone: ' + lc + ' ms' : '') + ' · tela: ' + fpsV + ' fps'; } }, 1000);
 function showState() {
-  const m = devLabels[sinkM] || (sinkM ? 'saída escolhida' : 'padrão do sistema'), c = cueOn ? (devLabels[sinkC] || 'saída escolhida') : 'desativado';
+  const m = devLabels[sinkM] || (sinkM ? 'saída escolhida' : 'padrão do sistema'), c = cueOn ? (devLabels[sinkC] || 'saída escolhida') : (sinkC ? 'AGUARDANDO: toque na tela para ativar' : 'desativado');
   const same = cueOn && ((sinkC === sinkM) || (sinkC === 'default' && !sinkM) || (!sinkC && !sinkM));
   cueEl.muted = same; if (cueCtx) { try { same ? cueCtx.suspend() : cueCtx.resume(); } catch (_) {} }
   $('#aState').textContent = 'Ativo agora → MASTER: ' + m + ' · FONE: ' + c + (same ? '  ⚠ MESMA SAÍDA nos dois: fone mudo para não dar eco' : '');
@@ -2002,7 +2002,7 @@ if (navigator.mediaDevices) navigator.mediaDevices.addEventListener('devicechang
 $('#aV').value = cueVol.gain.value; $('#aX').value = cueMixV;
 refreshDevices(false);
 if (sinkM) applyMaster(sinkM);
-if (sinkC) { const retry = () => { applyCue(sinkC); removeEventListener('pointerdown', retry, true); }; addEventListener('pointerdown', retry, true); }
+if (sinkC) { const retry = () => { applyCue(sinkC); removeEventListener('pointerdown', retry, true); removeEventListener('keydown', retry, true); }; addEventListener('pointerdown', retry, true); addEventListener('keydown', retry, true); }
 
 /* ---------- partida ---------- */
 buildDeck('a'); buildDeck('b'); buildMixer();
