@@ -1341,7 +1341,11 @@ function waveTile(d, cv, i) {
   const ts = i * tsec, pk = d.peaks, bl = beatLen(d);
   if (bl > 0) { const kStart = Math.ceil((ts - d.first) / bl);
     for (let kk = kStart; ; kk++) { const t = d.first + kk * bl; if (t > ts + tsec) break;
-      const x = Math.round((t - ts) * pps); g.fillStyle = (((kk % 4) + 4) % 4 === 0) ? 'rgba(255,255,255,.4)' : 'rgba(255,255,255,.14)'; g.fillRect(x, 0, Math.max(1, k), H); } }
+      const x = Math.round((t - ts) * pps), down = ((kk % 4) + 4) % 4 === 0;
+      g.fillStyle = down ? 'rgba(255,255,255,.6)' : 'rgba(255,255,255,.3)'; g.fillRect(x, 0, Math.max(1, k * (down ? 2 : 1)), H);
+      // pontos de batida no topo e na base: tempo forte = branco e maior, demais = cor do deck
+      const r = (down ? 4.5 : 2.8) * k; g.fillStyle = down ? '#ffffff' : d.color;
+      g.beginPath(); g.arc(x, r + 2 * k, r, 0, Math.PI * 2); g.arc(x, H - r - 2 * k, r, 0, Math.PI * 2); g.fill(); } }
   const bw = 3 * k, step = 4 * k, half = H * 0.44, path = new Path2D();
   for (let x = 0; x < TW; x += step) {
     const ta = ts + x / pps, tb = ts + (x + bw) / pps;
@@ -1495,7 +1499,7 @@ $('#sBg').addEventListener('change', e => bg.set(e.target.value));
 
 /* ---------- AUTO DJ: ordena por BPM e mistura sozinho (16 tempos, sync + crossfade) ---------- */
 const TRANS_BEATS = 16;
-const auto = { on: false, busy: false, played: new Set(), pool: [] };
+const auto = { on: false, busy: false, played: new Set(), pool: [], pre: null };
 const kid = it => it.aid || it.id || it.name;
 function camelot(k) { const m = /^(\d{1,2})([AB])$/i.exec(String(k || '')); return m ? { n: +m[1], l: m[2].toUpperCase() } : null; }
 function keyScore(a, b) { // 0 = combina (mesmo tom ou vizinho no Camelot), 1 = choque
@@ -1515,7 +1519,7 @@ function pickNext(cur) {
   }
   return null;
 }
-function stopAuto(msg) { auto.on = false; auto.busy = false; $('#autoBtn').setAttribute('aria-pressed', 'false'); if (msg) toast(msg); }
+function stopAuto(msg) { auto.on = false; auto.busy = false; auto.pre = null; $('#autoBtn').setAttribute('aria-pressed', 'false'); if (msg) toast(msg); }
 function startAuto() {
   const pool = (rowItems || []).filter(i => i.bpm && (!i.dur || i.dur <= MAX_SEC)).sort((a, b) => a.bpm - b.bpm);
   if (pool.length < 2) { toast('Auto DJ precisa de pelo menos 2 faixas com BPM na lista (demos, arquivos já analisados ou Audius).'); return; }
@@ -1540,13 +1544,23 @@ async function autoTick() {
     else if (auto.on) toast('Auto DJ: não consegui carregar ' + nxt.name + '.');
     auto.busy = false; return;
   }
-  const trSec = TRANS_BEATS * 60 / (P.bpm * P.rate);
-  if (P.buf.duration - getPos(P) > trSec + 1.5) return; // ainda nao esta na hora da transicao
-  const I = other(P), nxt = pickNext(P);
-  if (!nxt) return stopAuto('Auto DJ: sem faixa perto do BPM atual. Deixei a faixa atual tocar.');
-  auto.busy = true; auto.played.add(kid(nxt));
-  if (!(await loadAuto(I, nxt))) { auto.busy = false; if (auto.on) toast('Auto DJ: não consegui carregar ' + nxt.name + '.'); return; }
-  if (!auto.on) { auto.busy = false; return; }
+  const I = other(P), trSec = TRANS_BEATS * 60 / (P.bpm * P.rate), remain = P.buf.duration - getPos(P);
+  // pre-carga: assim que a faixa atual comeca, a proxima ja vai carregando no deck livre (carga leva segundos)
+  if (!auto.pre || auto.pre.p !== P.kid) {
+    if (I.playing) return;
+    const it = pickNext(P);
+    if (!it) { if (remain < trSec + 1.5) stopAuto('Auto DJ: sem faixa perto do BPM atual. Deixei a faixa atual tocar.'); return; }
+    auto.pre = { p: P.kid, it, ready: loadAuto(I, it) };
+  }
+  if (remain > trSec + 1.5) return; // ainda nao esta na hora da transicao
+  auto.busy = true;
+  const pre = auto.pre, nxt = pre.it;
+  const ok = await pre.ready;
+  if (!auto.on) { auto.busy = false; auto.pre = null; return; }
+  if (!ok || I.kid !== kid(nxt)) { // pre-carga falhou: descarta e tenta outra na proxima volta
+    auto.busy = false; auto.pre = null; toast('Auto DJ: não consegui carregar ' + nxt.name + '.'); return;
+  }
+  auto.pre = null; auto.played.add(kid(nxt));
   startSrc(I, I.first || 0); sync(I); // entra no primeiro tempo e acerta o BPM com a faixa que sai
   toast('Auto DJ → ' + nxt.name + ' · ' + Math.round(nxt.bpm) + ' BPM', 3000);
   const x0 = xfader, x1 = I === decks.b ? 1 : 0, t0 = performance.now(), dur = trSec * 1000;
