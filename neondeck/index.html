@@ -1,4 +1,5 @@
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>NEONDECK</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Chakra+Petch:wght@500;600;700&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap">
 <style>
@@ -432,11 +433,56 @@ body.lite #stage .aura{display:none}
 .knob,.knob i,.vhandle,.phandle,.xtrack,.badge,.ld .la,.ld .lb,.seg.lit,.chip.on,.tab.on{box-shadow:none!important}
 .knob i{background:var(--c)}
 .seg.lit{box-shadow:none!important}
+
+/* ===== RESPONSIVO: tablet em pé e celular (rolagem vertical, controles grandes) ===== */
+#vpsz{position:relative;width:1px;pointer-events:none}
+#aud{max-height:calc(100dvh - 90px);overflow:auto}
+body.mob #vp{overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+body.mob #stage{padding:8px 10px;overflow:visible}
+body.mob #bgc{position:fixed}
+body.mob .top{height:auto;flex-wrap:wrap;row-gap:8px;padding:10px 12px;justify-content:space-between}
+body.mob .top .logo{order:1}
+body.mob .top .tright{order:2}
+body.mob .top .mastr{order:3;flex:1 1 100%;justify-content:center;clip-path:none}
+body.mob .top .fxrack{order:4;flex:1 1 100%;flex-wrap:wrap;justify-content:center;row-gap:6px}
+body.mob .top .btn{height:40px}
+body.mob .fxb{height:36px;min-width:52px}
+body.mob .mid{height:auto;flex-wrap:wrap;justify-content:center}
+body.mob .mixer{height:auto}
+body.mob .strips{height:300px}
+body.m-tab .deck.a{order:1} body.m-tab .deck.b{order:2} body.m-tab .mixer{order:3;width:100%}
+body.m-phone .deck{flex:1 1 100%;min-width:0;order:1} body.m-phone .mixer{order:2;width:100%} body.m-phone .deck.b{order:3}
+body.m-phone .wave{height:auto}
+body.m-phone .lane .lbl{width:118px;padding:0 20px 0 8px}
+body.m-phone .lane .lbl .el{font-size:20px}
+body.m-phone .mmeters{display:none}
+body.mob .lib{flex:none;height:600px}
+body.m-tab .lib{height:540px}
+body.mob .libbar{height:auto;flex-wrap:wrap;row-gap:8px}
+body.mob .libbar .search{flex:1 1 100%;height:40px}
+body.mob .chips{flex-wrap:wrap}
+body.mob .chip,body.mob .tab{min-height:36px}
+body.m-tab .thead,body.m-tab .row{grid-template-columns:40px minmax(0,1fr) 150px 60px 60px 96px}
+body.m-tab .drop{width:180px}
+body.m-tab .drop p{display:none}
+body.m-tab .thead>:nth-child(4),body.m-tab .row>:nth-child(4){display:none}
+body.m-phone .lib{flex-direction:column;height:640px}
+body.m-phone .thead,body.m-phone .row{grid-template-columns:34px minmax(0,1fr) 50px 100px;gap:6px}
+body.m-phone .thead>:nth-child(3),body.m-phone .row>:nth-child(3),body.m-phone .thead>:nth-child(4),body.m-phone .row>:nth-child(4),body.m-phone .thead>:nth-child(6),body.m-phone .row>:nth-child(6){display:none}
+body.m-phone .row{height:54px}
+body.m-phone .row .t{font-size:19px}
+body.m-phone .ld button{width:44px;height:40px}
+body.m-phone .drop{width:auto;flex:none;flex-direction:row;gap:12px;padding:8px 12px;justify-content:space-between}
+body.m-phone .drop svg,body.m-phone .drop p{display:none}
+#aud .split{display:flex;gap:10px;align-items:flex-start;padding:10px;border-radius:10px;border:1px solid var(--line2);background:rgba(255,197,61,.06);color:var(--txt)}
+#aud .split input{width:20px;height:20px;margin-top:2px;accent-color:var(--amber)}
+#aud .split b{display:block;font:700 14px var(--font-d);letter-spacing:.06em;color:var(--amber)}
 @media (prefers-reduced-motion:reduce){#bgc{display:none}}
 </style>
 
 <div id="vp">
   <canvas id="bgc" aria-hidden="true"></canvas>
+  <div id="vpsz" aria-hidden="true"></div>
   <div id="stage">
     <div class="aura a" id="auraA"></div><div class="aura b" id="auraB"></div>
 
@@ -516,6 +562,7 @@ body.lite #stage .aura{display:none}
   <div class="ah"><span>ÁUDIO · SAÍDAS</span><button class="btn sq" id="aClose" aria-label="Fechar">✕</button></div>
   <label for="aM">MASTER (vai para a mesa / live)<div class="arow"><select id="aM"></select><button type="button" class="btn pick" id="aPM">ESCOLHER</button><button type="button" class="btn" id="aTM">TESTAR</button></div></label>
   <label for="aC">FONE (pré-escuta, só você ouve)<div class="arow"><select id="aC"></select><button type="button" class="btn pick" id="aPC">ESCOLHER</button><button type="button" class="btn" id="aTC">TESTAR</button></div></label>
+  <label class="split" for="aSp"><input type="checkbox" id="aSp"><span><b>MODO SPLIT (1 saída só)</b>Lado esquerdo = master (caixa) · lado direito = fone. Use no tablet/celular com um cabo Y divisor de áudio (P2 estéreo → 2 × P2 mono).</span></label>
   <label for="aV">Volume do fone<input type="range" id="aV" min="0" max="1" step="0.01" value="0.8"></label>
   <label for="aX">Mix do fone com PFL ligado: só PFL ← → soma master<input type="range" id="aX" min="0" max="1" step="0.01" value="0"></label>
   <label for="aD">Atraso do master: <span id="aDv">0 ms</span><input type="range" id="aD" min="0" max="250" step="5" value="0"></label>
@@ -579,11 +626,21 @@ const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (_) {} };
 /* ---------- escala do palco ---------- */
 const stage = $('#stage'), vp = $('#vp');
 let scale = 1;
+let layout = 'desk';
 function fit() {
   document.documentElement.style.setProperty('--lw', Math.min(420, Math.round(innerWidth * 0.38)) + 'px');
-  const w = vp.clientWidth, h = vp.clientHeight;
-  scale = Math.min(w / 1440, h / 1000);
-  stage.style.width = (w / scale) + 'px'; stage.style.height = (h / scale) + 'px';
+  const w = vp.clientWidth || innerWidth, h = vp.clientHeight || innerHeight, port = w / h < 1.15;
+  layout = (!port && w >= 1000) ? 'desk' : (w >= 700 ? 'tab' : 'phone');
+  const bc = document.body.classList; bc.toggle('mob', layout !== 'desk'); bc.toggle('m-tab', layout === 'tab'); bc.toggle('m-phone', layout === 'phone');
+  if (layout === 'desk') {
+    scale = Math.min(w / 1440, h / 1000);
+    stage.style.width = (w / scale) + 'px'; stage.style.height = (h / scale) + 'px';
+    $('#vpsz').style.height = '0px';
+  } else {
+    const DW = layout === 'tab' ? 980 : 520; scale = w / DW;
+    stage.style.width = DW + 'px'; stage.style.height = 'auto';
+    $('#vpsz').style.height = Math.ceil(stage.offsetHeight * scale) + 'px';
+  }
   stage.style.transform = 'scale(' + scale + ')';
   sizeCanvases();
 }
@@ -659,6 +716,11 @@ let cueMixV = +lsGet('nd_cmix', '0') || 0;
 function cueMix() { const any = decks.a.pfl || decks.b.pfl, m = any ? cueMixV : 1; cueIn.gain.setTargetAtTime(1 - m, ctx.currentTime, 0.015); cueMaster.gain.setTargetAtTime(m, ctx.currentTime, 0.015); }
 cueIn.connect(cueVol); limiter.connect(cueMaster); cueMaster.connect(cueVol); cueVol.connect(cueDest);
 const recDest = ctx.createMediaStreamDestination(); limiter.connect(recDest);
+// modo split: uma unica saida estereo, master em mono no canal esquerdo e fone em mono no direito
+const splitMg = ctx.createChannelMerger(2), splitM = ctx.createGain(), splitC = ctx.createGain();
+for (const n of [splitM, splitC]) { n.channelCount = 1; n.channelCountMode = 'explicit'; n.channelInterpretation = 'speakers'; }
+splitM.connect(splitMg, 0, 0); splitC.connect(splitMg, 0, 1);
+let splitOn = false;
 const mSplit = ctx.createChannelSplitter(2); limiter.connect(mSplit);
 const mAnL = ctx.createAnalyser(), mAnR = ctx.createAnalyser(); mAnL.fftSize = mAnR.fftSize = 512;
 mSplit.connect(mAnL, 0); mSplit.connect(mAnR, 1);
@@ -1742,7 +1804,20 @@ if (sinkC) { const retry = () => { applyCue(sinkC); removeEventListener('pointer
 
 /* ---------- partida ---------- */
 buildDeck('a'); buildDeck('b'); buildMixer();
-addEventListener('resize', fit); fit();
+function setSplit(on) {
+  if (on === splitOn) return; splitOn = on; lsSet('nd_split', on ? '1' : '0');
+  if (on) {
+    try { mDelay.disconnect(ctx.destination); } catch (_) {} try { cueVol.disconnect(cueDest); } catch (_) {}
+    mDelay.connect(splitM); cueVol.connect(splitC); splitMg.connect(ctx.destination);
+  } else {
+    try { mDelay.disconnect(splitM); } catch (_) {} try { cueVol.disconnect(splitC); } catch (_) {} try { splitMg.disconnect(); } catch (_) {}
+    mDelay.connect(ctx.destination); cueVol.connect(cueDest);
+  }
+  $('#aSp').checked = on; toast(on ? 'Split ligado: esquerdo = master, direito = fone.' : 'Split desligado.');
+}
+$('#aSp').addEventListener('change', e => setSplit(e.target.checked));
+if (lsGet('nd_split', '0') === '1') { splitOn = false; setSplit(true); }
+addEventListener('resize', fit); addEventListener('orientationchange', () => setTimeout(fit, 250)); fit(); setTimeout(fit, 600);
 renderList(); requestAnimationFrame(frame);
 loadInto(decks.a, local[0]); loadInto(decks.b, local[1]);
 audSearch('');
