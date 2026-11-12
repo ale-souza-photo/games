@@ -490,6 +490,8 @@ body.m-phone .drop svg,body.m-phone .drop p{display:none}
 #keys kbd{display:inline-block;min-width:22px;padding:1px 6px;border-radius:5px;border:1px solid var(--line2);background:var(--panel2);font:700 12px var(--font-d);text-align:center}
 #keys p{margin:10px 0 0;font:500 13px var(--font-b);color:var(--mut)}
 @media (max-width:700px){#keys .kg{grid-template-columns:1fr}}
+.tabs{flex-wrap:wrap;row-gap:6px}
+body.m-phone .tab{padding:0 10px;letter-spacing:.06em}
 @media (prefers-reduced-motion:reduce){#bgc{display:none}}
 </style>
 
@@ -553,6 +555,7 @@ body.m-phone .drop svg,body.m-phone .drop p{display:none}
         <div class="libbar">
           <div class="tabs">
             <button class="tab on" id="tabAud"><span class="dot load" id="audDot"></span>AUDIUS</button>
+            <button class="tab" id="tabJam">JAMENDO</button>
             <button class="tab" id="tabLoc">ARQUIVO LOCAL</button>
             <button class="tab" id="tabFav">★ FAVORITAS</button>
           </div>
@@ -626,6 +629,7 @@ body.m-phone .drop svg,body.m-phone .drop p{display:none}
     <h2 id="sh">AJUSTES</h2>
     <label for="sApp">Nome do app no Audius<input id="sApp" type="text" autocomplete="off"></label>
     <label for="sKey">Chave de API do Audius (opcional)<input id="sKey" type="text" autocomplete="off" placeholder="cole aqui se tiver uma"></label>
+    <label for="sJam">Client ID da Jamendo (grátis em devportal.jamendo.com)<input id="sJam" type="text" autocomplete="off" placeholder="cole aqui"></label>
     <label for="sBg">Animação de fundo<select id="sBg"><option value="auto">Automático</option><option value="3">Alta</option><option value="2">Média</option><option value="1">Baixa</option><option value="0">Desligada</option></select></label>
     <label for="sGl">Vidro<select id="sGl"><option value="0">Leve (recomendado)</option><option value="1">Blur real (mais pesado)</option></select></label>
     <p>Os ajustes ficam só neste navegador. O Audius só responde quando o arquivo é aberto direto no navegador ou hospedado em um site próprio.</p>
@@ -1147,8 +1151,8 @@ chipsEl.addEventListener('click', e => {
   audSearch(searchEl.value.trim());
 });
 function setTab(t) {
-  tab = t; $('#tabAud').classList.toggle('on', t === 'aud'); $('#tabLoc').classList.toggle('on', t === 'loc'); $('#tabFav').classList.toggle('on', t === 'fav');
-  searchEl.placeholder = t === 'aud' ? 'Buscar no Audius' : t === 'fav' ? 'Filtrar favoritas' : 'Filtrar arquivos'; searchEl.value = ''; $('#chips').hidden = t !== 'aud'; renderList();
+  tab = t; $('#tabAud').classList.toggle('on', t === 'aud'); $('#tabJam').classList.toggle('on', t === 'jam'); $('#tabLoc').classList.toggle('on', t === 'loc'); $('#tabFav').classList.toggle('on', t === 'fav');
+  searchEl.placeholder = t === 'aud' ? 'Buscar no Audius' : t === 'jam' ? 'Buscar na Jamendo' : t === 'fav' ? 'Filtrar favoritas' : 'Filtrar arquivos'; searchEl.value = ''; $('#chips').hidden = t !== 'aud'; renderList();
 }
 let rowItems = [];
 let favs = []; try { favs = JSON.parse(lsGet('nd_favs', '[]')) || []; } catch (_) { favs = []; }
@@ -1156,6 +1160,41 @@ const isFav = it => !!it.aid && favs.some(f => f.aid === it.aid);
 function mkAudItem(m) {
   return { id: 'au' + m.aid, aid: m.aid, name: m.name, artist: m.artist, genre: m.genre || '', key: m.key || '', bpm: m.bpm || null, dur: m.dur || null,
     loader: async () => { const rr = await audFetch('/tracks/' + m.aid + '/stream'); return { buf: await decode(await rr.arrayBuffer()), key: m.key || '' }; } };
+}
+/* ---------- Jamendo: musicas Creative Commons (precisa de Client ID gratis, em Ajustes) ---------- */
+const JAM = 'https://api.jamendo.com/v3.0';
+const jam = { status: 'idle', items: [], msg: '' };
+function mkJamItem(t) {
+  const genres = (t.musicinfo && t.musicinfo.tags && t.musicinfo.tags.genres) || [];
+  return { id: 'jam' + t.id, name: t.name || 'Sem título', artist: t.artist_name || '—', genre: genres[0] || '', key: '', bpm: null, dur: +t.duration || null,
+    loader: async () => {
+      let rr;
+      try { rr = await fetch(t.audio); }
+      catch (_) { throw new Error('O navegador bloqueou o áudio da Jamendo (CORS). Use o Audius ou arquivos locais.'); }
+      if (!rr.ok) throw new Error('A Jamendo respondeu ' + rr.status + ' para o áudio.');
+      return { buf: await decode(await rr.arrayBuffer()), key: '' };
+    } };
+}
+async function jamSearch(query) {
+  const cid = lsGet('nd_jam', '').trim();
+  jam.items = []; jam.msg = ''; jam.status = 'load'; renderList();
+  if (!cid) { jam.status = 'err'; jam.msg = 'Falta o Client ID da Jamendo. Crie um grátis em devportal.jamendo.com e cole em Ajustes (engrenagem).'; renderList(); return; }
+  const q = new URLSearchParams({ client_id: cid, format: 'json', limit: '50', include: 'musicinfo', order: 'popularity_week_desc' });
+  if (query) q.set('search', query); else q.set('tags', 'electronic');
+  const ac = new AbortController(), to = setTimeout(() => ac.abort(), 15000);
+  try {
+    const r = await fetch(JAM + '/tracks/?' + q.toString(), { signal: ac.signal });
+    if (!r.ok) throw new Error('Jamendo respondeu ' + r.status);
+    const j = await r.json();
+    jam.items = (j.results || []).filter(t => t.audio).map(mkJamItem);
+    jam.status = 'ok'; if (!jam.items.length) jam.msg = 'Nada encontrado nesta busca.';
+  } catch (err) {
+    jam.status = 'err'; jam.items = [];
+    jam.msg = err.name === 'AbortError' ? 'A Jamendo demorou demais. Tente de novo.'
+      : err.name === 'TypeError' ? 'Não consegui conectar à Jamendo (rede bloqueada ou sem internet).'
+      : 'A Jamendo recusou o pedido: ' + esc(err.message);
+  } finally { clearTimeout(to); }
+  renderList();
 }
 function toggleFav(it) {
   if (!it || !it.aid) return;
@@ -1168,6 +1207,7 @@ function renderList() {
   $('#audDot').className = 'dot ' + (aud.status === 'ok' ? 'ok' : aud.status === 'err' ? 'err' : 'load');
   let items, msg = '';
   if (tab === 'aud') { items = aud.items; msg = aud.status === 'load' ? 'Buscando no Audius…' : aud.msg; }
+  else if (tab === 'jam') { items = jam.items; msg = jam.status === 'load' ? 'Buscando na Jamendo…' : jam.msg; }
   else if (tab === 'fav') { const q = searchEl.value.trim().toLowerCase(); items = favs.map(mkAudItem).filter(i => !q || (i.name + ' ' + i.artist).toLowerCase().includes(q)); if (!items.length) msg = 'Nenhuma favorita ainda. Toque na estrela de uma faixa do Audius.'; }
   else { const q = searchEl.value.trim().toLowerCase(); items = local.filter(i => !q || (i.name + ' ' + i.artist).toLowerCase().includes(q)); if (!items.length) msg = 'Nenhum arquivo ainda. Arraste músicas para a caixa ao lado.'; }
   if (sortBpm) items = [...items].sort((a, b) => (a.bpm || 1e9) - (b.bpm || 1e9) || String(a.key).localeCompare(String(b.key)));
@@ -1186,10 +1226,11 @@ listEl.addEventListener('click', e => {
 $('#sortBpm').addEventListener('click', () => { sortBpm = !sortBpm; lsSet('nd_sortbpm', sortBpm ? '1' : '0'); $('#sortBpm').setAttribute('aria-pressed', sortBpm); renderList(); });
 $('#sortBpm').setAttribute('aria-pressed', sortBpm);
 $('#tabAud').addEventListener('click', () => { setTab('aud'); if (aud.status === 'err' || (aud.status === 'ok' && !aud.items.length)) audSearch(''); });
+$('#tabJam').addEventListener('click', () => { setTab('jam'); if (jam.status === 'idle' || jam.status === 'err') jamSearch(''); });
 $('#tabLoc').addEventListener('click', () => setTab('loc'));
 $('#tabFav').addEventListener('click', () => setTab('fav'));
 let sT = 0;
-searchEl.addEventListener('input', () => { clearTimeout(sT); sT = setTimeout(() => { if (tab === 'aud') audSearch(searchEl.value.trim()); else renderList(); }, 420); });
+searchEl.addEventListener('input', () => { clearTimeout(sT); sT = setTimeout(() => { if (tab === 'aud') audSearch(searchEl.value.trim()); else if (tab === 'jam') jamSearch(searchEl.value.trim()); else renderList(); }, 420); });
 const fileIn = $('#fileIn');
 $('#pick').addEventListener('click', () => fileIn.click());
 fileIn.addEventListener('change', () => { addLocal([...fileIn.files]); fileIn.value = ''; });
@@ -1650,10 +1691,10 @@ recBtn.addEventListener('click', () => {
   } catch (err) { rec = null; toast('Não consegui iniciar a gravação.'); }
 });
 const setEl = $('#settings');
-$('#gear').addEventListener('click', () => { $('#sApp').value = settings().app; $('#sKey').value = settings().key; setEl.hidden = false; $('#sApp').focus(); });
+$('#gear').addEventListener('click', () => { $('#sApp').value = settings().app; $('#sKey').value = settings().key; $('#sJam').value = lsGet('nd_jam', ''); setEl.hidden = false; $('#sApp').focus(); });
 $('#sCancel').addEventListener('click', () => { setEl.hidden = true; });
 $('#sform').addEventListener('submit', e => {
-  e.preventDefault(); lsSet('nd_app', $('#sApp').value.trim() || 'NEONDECK'); lsSet('nd_key', $('#sKey').value.trim()); setEl.hidden = true; audNotified = true; setTab('aud'); audSearch('');
+  e.preventDefault(); lsSet('nd_app', $('#sApp').value.trim() || 'NEONDECK'); lsSet('nd_key', $('#sKey').value.trim()); lsSet('nd_jam', $('#sJam').value.trim()); setEl.hidden = true; audNotified = true; setTab('aud'); audSearch('');
 });
 $('#sTestBtn').addEventListener('click', async () => {
   const out = $('#sTest'); lsSet('nd_app', $('#sApp').value.trim() || 'NEONDECK'); lsSet('nd_key', $('#sKey').value.trim());
