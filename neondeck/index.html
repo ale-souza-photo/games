@@ -1984,9 +1984,14 @@ $('#aPM').addEventListener('click', () => pickOutput('m'));
 $('#aPC').addEventListener('click', () => pickOutput('c'));
 if (!(navigator.mediaDevices && navigator.mediaDevices.selectAudioOutput)) { $('#aPM').hidden = true; $('#aPC').hidden = true; }
 const audEl = $('#aud'); let audAsked = false;
+// pede o microfone sempre que a permissao ainda nao foi decidida (antes so pedia com a lista vazia)
+async function askMicIfUndecided() {
+  let ps = 'prompt'; try { ps = (await navigator.permissions.query({ name: 'microphone' })).state; } catch (_) {}
+  refreshDevices(ps === 'prompt');
+}
 function setAud(open) {
   audEl.hidden = !open; $('#audBtn').setAttribute('aria-pressed', open); $('#audBtn').classList.toggle('on', open);
-  if (open) { refreshDevices(!audAsked && !known.length); audAsked = true; }
+  if (open) askMicIfUndecided();
 }
 $('#audBtn').addEventListener('click', () => setAud(audEl.hidden));
 $('#aClose').addEventListener('click', () => setAud(false));
