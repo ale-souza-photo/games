@@ -409,6 +409,11 @@ body.noglass .panel,body.noglass .deck,body.noglass .mixer{-webkit-backdrop-filt
 .ambeats i{flex:1;height:5px;border-radius:2px;background:#2A1C06;transition:background .15s,box-shadow .15s}
 .ambeats i.on{background:#FFC53D;box-shadow:0 0 8px #FFC53D,0 0 14px rgba(255,176,32,.7);transition:none}
 .ambeats i:first-child.on{background:#fff4d0;box-shadow:0 0 9px #FFC53D,0 0 18px #FFB020}
+body.lite *{text-shadow:none!important}
+body.lite .logo .n,body.lite .logo .d{filter:none}
+body.lite .panel::after,body.lite .deck::after,body.lite .mixer::after{display:none}
+body.lite .panel,body.lite .mixer{box-shadow:none}
+body.lite #stage .aura{display:none}
 @media (prefers-reduced-motion:reduce){#bgc{display:none}}
 </style>
 
@@ -498,6 +503,7 @@ body.noglass .panel,body.noglass .deck,body.noglass .mixer{-webkit-backdrop-filt
   <label for="aD">Atraso do master: <span id="aDv">0 ms</span><input type="range" id="aD" min="0" max="250" step="5" value="0"></label>
   <p>Se o fone chegar atrasado em relação ao som da mesa, aumente o atraso do master até os dois baterem juntos.</p>
   <p id="aState" role="status"></p>
+  <p id="aLat" role="status" style="font:600 13px var(--font-b);color:var(--mut);margin:4px 0"></p>
   <p id="aMsg" role="status" style="color:var(--warn)"></p>
   <p id="aDiag" role="status" style="font-size:12px"></p>
   <div class="sact"><button type="button" class="btn" id="aRef">ATUALIZAR LISTA</button></div>
@@ -573,7 +579,7 @@ function toast(html, ms = 4500) {
 
 /* ---------- audio: grafo principal ---------- */
 const AC = window.AudioContext || window.webkitAudioContext;
-const ctx = new AC({ latencyHint: 'balanced' });
+const ctx = new AC({ latencyHint: 'interactive' });
 const bus = ctx.createGain();
 const masterGain = ctx.createGain(); masterGain.gain.value = 0.8;
 const limiter = ctx.createDynamicsCompressor();
@@ -1299,6 +1305,7 @@ function updateDeck(d) {
   drawWave(d);
 }
 function frame() {
+  fpsN++;
   const A = decks.a, B = decks.b;
   updateDeck(A); updateDeck(B);
   setMeter(meters.mlL, Math.round(clamp(rms(mAnL) * 3.0, 0, 1) * 28)); setMeter(meters.mlR, Math.round(clamp(rms(mAnR) * 3.0, 0, 1) * 28));
@@ -1331,7 +1338,7 @@ const bg = (() => {
     c.spd = 70 + Math.random() * 90; c.len = 120 + Math.random() * 200; c.pts = [{ x: c.x, y: c.y }]; return c;
   }
   const DX = [1, 0, -1, 0], DY = [0, 1, 0, -1];
-  function setLevel(n) { lvl = n; document.body.classList.toggle('noglass', n <= 1); comets.length = 0; if (!n) { g.clearRect(0, 0, cv.width, cv.height); return; } size(); const p = PRESET[n]; for (let i = 0; i < p.n; i++) comets.push(spawn({}, i)); }
+  function setLevel(n) { lvl = n; document.body.classList.toggle('noglass', n <= 1); document.body.classList.toggle('lite', n <= 1); comets.length = 0; if (!n) { g.clearRect(0, 0, cv.width, cv.height); return; } size(); const p = PRESET[n]; for (let i = 0; i < p.n; i++) comets.push(spawn({}, i)); }
   function trail(c, max) { g.beginPath(); g.moveTo(c.x, c.y); let px = c.x, py = c.y, used = 0;
     for (let i = c.pts.length - 1; i >= 0; i--) { const q = c.pts[i], seg = Math.abs(q.x - px) + Math.abs(q.y - py); if (used + seg >= max) { const t = (max - used) / (seg || 1); g.lineTo(px + (q.x - px) * t, py + (q.y - py) * t); break; } g.lineTo(q.x, q.y); used += seg; px = q.x; py = q.y; } g.stroke(); }
   function tick(now, kA, kB) {
@@ -1592,11 +1599,12 @@ $('#lClose').addEventListener('click', () => setLive(false));
 $('#lKey').value = lsGet('nd_ytkey', ''); $('#lVid').value = lsGet('nd_ytvid', '');
 
 /* ---------- saidas de audio: master e fone ---------- */
-const cueEl = new Audio(); cueEl.srcObject = cueDest.stream; cueEl.autoplay = true;
+const cueEl = new Audio(); cueEl.srcObject = cueDest.stream; cueEl.autoplay = false; cueEl.preload = 'none';
 const canSink = typeof ctx.setSinkId === 'function', canSinkEl = typeof cueEl.setSinkId === 'function';
 let cueOn = false, sinkM = lsGet('nd_sinkM', ''), sinkC = lsGet('nd_sinkC', ''), cueCtx = null, devLabels = {};
 const aMsg = t => { $('#aMsg').textContent = t; };
 const errTxt = e => (e && e.name ? e.name + ': ' : '') + (e && e.message || e);
+let fpsN = 0, fpsV = 0; setInterval(() => { fpsV = fpsN; fpsN = 0; if (!$('#aud').hidden) { const lm = Math.round(((ctx.baseLatency || 0) + (ctx.outputLatency || 0)) * 1000), lc = cueCtx ? Math.round(((cueCtx.baseLatency || 0) + (cueCtx.outputLatency || 0)) * 1000) : null; $('#aLat').textContent = 'Latência master: ' + lm + ' ms' + (lc !== null ? ' · fone: ' + lc + ' ms' : '') + ' · tela: ' + fpsV + ' fps'; } }, 1000);
 function showState() {
   const m = devLabels[sinkM] || (sinkM ? 'saída escolhida' : 'padrão do sistema'), c = cueOn ? (devLabels[sinkC] || 'saída escolhida') : 'desativado';
   const same = cueOn && ((sinkC === sinkM) || (sinkC === 'default' && !sinkM) || (!sinkC && !sinkM));
@@ -1611,21 +1619,22 @@ async function applyMaster(id) {
 async function applyCue(id) {
   if (cueCtx) { try { cueCtx.close(); } catch (_) {} cueCtx = null; }
   if (!id) { cueOn = false; cueEl.pause(); sinkC = ''; lsSet('nd_sinkC', ''); aMsg(''); showState(); return true; }
-  let err1 = null;
+  let err1 = null; cueEl.pause();
+  if ('sinkId' in AudioContext.prototype) {
+    try { // preferido: contexto proprio na saida do fone (menos atraso que o elemento <audio>)
+      cueCtx = new AudioContext({ latencyHint: 'interactive', sinkId: id });
+      cueCtx.createMediaStreamSource(cueDest.stream).connect(cueCtx.destination); await cueCtx.resume();
+      cueOn = true; sinkC = id; lsSet('nd_sinkC', id); aMsg(''); showState(); return true;
+    } catch (e) { err1 = e; if (cueCtx) { try { cueCtx.close(); } catch (_) {} cueCtx = null; } }
+  }
   if (canSinkEl) {
     try { await cueEl.setSinkId(id); await cueEl.play(); cueOn = true; sinkC = id; lsSet('nd_sinkC', id); aMsg(''); showState(); return true; }
-    catch (e) { err1 = e; cueEl.pause(); }
+    catch (e2) {
+      cueEl.pause(); cueOn = false; $('#aC').value = ''; showState();
+      aMsg('Não consegui usar essa saída do fone. ' + errTxt(err1 || e2) + (err1 ? ' / ' + errTxt(e2) : '')); return false;
+    }
   }
-  try { // plano B: segundo contexto de audio ligado direto na saida escolhida
-    cueCtx = new AudioContext({ latencyHint: 'balanced', sinkId: id });
-    cueCtx.createMediaStreamSource(cueDest.stream).connect(cueCtx.destination); await cueCtx.resume();
-    cueOn = true; sinkC = id; lsSet('nd_sinkC', id); aMsg(''); showState(); return true;
-  } catch (e2) {
-    if (cueCtx) { try { cueCtx.close(); } catch (_) {} cueCtx = null; }
-    cueOn = false; $('#aC').value = ''; showState();
-    aMsg('Não consegui usar essa saída do fone. ' + errTxt(err1 || e2) + (err1 ? ' / ' + errTxt(e2) : ''));
-    return false;
-  }
+  cueOn = false; $('#aC').value = ''; showState(); aMsg('Não consegui usar essa saída do fone. ' + errTxt(err1)); return false;
 }
 let lastPermErr = null;
 let known = []; try { known = JSON.parse(lsGet('nd_devs', '[]')) || []; } catch (_) { known = []; }
