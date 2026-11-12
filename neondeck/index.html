@@ -477,6 +477,19 @@ body.m-phone .drop svg,body.m-phone .drop p{display:none}
 #aud .split{display:flex;gap:10px;align-items:flex-start;padding:10px;border-radius:10px;border:1px solid var(--line2);background:rgba(255,197,61,.06);color:var(--txt)}
 #aud .split input{width:20px;height:20px;margin-top:2px;accent-color:var(--amber)}
 #aud .split b{display:block;font:700 14px var(--font-d);letter-spacing:.06em;color:var(--amber)}
+
+/* ===== AUTO DJ + ATALHOS ===== */
+.btn.auto{border-color:#FFC53D;color:#FFC53D;background:rgba(255,197,61,.08)}
+.btn.auto[aria-pressed="true"]{background:rgba(255,197,61,.22);box-shadow:0 0 12px rgba(255,197,61,.5);color:#fff}
+.chip.sortb[aria-pressed="true"]{background:rgba(0,247,255,.18);border-color:var(--a)}
+#keys{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:30;width:min(640px,calc(100vw - 32px));max-height:calc(100dvh - 40px);overflow:auto;padding:16px;border-radius:14px;background:var(--panel);border:1px solid var(--line2);box-shadow:0 10px 40px rgba(0,0,0,.6)}
+#keys .ah{display:flex;align-items:center;justify-content:space-between;font:900 13px var(--font-d);letter-spacing:.16em;margin-bottom:10px}
+#keys .kg{display:grid;grid-template-columns:90px 1fr;gap:8px 12px;padding:8px 0;border-top:1px solid var(--line)}
+#keys .kg b{font:700 13px var(--font-d);letter-spacing:.1em;color:var(--a);grid-row:span 2}
+#keys .kg span{font:500 14px/1.6 var(--font-b);color:var(--txt);grid-column:2}
+#keys kbd{display:inline-block;min-width:22px;padding:1px 6px;border-radius:5px;border:1px solid var(--line2);background:var(--panel2);font:700 12px var(--font-d);text-align:center}
+#keys p{margin:10px 0 0;font:500 13px var(--font-b);color:var(--mut)}
+@media (max-width:700px){#keys .kg{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){#bgc{display:none}}
 </style>
 
@@ -507,6 +520,7 @@ body.m-phone .drop svg,body.m-phone .drop p{display:none}
       </div>
       <div class="tright">
         <button class="btn sq" id="audBtn" aria-label="Áudio e saídas" aria-pressed="false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3" y="14" width="4" height="7" rx="1.5"/><rect x="17" y="14" width="4" height="7" rx="1.5"/></svg></button>
+        <button class="btn auto" id="autoBtn" aria-pressed="false" aria-label="Auto DJ">AUTO DJ</button>
         <button class="btn live" id="liveBtn" aria-label="Painel da live" aria-pressed="false"><span class="ldot" id="liveDot"></span>LIVE<span class="lbadge" id="liveN" hidden></span></button>
         <button class="btn rec" id="rec" aria-label="Gravar set" aria-pressed="false"><span class="dot"></span><span id="rect">REC</span></button>
         <button class="btn sq" id="fs" aria-label="Tela cheia"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
@@ -543,6 +557,7 @@ body.m-phone .drop svg,body.m-phone .drop p{display:none}
             <button class="tab" id="tabFav">★ FAVORITAS</button>
           </div>
           <div class="chips" id="chips" role="group" aria-label="Estilo musical"></div>
+          <button class="chip sortb" id="sortBpm" aria-pressed="false" title="Ordenar a lista por BPM">BPM ↑</button>
           <input class="search" id="search" type="search" aria-label="Buscar músicas" placeholder="Buscar no Audius" autocomplete="off">
         </div>
         <div class="thead"><span></span><span>TÍTULO</span><span>ARTISTA</span><span>ESTILO</span><span>BPM</span><span>TEMPO</span><span style="text-align:right">CARREGAR</span></div>
@@ -597,6 +612,14 @@ body.m-phone .drop svg,body.m-phone .drop p{display:none}
   </div>
 </aside>
 <input type="file" id="fileIn" multiple accept="audio/*,.mp3,.wav,.flac,.ogg,.m4a,.aac,.opus" hidden>
+<div id="keys" hidden role="dialog" aria-label="Atalhos de teclado">
+  <div class="ah"><span>ATALHOS DE TECLADO</span><button class="btn sq" id="keysClose" aria-label="Fechar">✕</button></div>
+  <div class="kg"><b>DECK A</b><span><kbd>Q</kbd> play · <kbd>W</kbd> cue (segure = pré-escuta) · <kbd>E</kbd> sync · <kbd>R</kbd> loop · <kbd>T</kbd> brake</span><span><kbd>S</kbd>/<kbd>D</kbd> pitch −/+ · <kbd>F</kbd> PFL · <kbd>1</kbd>–<kbd>4</kbd> hot cues</span></div>
+  <div class="kg"><b>DECK B</b><span><kbd>U</kbd> play · <kbd>I</kbd> cue (segure = pré-escuta) · <kbd>J</kbd> sync · <kbd>K</kbd> loop · <kbd>H</kbd> brake</span><span><kbd>N</kbd>/<kbd>M</kbd> pitch −/+ · <kbd>G</kbd> PFL · <kbd>7</kbd>–<kbd>0</kbd> hot cues</span></div>
+  <div class="kg"><b>MIXER</b><span><kbd>←</kbd>/<kbd>→</kbd> crossfader (<kbd>Shift</kbd> = extremo) · <kbd>C</kbd> centro · <kbd>↑</kbd>/<kbd>↓</kbd> volume master</span></div>
+  <div class="kg"><b>AUTO DJ</b><span><kbd>Espaço</kbd> liga/desliga · ordena por BPM e mistura sozinho</span></div>
+  <p>Pressione <kbd>?</kbd> para abrir ou fechar esta lista. <kbd>Esc</kbd> fecha.</p>
+</div>
 <div id="toast" role="status" aria-live="polite"></div>
 <div id="settings" hidden>
   <form class="sbox" id="sform" role="dialog" aria-modal="true" aria-labelledby="sh">
@@ -760,7 +783,7 @@ function applyMix(d) {
 }
 const decks = { a: makeDeck('a'), b: makeDeck('b') };
 cueMix();
-let xfader = 0.5;
+let xfader = 0.5; let xsetG = v => { xfader = clamp(v, 0, 1); applyXf(); }; let mvolK = null;
 function applyXf() {
   decks.a.xf.gain.value = Math.cos(xfader * Math.PI / 2);
   decks.b.xf.gain.value = Math.cos((1 - xfader) * Math.PI / 2);
@@ -989,7 +1012,7 @@ function applyBuffer(d, buf, meta, bpm, first) {
   d.pos = 0; d.cue = 0; d.cues = [null, null, null, null]; d.loop.on = false; d.pitch = 0; d.rate = 1; d.synced = false; d.busy = false;
 }
 const MAX_SEC = 480, MAX_FILE = 45e6;
-async function loadInto(d, item) {
+async function loadInto(d, item) { d.kid = item.aid || item.id || item.name;
   if (item.dur && item.dur > MAX_SEC) { toast('Faixa longa demais (' + Math.round(item.dur / 60) + ' min). Limite de 8 min para não estourar a memória do aparelho.'); return; }
   const gen = ++d.gen; halt(d); d.buf = null; d.peaks = null; d.busy = true; d.title = item.name; d.sub = 'Carregando…';
   try {
@@ -1140,12 +1163,14 @@ function toggleFav(it) {
   if (i >= 0) favs.splice(i, 1); else favs.push({ aid: it.aid, name: it.name, artist: it.artist, genre: it.genre || '', key: it.key || '', bpm: it.bpm || null, dur: it.dur || null });
   lsSet('nd_favs', JSON.stringify(favs));
 }
+let sortBpm = lsGet('nd_sortbpm', '0') === '1';
 function renderList() {
   $('#audDot').className = 'dot ' + (aud.status === 'ok' ? 'ok' : aud.status === 'err' ? 'err' : 'load');
   let items, msg = '';
   if (tab === 'aud') { items = aud.items; msg = aud.status === 'load' ? 'Buscando no Audius…' : aud.msg; }
   else if (tab === 'fav') { const q = searchEl.value.trim().toLowerCase(); items = favs.map(mkAudItem).filter(i => !q || (i.name + ' ' + i.artist).toLowerCase().includes(q)); if (!items.length) msg = 'Nenhuma favorita ainda. Toque na estrela de uma faixa do Audius.'; }
   else { const q = searchEl.value.trim().toLowerCase(); items = local.filter(i => !q || (i.name + ' ' + i.artist).toLowerCase().includes(q)); if (!items.length) msg = 'Nenhum arquivo ainda. Arraste músicas para a caixa ao lado.'; }
+  if (sortBpm) items = [...items].sort((a, b) => (a.bpm || 1e9) - (b.bpm || 1e9) || String(a.key).localeCompare(String(b.key)));
   rowItems = items;
   const rows = items.map((it, i) => '<div class="row"><span>' + (it.aid ? '<button class="fv' + (isFav(it) ? ' on' : '') + '" data-f="' + i + '" aria-label="Favoritar ' + esc(it.name) + '" aria-pressed="' + isFav(it) + '">' + (isFav(it) ? '★' : '☆') + '</button>' : '') + '</span><span class="t" title="' + esc(it.name) + '">' + esc(it.name) + '</span><span class="s">' + esc(it.artist) + '</span><span class="kk">' + esc(it.genre || '—') + '</span><span class="n">' +
     (it.bpm ? Math.round(it.bpm) : '—') + '</span><span class="s">' + (it.dur ? fmtD(it.dur) : '—') +
@@ -1158,6 +1183,8 @@ listEl.addEventListener('click', e => {
   const b = e.target.closest('button[data-i]'); if (!b) return;
   loadInto(decks[b.dataset.d], rowItems[+b.dataset.i]);
 });
+$('#sortBpm').addEventListener('click', () => { sortBpm = !sortBpm; lsSet('nd_sortbpm', sortBpm ? '1' : '0'); $('#sortBpm').setAttribute('aria-pressed', sortBpm); renderList(); });
+$('#sortBpm').setAttribute('aria-pressed', sortBpm);
 $('#tabAud').addEventListener('click', () => { setTab('aud'); if (aud.status === 'err' || (aud.status === 'ok' && !aud.items.length)) audSearch(''); });
 $('#tabLoc').addEventListener('click', () => setTab('loc'));
 $('#tabFav').addEventListener('click', () => setTab('fav'));
@@ -1283,10 +1310,10 @@ function buildMixer() {
   });
   const xt = $('#xtrack'), xh = $('#xhandle');
   const xdraw = () => { xh.style.left = 'calc(' + (xfader * 100).toFixed(2) + '% - ' + (xfader * 40 - 20).toFixed(2) + 'px)'; xt.setAttribute('aria-valuenow', xfader.toFixed(2)); };
-  const xset = v => { xfader = clamp(v, 0, 1); applyXf(); xdraw(); };
+  const xset = v => { xfader = clamp(v, 0, 1); applyXf(); xdraw(); }; xsetG = xset;
   dragCtl(xt, () => xfader, e => { const r = xt.getBoundingClientRect(), hw = 40 * scale; xset(clamp((e.clientX - r.left - hw / 2) / (r.width - hw), 0, 1)); }, () => xset(0.5));
   keyCtl(xt, 0.04, s => xset(xfader + s)); xdraw();
-  makeKnob($('#mvol'), 0.8, v => { masterGain.gain.value = v; });
+  mvolK = makeKnob($('#mvol'), 0.8, v => { masterGain.gain.value = v; });
   [['#mL', 'mlL'], ['#mR', 'mlR']].forEach(([sel, key]) => {
     const segs = []; for (let i = 0; i < 28; i++) { const s = document.createElement('div'); s.className = 'seg' + (i >= 23 ? ' h' : i >= 18 ? ' w' : ''); $(sel).appendChild(s); segs.push(s); }
     meters[key] = { segs, n: -1 };
@@ -1404,7 +1431,7 @@ function frame() {
   const mb = masterBpm();
   if (Math.abs(mb - lastFxBpm) > 0.05) { lastFxBpm = mb; updateFx(); }
   const txt = mb ? mb.toFixed(1) : '---.-'; if ($('#mbpm').textContent !== txt) $('#mbpm').textContent = txt;
-  const ms = 'MASTER · ' + (A.playing ? 'DECK A' : B.playing ? 'DECK B' : '---'); if ($('#mstat').textContent !== ms) $('#mstat').textContent = ms;
+  const ms = (auto.on ? 'AUTO DJ · ' : 'MASTER · ') + (A.playing ? 'DECK A' : B.playing ? 'DECK B' : '---'); if ($('#mstat').textContent !== ms) $('#mstat').textContent = ms;
   bg.tick(performance.now(), A.kick, B.kick);
   requestAnimationFrame(frame);
 }
@@ -1464,6 +1491,116 @@ $('#sGl').value = lsGet('nd_gl', '0'); document.body.classList.toggle('blur', $(
 $('#sGl').addEventListener('change', e => { lsSet('nd_gl', e.target.value); document.body.classList.toggle('blur', e.target.value === '1'); });
 $('#sBg').value = lsGet('nd_bg', '0');
 $('#sBg').addEventListener('change', e => bg.set(e.target.value));
+
+
+/* ---------- AUTO DJ: ordena por BPM e mistura sozinho (16 tempos, sync + crossfade) ---------- */
+const TRANS_BEATS = 16;
+const auto = { on: false, busy: false, played: new Set(), pool: [] };
+const kid = it => it.aid || it.id || it.name;
+function camelot(k) { const m = /^(\d{1,2})([AB])$/i.exec(String(k || '')); return m ? { n: +m[1], l: m[2].toUpperCase() } : null; }
+function keyScore(a, b) { // 0 = combina (mesmo tom ou vizinho no Camelot), 1 = choque
+  const x = camelot(a), y = camelot(b); if (!x || !y) return 0.5;
+  const dn = Math.min(Math.abs(x.n - y.n), 12 - Math.abs(x.n - y.n));
+  if (dn === 0 && x.l === y.l) return 0; if (dn === 1 && x.l === y.l) return 0; if (dn === 0) return 0.3; return 1;
+}
+function pickNext(cur) {
+  const eff = cur.bpm * cur.rate, tocando = [decks.a, decks.b].filter(d => d.playing).map(d => d.kid); let best = null, bs = Infinity;
+  for (const lim of [8, 15]) { // primeiro ate 8% de diferenca de BPM, depois ate 15%
+    for (const it of auto.pool) {
+      if (auto.played.has(kid(it)) || kid(it) === cur.kid || tocando.includes(kid(it)) || !it.bpm) continue;
+      const pd = Math.abs(it.bpm / eff - 1) * 100; if (pd > lim) continue;
+      const sc = pd + 2 * keyScore(cur.key, it.key); if (sc < bs) { bs = sc; best = it; }
+    }
+    if (best) return best;
+  }
+  return null;
+}
+function stopAuto(msg) { auto.on = false; auto.busy = false; $('#autoBtn').setAttribute('aria-pressed', 'false'); if (msg) toast(msg); }
+function startAuto() {
+  const pool = (rowItems || []).filter(i => i.bpm && (!i.dur || i.dur <= MAX_SEC)).sort((a, b) => a.bpm - b.bpm);
+  if (pool.length < 2) { toast('Auto DJ precisa de pelo menos 2 faixas com BPM na lista (demos, arquivos já analisados ou Audius).'); return; }
+  auto.pool = pool; auto.played = new Set(); auto.on = true; auto.busy = false;
+  $('#autoBtn').setAttribute('aria-pressed', 'true'); toast('Auto DJ ligado: ' + pool.length + ' faixas ordenadas por BPM.');
+}
+async function loadAuto(d, it) { // carrega e confere se a faixa certa entrou no deck
+  try { await loadInto(d, it); } catch (_) { return false; }
+  return d.kid === kid(it) && !!d.buf;
+}
+async function autoTick() {
+  if (!auto.on || auto.busy) return;
+  const A = decks.a, B = decks.b;
+  const P = (A.playing && !A.braking) ? A : (B.playing && !B.braking) ? B : null;
+  if (!P) { // nada tocando: toca a faixa que ja esta carregada, ou a primeira da fila
+    const R = (A.buf && A.bpm) ? A : (B.buf && B.bpm) ? B : null;
+    if (R) { auto.played.add(R.kid); xsetG(R === decks.b ? 1 : 0); togglePlay(R); return; }
+    const nxt = auto.pool.find(i => !auto.played.has(kid(i)));
+    if (!nxt) return stopAuto('Auto DJ: fila acabou.');
+    auto.busy = true; auto.played.add(kid(nxt));
+    if (await loadAuto(A, nxt)) { if (auto.on) { xsetG(0); togglePlay(A); } }
+    else if (auto.on) toast('Auto DJ: não consegui carregar ' + nxt.name + '.');
+    auto.busy = false; return;
+  }
+  const trSec = TRANS_BEATS * 60 / (P.bpm * P.rate);
+  if (P.buf.duration - getPos(P) > trSec + 1.5) return; // ainda nao esta na hora da transicao
+  const I = other(P), nxt = pickNext(P);
+  if (!nxt) return stopAuto('Auto DJ: sem faixa perto do BPM atual. Deixei a faixa atual tocar.');
+  auto.busy = true; auto.played.add(kid(nxt));
+  if (!(await loadAuto(I, nxt))) { auto.busy = false; if (auto.on) toast('Auto DJ: não consegui carregar ' + nxt.name + '.'); return; }
+  if (!auto.on) { auto.busy = false; return; }
+  startSrc(I, I.first || 0); sync(I); // entra no primeiro tempo e acerta o BPM com a faixa que sai
+  toast('Auto DJ → ' + nxt.name + ' · ' + Math.round(nxt.bpm) + ' BPM', 3000);
+  const x0 = xfader, x1 = I === decks.b ? 1 : 0, t0 = performance.now(), dur = trSec * 1000;
+  const step = () => {
+    const k = Math.min(1, (performance.now() - t0) / dur);
+    xsetG(x0 + (x1 - x0) * k);
+    if (k < 1) setTimeout(step, 50);
+    else { halt(P); auto.busy = false; }
+  };
+  step();
+}
+setInterval(() => { autoTick(); }, 250);
+$('#autoBtn').addEventListener('click', () => (auto.on ? stopAuto('Auto DJ desligado.') : startAuto()));
+
+/* ---------- atalhos de teclado (PC e tablet com teclado Bluetooth) ---------- */
+const keysEl = $('#keys');
+function toggleKeys(force) { keysEl.hidden = force === undefined ? !keysEl.hidden : !force; }
+$('#keysClose').addEventListener('click', () => toggleKeys(false));
+const KMAP = {
+  a: { play: 'q', cue: 'w', sync: 'e', loop: 'r', brake: 't', pm: 's', pp: 'd', pfl: 'f', pads: ['1', '2', '3', '4'] },
+  b: { play: 'u', cue: 'i', sync: 'j', loop: 'k', brake: 'h', pm: 'n', pp: 'm', pfl: 'g', pads: ['7', '8', '9', '0'] }
+};
+addEventListener('keydown', e => {
+  const t = e.target, tag = t && t.tagName;
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  if (tag === 'SELECT' || tag === 'TEXTAREA' || (tag === 'INPUT' && t.type !== 'range' && t.type !== 'checkbox')) return;
+  const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+  if (k === '?') { toggleKeys(); e.preventDefault(); return; }
+  if (k === 'Escape') { if (!keysEl.hidden) toggleKeys(false); return; }
+  if (k === ' ') { e.preventDefault(); if (!e.repeat) $('#autoBtn').click(); return; }
+  if (k === 'c') { if (!e.repeat) xsetG(0.5); return; }
+  if (t && t.matches && t.matches('[role=slider]')) return; // knobs e faders focados usam as proprias setas
+  if (k === 'ArrowLeft' || k === 'ArrowRight') { e.preventDefault(); if (e.shiftKey) xsetG(k === 'ArrowLeft' ? 0 : 1); else xsetG(xfader + (k === 'ArrowLeft' ? -0.04 : 0.04)); return; }
+  if (k === 'ArrowUp' || k === 'ArrowDown') { e.preventDefault(); if (mvolK) mvolK.set(mvolK.get() + (k === 'ArrowUp' ? 0.05 : -0.05)); return; }
+  for (const id of ['a', 'b']) {
+    const m = KMAP[id], D = decks[id];
+    if (k === m.cue) { e.preventDefault(); if (!e.repeat) cuePress(D); return; } // segure = pre-escuta
+    if (e.repeat) return;
+    if (k === m.play) { e.preventDefault(); togglePlay(D); return; }
+    if (k === m.sync) { e.preventDefault(); sync(D); return; }
+    if (k === m.loop) { e.preventDefault(); toggleLoop(D); return; }
+    if (k === m.brake) { e.preventDefault(); brake(D); return; }
+    if (k === m.pm) { e.preventDefault(); setPitch(D, D.pitch - 0.5, true); return; }
+    if (k === m.pp) { e.preventDefault(); setPitch(D, D.pitch + 0.5, true); return; }
+    if (k === m.pfl) { e.preventDefault(); const b = document.querySelector('#strip' + id.toUpperCase() + ' [data-pfl]'); if (b) b.click(); return; }
+    const pi = m.pads.indexOf(k);
+    if (pi >= 0) { e.preventDefault(); hotcue(D, pi); return; }
+  }
+});
+addEventListener('keyup', e => {
+  const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+  if (k === KMAP.a.cue) cueRelease(decks.a);
+  if (k === KMAP.b.cue) cueRelease(decks.b);
+});
 
 /* ---------- eco, gravacao e ajustes ---------- */
 const fxBtns = [...document.querySelectorAll('.fxb')];
