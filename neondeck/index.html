@@ -414,6 +414,24 @@ body.lite .logo .n,body.lite .logo .d{filter:none}
 body.lite .panel::after,body.lite .deck::after,body.lite .mixer::after{display:none}
 body.lite .panel,body.lite .mixer{box-shadow:none}
 body.lite #stage .aura{display:none}
+
+/* ===== VISUAL LIMPO (foco em desempenho): neon so nos botoes ===== */
+:root{--pbg:rgba(9,10,26,.96)}
+.panel,.deck,.mixer,.strip,.xf,.wf,.amvu{box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+.panel::before,.deck::before,.mixer::before,.panel::after,.deck::after,.mixer::after{display:none!important}
+.panel,.deck,.mixer{background:var(--pbg);border:1px solid #2F3470}
+.deck{border-color:color-mix(in srgb,var(--c) 55%,#2F3470)}
+.strip{background:rgba(5,6,18,.9);border:1px solid #2A2E5C}
+.strip.a{border-color:color-mix(in srgb,var(--a) 40%,#2A2E5C)} .strip.b{border-color:color-mix(in srgb,var(--b) 40%,#2A2E5C)}
+.wf{border-color:#262A55}
+#stage .aura{display:none}
+#vp{background-image:linear-gradient(rgba(130,150,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(130,150,255,.05) 1px,transparent 1px);background-size:56px 56px}
+*{text-shadow:none!important}
+.logo .n,.logo .d{filter:none;-webkit-text-fill-color:initial;background:none}
+.logo .n{color:var(--a)} .logo .d{color:var(--b)}
+.knob,.knob i,.vhandle,.phandle,.xtrack,.badge,.ld .la,.ld .lb,.seg.lit,.chip.on,.tab.on{box-shadow:none!important}
+.knob i{background:var(--c)}
+.seg.lit{box-shadow:none!important}
 @media (prefers-reduced-motion:reduce){#bgc{display:none}}
 </style>
 
@@ -499,7 +517,7 @@ body.lite #stage .aura{display:none}
   <label for="aM">MASTER (vai para a mesa / live)<div class="arow"><select id="aM"></select><button type="button" class="btn pick" id="aPM">ESCOLHER</button><button type="button" class="btn" id="aTM">TESTAR</button></div></label>
   <label for="aC">FONE (pré-escuta, só você ouve)<div class="arow"><select id="aC"></select><button type="button" class="btn pick" id="aPC">ESCOLHER</button><button type="button" class="btn" id="aTC">TESTAR</button></div></label>
   <label for="aV">Volume do fone<input type="range" id="aV" min="0" max="1" step="0.01" value="0.8"></label>
-  <label for="aX">Mix do fone: só PFL ← → só master<input type="range" id="aX" min="0" max="1" step="0.01" value="0.4"></label>
+  <label for="aX">Mix do fone com PFL ligado: só PFL ← → soma master<input type="range" id="aX" min="0" max="1" step="0.01" value="0"></label>
   <label for="aD">Atraso do master: <span id="aDv">0 ms</span><input type="range" id="aD" min="0" max="250" step="5" value="0"></label>
   <p>Se o fone chegar atrasado em relação ao som da mesa, aumente o atraso do master até os dois baterem juntos.</p>
   <p id="aState" role="status"></p>
@@ -635,7 +653,10 @@ masterGain.connect(limiter);
 const mDelay = ctx.createDelay(0.5); limiter.connect(mDelay); mDelay.connect(ctx.destination);
 /* fone (cue): soma dos PFL + mix com o master, enviado a uma segunda saida */
 const cueIn = ctx.createGain(), cueMaster = ctx.createGain(), cueVol = ctx.createGain(), cueDest = ctx.createMediaStreamDestination();
-cueIn.gain.value = 0.6; cueMaster.gain.value = 0.4; cueVol.gain.value = 0.8;
+cueVol.gain.value = 0.8;
+let cueMixV = +lsGet('nd_cmix', '0') || 0;
+// fone: com PFL ligado toca SO os canais em PFL (mix 0); sem nenhum PFL, toca o master
+function cueMix() { const any = decks.a.pfl || decks.b.pfl, m = any ? cueMixV : 1; cueIn.gain.setTargetAtTime(1 - m, ctx.currentTime, 0.015); cueMaster.gain.setTargetAtTime(m, ctx.currentTime, 0.015); }
 cueIn.connect(cueVol); limiter.connect(cueMaster); cueMaster.connect(cueVol); cueVol.connect(cueDest);
 const recDest = ctx.createMediaStreamDestination(); limiter.connect(recDest);
 const mSplit = ctx.createChannelSplitter(2); limiter.connect(mSplit);
@@ -676,6 +697,7 @@ function applyMix(d) {
   d.fxs.gain.value = d.v.fx;
 }
 const decks = { a: makeDeck('a'), b: makeDeck('b') };
+cueMix();
 let xfader = 0.5;
 function applyXf() {
   decks.a.xf.gain.value = Math.cos(xfader * Math.PI / 2);
@@ -1185,7 +1207,7 @@ function buildMixer() {
     const pb = root.querySelector('[data-pfl]');
     pb.addEventListener('click', () => {
       if (!cueOn && !d.pfl) toast('Escolha a saída do FONE no painel de áudio (ícone de fone no topo).');
-      d.pfl = !d.pfl; d.cueG.gain.setTargetAtTime(d.pfl ? 1 : 0, ctx.currentTime, 0.01); pb.classList.toggle('on', d.pfl); pb.setAttribute('aria-pressed', d.pfl);
+      d.pfl = !d.pfl; d.cueG.gain.setTargetAtTime(d.pfl ? 1 : 0, ctx.currentTime, 0.01); cueMix(); pb.classList.toggle('on', d.pfl); pb.setAttribute('aria-pressed', d.pfl);
     });
     const tr = root.querySelector('.vtrack'), h = tr.querySelector('.vhandle');
     const draw = () => { const r = 1 - d.v.fader; h.style.top = 'calc(' + (r * 100).toFixed(2) + '% - ' + (r * 22).toFixed(2) + 'px)'; tr.setAttribute('aria-valuenow', d.v.fader.toFixed(2)); };
@@ -1245,7 +1267,7 @@ function drawWave(d) {
     (x + bw / 2 < W / 2 ? played : ahead).rect(x, H / 2 - h, bw, h * 2);
   }
   g.fillStyle = col; g.globalAlpha = 0.4; g.fill(played); g.globalAlpha = 1;
-  g.shadowColor = col; g.shadowBlur = (6 + 14 * d.kick) * k; g.fill(ahead); g.shadowBlur = 0;
+  g.fill(ahead);
   // marcadores
   const mark = (t, c, label) => {
     const x = Math.round((t - t0) * pps); if (x < -10 || x > W + 10) return;
@@ -1301,7 +1323,6 @@ function updateDeck(d) {
     if (bi !== d._bi) { d._bi = bi; const bs = u.ambeats.children; for (let i = 0; i < 4; i++) bs[i].classList.toggle('on', i === bi); } }
   const c = d.color;
   const lv = Math.round(d.kick * 5);
-  if (lv !== d._lv) { d._lv = lv; d.root.style.boxShadow = '0 0 ' + (30 + 8 * lv) + 'px color-mix(in srgb,' + c + ' ' + (26 + 10 * lv) + '%,transparent), inset 0 0 40px color-mix(in srgb,' + c + ' 6%,transparent)'; }
   drawWave(d);
 }
 function frame() {
@@ -1313,7 +1334,6 @@ function frame() {
   if (Math.abs(mb - lastFxBpm) > 0.05) { lastFxBpm = mb; updateFx(); }
   const txt = mb ? mb.toFixed(1) : '---.-'; if ($('#mbpm').textContent !== txt) $('#mbpm').textContent = txt;
   const ms = 'MASTER · ' + (A.playing ? 'DECK A' : B.playing ? 'DECK B' : '---'); if ($('#mstat').textContent !== ms) $('#mstat').textContent = ms;
-  $('#auraA').style.opacity = (0.4 + 0.6 * A.kick).toFixed(2); $('#auraB').style.opacity = (0.4 + 0.6 * B.kick).toFixed(2);
   bg.tick(performance.now(), A.kick, B.kick);
   requestAnimationFrame(frame);
 }
@@ -1324,7 +1344,7 @@ const bg = (() => {
   const cv = $('#bgc'), g = cv.getContext('2d');
   const G = 56, PRESET = { 3: { n: 16, dpr: 1.25, fps: 30 }, 2: { n: 9, dpr: 1, fps: 30 }, 1: { n: 4, dpr: 1, fps: 20 } };
   const reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;
-  let pref = lsGet('nd_bg', 'auto'), lvl = pref === 'auto' ? 3 : +pref, W = 0, H = 0, comets = [], last = 0, prevT = 0, slow = 0, cols = 0, rows = 0;
+  let pref = lsGet('nd_bg', '0'), lvl = pref === 'auto' ? 3 : +pref, W = 0, H = 0, comets = [], last = 0, prevT = 0, slow = 0, cols = 0, rows = 0;
   const spr = {};
   function sprite(c) { const s = 32, o = document.createElement('canvas'); o.width = o.height = s; const x = o.getContext('2d'), r = x.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2);
     r.addColorStop(0, '#fff'); r.addColorStop(.25, c); r.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = r; x.fillRect(0, 0, s, s); return o; }
@@ -1371,7 +1391,7 @@ const bg = (() => {
 })();
 $('#sGl').value = lsGet('nd_gl', '0'); document.body.classList.toggle('blur', $('#sGl').value === '1');
 $('#sGl').addEventListener('change', e => { lsSet('nd_gl', e.target.value); document.body.classList.toggle('blur', e.target.value === '1'); });
-$('#sBg').value = lsGet('nd_bg', 'auto');
+$('#sBg').value = lsGet('nd_bg', '0');
 $('#sBg').addEventListener('change', e => bg.set(e.target.value));
 
 /* ---------- eco, gravacao e ajustes ---------- */
@@ -1690,7 +1710,7 @@ $('#aC').addEventListener('change', e => applyCue(e.target.value));
 $('#aTM').addEventListener('click', () => beep(masterGain, 0.15));
 $('#aTC').addEventListener('click', () => { if (!cueOn) { aMsg('Escolha primeiro a saída do fone.'); return; } if (cueEl.muted) { aMsg('Fone e master estão na mesma saída: o fone fica mudo para não dar eco. Escolha outra saída no FONE.'); return; } cueEl.play().catch(() => {}); beep(cueVol, 0.25); });
 $('#aV').addEventListener('input', e => { cueVol.gain.value = +e.target.value; });
-$('#aX').addEventListener('input', e => { const m = +e.target.value; cueIn.gain.value = 1 - m; cueMaster.gain.value = m; });
+$('#aX').addEventListener('input', e => { cueMixV = +e.target.value; lsSet('nd_cmix', cueMixV); cueMix(); });
 $('#aD').addEventListener('input', e => { const ms = +e.target.value; mDelay.delayTime.value = ms / 1000; $('#aDv').textContent = ms + ' ms'; lsSet('nd_dly', ms); });
 $('#aRef').addEventListener('click', () => refreshDevices(true));
 $('#aPM').addEventListener('click', () => pickOutput('m'));
@@ -1706,7 +1726,7 @@ $('#aClose').addEventListener('click', () => setAud(false));
 addEventListener('keydown', e => { if (e.key === 'Escape') setAud(false); });
 if (navigator.mediaDevices) navigator.mediaDevices.addEventListener('devicechange', () => { if (!audEl.hidden && document.activeElement !== $('#aM') && document.activeElement !== $('#aC')) refreshDevices(false); });
 { const ms = +lsGet('nd_dly', '0') || 0; $('#aD').value = ms; mDelay.delayTime.value = ms / 1000; $('#aDv').textContent = ms + ' ms'; }
-$('#aV').value = cueVol.gain.value; $('#aX').value = cueMaster.gain.value;
+$('#aV').value = cueVol.gain.value; $('#aX').value = cueMixV;
 refreshDevices(false);
 if (sinkM) applyMaster(sinkM);
 if (sinkC) { const retry = () => { applyCue(sinkC); removeEventListener('pointerdown', retry, true); }; addEventListener('pointerdown', retry, true); }
