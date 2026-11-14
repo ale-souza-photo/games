@@ -1551,10 +1551,12 @@ function keyScore(a, b) { // 0 = combina (mesmo tom ou vizinho no Camelot), 1 = 
 }
 function pickNext(cur) {
   const eff = cur.bpm * cur.rate, tocando = [decks.a, decks.b].filter(d => d.playing).map(d => d.kid); let best = null, bs = Infinity;
-  for (const lim of [8, 15]) { // primeiro ate 8% de diferenca de BPM, depois ate 15%
+  for (const lim of [8, 15, Infinity]) { // ate 8%, depois ate 15%; por fim qualquer BPM, a mais proxima primeiro
     for (const it of auto.pool) {
-      if (auto.played.has(kid(it)) || kid(it) === cur.kid || tocando.includes(kid(it)) || !it.bpm) continue;
-      const pd = Math.abs(it.bpm / eff - 1) * 100; if (pd > lim) continue;
+      if (auto.played.has(kid(it)) || kid(it) === cur.kid || tocando.includes(kid(it))) continue;
+      let pd;
+      if (it.bpm) { pd = Math.abs(it.bpm / eff - 1) * 100; if (pd > lim) continue; }
+      else { if (lim !== Infinity) continue; pd = 200; } // sem BPM conhecido: entra por ultimo; o BPM e detectado na carga
       const sc = pd + 2 * keyScore(cur.key, it.key); if (sc < bs) { bs = sc; best = it; }
     }
     if (best) return best;
@@ -1563,8 +1565,8 @@ function pickNext(cur) {
 }
 function stopAuto(msg) { auto.on = false; auto.busy = false; auto.pre = null; $('#autoBtn').setAttribute('aria-pressed', 'false'); if (msg) toast(msg); }
 function startAuto() {
-  const pool = (rowItems || []).filter(i => i.bpm && (!i.dur || i.dur <= MAX_SEC)).sort((a, b) => a.bpm - b.bpm);
-  if (pool.length < 2) { toast('Auto DJ precisa de pelo menos 2 faixas com BPM na lista (demos, arquivos já analisados ou Audius).'); return; }
+  const pool = (rowItems || []).filter(i => !i.dur || i.dur <= MAX_SEC).sort((a, b) => (a.bpm || 1e9) - (b.bpm || 1e9));
+  if (pool.length < 2) { toast('Auto DJ precisa de pelo menos 2 faixas na lista.'); return; }
   auto.pool = pool; auto.played = new Set(); auto.on = true; auto.busy = false;
   $('#autoBtn').setAttribute('aria-pressed', 'true'); toast('Auto DJ ligado: ' + pool.length + ' faixas ordenadas por BPM.');
 }
@@ -1591,7 +1593,7 @@ async function autoTick() {
   if (!auto.pre || auto.pre.p !== P.kid) {
     if (I.playing) return;
     const it = pickNext(P);
-    if (!it) { if (remain < trSec + 1.5) stopAuto('Auto DJ: sem faixa perto do BPM atual. Deixei a faixa atual tocar.'); return; }
+    if (!it) { if (remain < trSec + 1.5) stopAuto('Auto DJ: fila acabou. Deixei a última faixa tocar.'); return; }
     auto.pre = { p: P.kid, it, ready: loadAuto(I, it) };
   }
   if (remain > trSec + 1.5) return; // ainda nao esta na hora da transicao
@@ -1599,13 +1601,16 @@ async function autoTick() {
   const pre = auto.pre, nxt = pre.it;
   const ok = await pre.ready;
   if (!auto.on) { auto.busy = false; auto.pre = null; return; }
-  if (!ok || I.kid !== kid(nxt)) { // pre-carga falhou: descarta e tenta outra na proxima volta
-    auto.busy = false; auto.pre = null; toast('Auto DJ: não consegui carregar ' + nxt.name + '.'); return;
+  if (!ok || I.kid !== kid(nxt)) { // pre-carga falhou: pula essa faixa e tenta outra na proxima volta
+    auto.busy = false; auto.pre = null; auto.played.add(kid(nxt)); toast('Auto DJ: não consegui carregar ' + nxt.name + '. Pulei para a próxima.'); return;
   }
   auto.pre = null; auto.played.add(kid(nxt));
-  startSrc(I, I.first || 0); sync(I); // entra no primeiro tempo e acerta o BPM com a faixa que sai
-  toast('Auto DJ → ' + nxt.name + ' · ' + Math.round(nxt.bpm) + ' BPM', 3000);
-  const x0 = xfader, x1 = I === decks.b ? 1 : 0, t0 = performance.now(), dur = trSec * 1000;
+  startSrc(I, I.first || 0);
+  const pdiff = I.bpm ? Math.abs((P.bpm * P.rate) / I.bpm - 1) * 100 : 100;
+  if (pdiff <= 16) sync(I); // BPM perto: entra no primeiro tempo e acerta o BPM com a faixa que sai
+  else setPitch(I, 0, false); // BPM longe: sem sync — entra no tom natural, com fade curto
+  toast('Auto DJ → ' + nxt.name + ' · ' + Math.round(I.bpm || nxt.bpm || 0) + ' BPM' + (pdiff > 16 ? ' (troca de ritmo)' : ''), 3000);
+  const x0 = xfader, x1 = I === decks.b ? 1 : 0, t0 = performance.now(), dur = (pdiff <= 16 ? trSec : 4 * 60 / (P.bpm * P.rate)) * 1000;
   const step = () => {
     const k = Math.min(1, (performance.now() - t0) / dur);
     xsetG(x0 + (x1 - x0) * k);
