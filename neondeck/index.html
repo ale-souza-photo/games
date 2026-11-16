@@ -478,6 +478,13 @@ body.m-phone .drop svg,body.m-phone .drop p{display:none}
 #aud .split input{width:20px;height:20px;margin-top:2px;accent-color:var(--amber)}
 #aud .split b{display:block;font:700 14px var(--font-d);letter-spacing:.06em;color:var(--amber)}
 
+/* ===== MINI TELAO ===== */
+.stats{gap:7px}
+.vizbox{position:relative;width:100%;aspect-ratio:16/9;flex:none;border-radius:4px 10px 4px 10px;border:1px solid color-mix(in srgb,var(--c) 45%,#101428);background:#02040A;overflow:hidden;cursor:pointer;padding:0}
+.vizbox canvas{display:block;width:100%;height:100%;image-rendering:pixelated}
+.vizbox:focus-visible{outline:2px solid var(--c)}
+.vzname{position:absolute;left:0;right:0;bottom:0;padding:2px 0 3px;text-align:center;font:700 9px var(--font-d);letter-spacing:.14em;color:#fff;background:rgba(0,0,0,.6);opacity:0;transition:opacity .2s;pointer-events:none}
+.vizbox.named .vzname{opacity:1}
 /* ===== AUTO DJ + ATALHOS ===== */
 .btn.auto{border-color:#FFC53D;color:#FFC53D;background:rgba(255,197,61,.08)}
 .btn.auto[aria-pressed="true"]{background:rgba(255,197,61,.22);box-shadow:0 0 12px rgba(255,197,61,.5);color:#fff}
@@ -1274,7 +1281,7 @@ function makeKnob(el, v0, cb) {
 function deckTpl(id) {
   const L = id.toUpperCase();
   const jog = '<div class="jogwrap" data-r="jog" aria-label="Jog wheel do deck ' + L + '"><div class="jogglow" data-r="glow"></div><div class="jogring" data-r="ring"><div class="platter"><div class="spin" data-r="spin"><i class="tick t0"></i><i class="tick t1"></i><i class="tick t2"></i><i class="tick t3"></i></div><div class="hub">' + L + '</div></div></div></div>';
-  const vuSegs = '<i></i>'.repeat(18), stats = '<div class="stats"><div class="amvu" aria-hidden="true"><div class="amseg" data-r="amseg">' + vuSegs + '</div><div class="ambeats" data-r="ambeats"><i></i><i></i><i></i><i></i></div></div><div><div class="k">CUE</div><div class="v amber" data-r="cueT">00:00.0</div></div><div><div class="k">LOOP</div><button class="v loopsz" data-r="loopSz" aria-label="Trocar tamanho do loop do deck ' + L + '">4 BEATS</button></div><div><div class="k">SYNC</div><div class="v syncv" data-r="syncT">OFF</div></div></div>';
+  const vuSegs = '<i></i>'.repeat(18), stats = '<div class="stats"><div class="amvu" aria-hidden="true"><div class="amseg" data-r="amseg">' + vuSegs + '</div><div class="ambeats" data-r="ambeats"><i></i><i></i><i></i><i></i></div></div><div><div class="k">CUE</div><div class="v amber" data-r="cueT">00:00.0</div></div><div class="vizbox" data-r="vizbox" role="button" tabindex="0" title="Clique: trocar a animação do telão" aria-label="Telão do deck ' + L + ': trocar animação"><canvas data-r="viz" width="128" height="72"></canvas><div class="vzname" data-r="vzname"></div></div><div><div class="k">LOOP</div><button class="v loopsz" data-r="loopSz" aria-label="Trocar tamanho do loop do deck ' + L + '">4 BEATS</button></div><div><div class="k">SYNC</div><div class="v syncv" data-r="syncT">OFF</div></div></div>';
   const pitch = '<div class="pitch"><div class="k">PITCH</div><div class="ptrack" data-r="ptrack" role="slider" tabindex="0" aria-label="Pitch do deck ' + L + '" aria-valuemin="-16" aria-valuemax="16" aria-valuenow="0"><div class="pcenter"></div><div class="phandle" data-r="phandle"><i></i></div></div><div class="pval" data-r="pval">+0.0%</div></div>';
   const pc = ['#00F0FF', '#FF2BD6', '#8A5CFF', '#FFC53D'];
   const pads = pc.map((c, i) => '<button class="pad" style="--pc:' + c + '" data-pad="' + i + '" aria-label="Hot cue ' + (i + 1) + ' do deck ' + L + '" title="Clique: marcar ou saltar. Botão direito: apagar"><b>' + (i + 1) + '</b><span>—</span></button>').join('');
@@ -1292,6 +1299,14 @@ function buildDeck(id) {
   const u = d.ui = refs(root); d.root = root; d.cache = {};
   d.title = 'Sem faixa'; d.sub = 'Carregue uma música da biblioteca';
   bindJog(d, u.jog);
+  d.vizStyle = lsGet('nd_viz_' + id, 'eq'); if (!VIZN[d.vizStyle]) d.vizStyle = 'eq';
+  const cycleViz = () => {
+    const i = VIZ.findIndex(v => v[0] === d.vizStyle); d.vizStyle = VIZ[(i + 1) % VIZ.length][0]; lsSet('nd_viz_' + id, d.vizStyle);
+    d._vzOff = false; u.vzname.textContent = VIZN[d.vizStyle]; u.vizbox.classList.add('named');
+    clearTimeout(d._vzT); d._vzT = setTimeout(() => u.vizbox.classList.remove('named'), 1400);
+  };
+  u.vizbox.addEventListener('click', cycleViz);
+  u.vizbox.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); cycleViz(); } });
   u.play.addEventListener('click', () => togglePlay(d));
   u.cue.addEventListener('pointerdown', e => { u.cue.setPointerCapture(e.pointerId); cuePress(d); });
   const cr = () => cueRelease(d); u.cue.addEventListener('pointerup', cr); u.cue.addEventListener('pointercancel', cr);
@@ -1465,6 +1480,7 @@ function updateDeck(d, half) {
     if (n !== d._vn || pk !== d._vp) { d._vn = n; d._vp = pk; const sg = u.amseg.children; for (let i = 0; i < 18; i++) { const c = sg[i].classList; c.toggle('on', i < n); c.toggle('pk', i === pk - 1 && pk > n); } }
     let bi = -1; if (d.playing && d.bpm) { const bt = Math.floor((p - d.first) / beatLen(d)); bi = ((bt % 4) + 4) % 4; }
     if (bi !== d._bi) { d._bi = bi; const bs = u.ambeats.children; for (let i = 0; i < 4; i++) bs[i].classList.toggle('on', i === bi); } }
+  drawViz(d, bass, d.kick);
   const c = d.color;
   const lv = Math.round(d.kick * 5);
   drawWave(d);
@@ -1539,6 +1555,97 @@ $('#sBg').value = lsGet('nd_bg', '0');
 $('#sBg').addEventListener('change', e => bg.set(e.target.value));
 
 
+/* ---------- mini telao 16:9 por deck: animacoes em loop, leves (canvas 128x72, 30 fps por deck) ---------- */
+const VIZ = [['eq', 'EQUALIZER'], ['laser', 'LASERS'], ['festa', 'FESTA'], ['dance', 'DANÇA'], ['tunnel', 'TÚNEL'], ['wave', 'ONDAS'], ['off', 'DESLIGADO']];
+const VIZN = {}; for (const vv of VIZ) VIZN[vv[0]] = vv[1];
+function drawViz(d, bass, kick) {
+  const cv = d.ui && d.ui.viz; if (!cv) return;
+  if (d.vizStyle === 'off') { if (!d._vzOff) { d._vzOff = true; const g0 = cv.getContext('2d'); g0.fillStyle = '#02040A'; g0.fillRect(0, 0, 128, 72); } return; }
+  const g = d.vzg || (d.vzg = cv.getContext('2d', { alpha: false }));
+  const W = 128, H = 72, t = performance.now() / 1000, dt = 1 / 30;
+  const vz = d.vz || (d.vz = { hue: Math.random() * 360, parts: [], eq: new Float32Array(16) });
+  const on = d.playing && d.fader.gain.value > 0.02;
+  const beat = clamp(kick, 0, 1), bs = on ? bass : 0.16 + 0.1 * Math.sin(t * 1.4);
+  vz.hue = (vz.hue + dt * (12 + beat * 50)) % 360;
+  switch (d.vizStyle) {
+    case 'eq': { // espectro em barras, estilo painel de LED
+      g.globalAlpha = 0.45; g.fillStyle = '#030512'; g.fillRect(0, 0, W, H); g.globalAlpha = 1;
+      for (let i = 0; i < 16; i++) {
+        const raw = on ? fbuf[2 + i * 4] / 255 : (0.14 + 0.12 * Math.sin(t * 2 + i * 0.9)) * (1 + 0.3 * Math.sin(t * 0.7 + i));
+        vz.eq[i] = raw > vz.eq[i] ? raw : vz.eq[i] * 0.82;
+        const h = 3 + vz.eq[i] * 62;
+        g.fillStyle = 'hsl(' + ((185 + i * 11 + vz.hue * 0.3) % 360) + ' 100% ' + (45 + vz.eq[i] * 25) + '%)';
+        g.fillRect(i * 8 + 1, H - h, 6, h);
+      }
+      break; }
+    case 'laser': { // feixes varrendo, pulso branco no chao na batida
+      g.globalAlpha = 0.5; g.fillStyle = '#020309'; g.fillRect(0, 0, W, H); g.globalAlpha = 1;
+      const ox = W / 2, oy = H + 4;
+      for (let i = 0; i < 6; i++) {
+        const a = -Math.PI / 2 + Math.sin(t * (0.6 + i * 0.07) + i * 2.4) * 1.05;
+        g.strokeStyle = i % 2 ? '#FF2BD6' : '#00F0FF'; g.globalAlpha = 0.3 + 0.7 * beat; g.lineWidth = 1 + beat * 1.5;
+        g.beginPath(); g.moveTo(ox, oy); g.lineTo(ox + Math.cos(a) * 155, oy + Math.sin(a) * 155); g.stroke();
+      }
+      g.globalAlpha = beat * 0.5; g.fillStyle = '#fff'; g.fillRect(0, H - 2, W, 2); g.globalAlpha = 1;
+      break; }
+    case 'festa': { // flash de cor na batida + confete caindo
+      g.fillStyle = '#05030C'; g.fillRect(0, 0, W, H);
+      const rise = Math.max(0, beat - (vz.pb || 0)); vz.pb = beat; // flash so quando o nivel SOBE (transiente da batida)
+      vz.fl = Math.max(rise * 1.6, (vz.fl || 0) * 0.78);
+      if (vz.fl > 0.03) { g.globalAlpha = Math.min(0.5, vz.fl); g.fillStyle = 'hsl(' + vz.hue + ' 100% 60%)'; g.fillRect(0, 0, W, H); g.globalAlpha = 1; }
+      if (!vz.parts.length) for (let i = 0; i < 26; i++) vz.parts.push({ x: Math.random() * W, y: Math.random() * H, v: 14 + Math.random() * 22, h: Math.random() * 360, s: Math.random() * 6.3 });
+      for (const pt of vz.parts) {
+        pt.y += pt.v * (0.6 + beat) * dt; pt.s += dt * 4;
+        if (pt.y > H + 3) { pt.y = -3; pt.x = Math.random() * W; }
+        g.fillStyle = 'hsl(' + pt.h + ' 95% 62%)'; g.fillRect(pt.x + Math.sin(pt.s) * 3, pt.y, 3, 2);
+      }
+      break; }
+    case 'dance': { // silhuetas de publico dancando sob cones de luz
+      g.fillStyle = '#04030A'; g.fillRect(0, 0, W, H);
+      g.globalAlpha = 0.5;
+      for (let i = 0; i < 3; i++) { const lx = W * (0.2 + 0.3 * i) + Math.sin(t * 0.8 + i * 2) * 18; g.fillStyle = 'hsl(' + ((vz.hue + i * 90) % 360) + ' 100% 55%)'; g.beginPath(); g.moveTo(lx, 0); g.lineTo(lx - 14, H); g.lineTo(lx + 14, H); g.fill(); }
+      g.globalAlpha = 1;
+      for (let i = 0; i < 8; i++) {
+        const x = 6 + i * 16, bob = Math.abs(Math.sin(t * 3.1 + i * 1.7)) * (2 + beat * 5);
+        const yb = H - 10 - bob, up = beat > 0.45 || Math.sin(t * 2 + i) > 0.55;
+        g.fillStyle = '#05060F'; g.strokeStyle = '#05060F'; g.lineWidth = 2;
+        g.beginPath(); g.arc(x, yb - 12, 3, 0, 7); g.fill();
+        g.fillRect(x - 3, yb - 9, 6, 12);
+        g.beginPath();
+        if (up) { g.moveTo(x - 3, yb - 7); g.lineTo(x - 7, yb - 15); g.moveTo(x + 3, yb - 7); g.lineTo(x + 7, yb - 15); }
+        else { g.moveTo(x - 3, yb - 7); g.lineTo(x - 7, yb - 1); g.moveTo(x + 3, yb - 7); g.lineTo(x + 7, yb - 1); }
+        g.stroke();
+      }
+      g.fillStyle = '#05060F'; g.fillRect(0, H - 4, W, 4);
+      break; }
+    case 'tunnel': { // tunel neon, velocidade acompanha o BPM
+      g.globalAlpha = 0.55; g.fillStyle = '#020208'; g.fillRect(0, 0, W, H); g.globalAlpha = 1;
+      const sp = 0.2 + beat * 0.3 + (on && d.bpm ? d.bpm / 600 : 0.12);
+      for (let i = 0; i < 9; i++) {
+        const z = (t * sp + i / 9) % 1, sc = z * z;
+        const w2 = 4 + sc * 150, h2 = 2.4 + sc * 86;
+        g.strokeStyle = 'hsl(' + ((vz.hue + i * 36) % 360) + ' 100% 55%)';
+        g.globalAlpha = Math.min(0.9, z * 1.1); g.lineWidth = 0.4 + z * 1.1;
+        g.strokeRect(W / 2 - w2 / 2, H / 2 - h2 / 2, w2, h2);
+      }
+      g.globalAlpha = 1;
+      break; }
+    case 'wave': { // ondas senoidais, amplitude segue o grave
+      g.globalAlpha = 0.4; g.fillStyle = '#03040E'; g.fillRect(0, 0, W, H); g.globalAlpha = 1;
+      const cols = ['#00F0FF', '#FF2BD6', '#8A5CFF'];
+      for (let j = 0; j < 3; j++) {
+        g.strokeStyle = cols[j]; g.globalAlpha = 0.9 - j * 0.25; g.lineWidth = 1.4;
+        g.beginPath();
+        for (let x = 0; x <= W; x += 4) {
+          const y = H / 2 + (j - 1) * 7 + Math.sin(x * 0.065 + t * (1.3 + j * 0.6) + j * 2) * (5 + bs * 22 + beat * 8);
+          if (x) g.lineTo(x, y); else g.moveTo(x, y);
+        }
+        g.stroke();
+      }
+      g.globalAlpha = 1;
+      break; }
+  }
+}
 /* ---------- AUTO DJ: ordena por BPM e mistura sozinho (16 tempos, sync + crossfade) ---------- */
 const TRANS_BEATS = 16;
 const auto = { on: false, busy: false, played: new Set(), pool: [], pre: null };
