@@ -500,6 +500,11 @@ body.m-phone .drop svg,body.m-phone .drop p{display:none}
 .tabs{flex-wrap:wrap;row-gap:6px}
 body.m-phone .tab{padding:0 10px;letter-spacing:.06em}
 @media (prefers-reduced-motion:reduce){#bgc{display:none}}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.btxt{display:flex;flex-direction:column;flex:none}
+.djlogo{width:44px;height:44px;border-radius:50%;object-fit:cover;flex:none;border:2px solid var(--a);box-shadow:0 0 10px var(--a),0 0 18px var(--b)}
+.pw{font:600 8px var(--font-d);letter-spacing:.08em;text-transform:uppercase;color:var(--b);opacity:.9;margin-top:2px;white-space:nowrap}
+#djName{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:22vw}
 </style>
 
 <div id="vp">
@@ -509,7 +514,7 @@ body.m-phone .tab{padding:0 10px;letter-spacing:.06em}
     <div class="aura a" id="auraA"></div><div class="aura b" id="auraB"></div>
 
     <header class="top panel">
-      <div class="logo"><span class="n">NEON</span><span class="d">DECK</span></div>
+      <div class="brand"><img id="djLogo" class="djlogo" alt="" hidden><div class="btxt"><div class="logo" id="djName"><span class="n">NEON</span><span class="d">DECK</span></div><div class="pw" id="djPw">powered by monsterdeck dj lives</div></div></div>
       <div class="mastr">
         <div class="knob m" id="mvol" role="slider" tabindex="0" aria-label="Volume master" aria-valuemin="0" aria-valuemax="1" aria-valuenow="0.8"><i></i></div>
         <span class="k">MASTER</span>
@@ -634,6 +639,9 @@ body.m-phone .tab{padding:0 10px;letter-spacing:.06em}
 <div id="settings" hidden>
   <form class="sbox" id="sform" role="dialog" aria-modal="true" aria-labelledby="sh">
     <h2 id="sh">AJUSTES</h2>
+    <label for="sDj">Nome do DJ do dia<input id="sDj" type="text" maxlength="24" autocomplete="off" placeholder="ex.: DJ MONSTER"></label>
+    <label for="sLogo">Logo do DJ (foto redonda)<input id="sLogo" type="file" accept="image/*"></label>
+    <div class="sact" style="justify-content:flex-start"><img id="sLogoPrev" class="djlogo" alt="" hidden><button type="button" class="btn" id="sLogoClr">REMOVER LOGO</button></div>
     <label for="sApp">Nome do app no Audius<input id="sApp" type="text" autocomplete="off"></label>
     <label for="sKey">Chave de API do Audius (opcional)<input id="sKey" type="text" autocomplete="off" placeholder="cole aqui se tiver uma"></label>
     <label for="sJam">Client ID da Jamendo (grátis em devportal.jamendo.com)<input id="sJam" type="text" autocomplete="off" placeholder="cole aqui"></label>
@@ -1824,10 +1832,36 @@ recBtn.addEventListener('click', () => {
   } catch (err) { rec = null; toast('Não consegui iniciar a gravação.'); }
 });
 const setEl = $('#settings');
-$('#gear').addEventListener('click', () => { $('#sApp').value = settings().app; $('#sKey').value = settings().key; $('#sJam').value = lsGet('nd_jam', ''); setEl.hidden = false; $('#sApp').focus(); });
+let pendLogo = null;
+function applyBrand() {
+  const nm = lsGet('nd_dj', ''), lg = lsGet('nd_logo', ''), el = $('#djName'), im = $('#djLogo');
+  if (nm) { el.textContent = ''; const sp = document.createElement('span'); sp.className = 'n'; sp.textContent = nm.toUpperCase(); el.appendChild(sp); }
+  else el.innerHTML = '<span class="n">NEON</span><span class="d">DECK</span>';
+  if (lg) { im.src = lg; im.hidden = false; } else { im.removeAttribute('src'); im.hidden = true; }
+}
+function logoFromFile(f) {
+  return new Promise((ok, no) => {
+    const u = URL.createObjectURL(f), im = new Image();
+    im.onload = () => {
+      const S = 160, c = document.createElement('canvas'); c.width = c.height = S;
+      const m = Math.min(im.width, im.height), g = c.getContext('2d');
+      g.drawImage(im, (im.width - m) / 2, (im.height - m) / 2, m, m, 0, 0, S, S);
+      URL.revokeObjectURL(u); ok(c.toDataURL('image/jpeg', 0.85));
+    };
+    im.onerror = () => { URL.revokeObjectURL(u); no(); };
+    im.src = u;
+  });
+}
+$('#sLogo').addEventListener('change', async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try { pendLogo = await logoFromFile(f); $('#sLogoPrev').src = pendLogo; $('#sLogoPrev').hidden = false; } catch (_) { $('#sTest').textContent = 'Imagem inválida.'; }
+});
+$('#sLogoClr').addEventListener('click', () => { pendLogo = ''; $('#sLogo').value = ''; $('#sLogoPrev').hidden = true; });
+applyBrand();
+$('#gear').addEventListener('click', () => { pendLogo = null; $('#sDj').value = lsGet('nd_dj', ''); $('#sLogo').value = ''; const _l = lsGet('nd_logo', ''); $('#sLogoPrev').hidden = !_l; if (_l) $('#sLogoPrev').src = _l; $('#sApp').value = settings().app; $('#sKey').value = settings().key; $('#sJam').value = lsGet('nd_jam', ''); setEl.hidden = false; $('#sApp').focus(); });
 $('#sCancel').addEventListener('click', () => { setEl.hidden = true; });
 $('#sform').addEventListener('submit', e => {
-  e.preventDefault(); lsSet('nd_app', $('#sApp').value.trim() || 'NEONDECK'); lsSet('nd_key', $('#sKey').value.trim()); lsSet('nd_jam', $('#sJam').value.trim()); setEl.hidden = true; audNotified = true; setTab('aud'); audSearch('');
+  e.preventDefault(); lsSet('nd_dj', $('#sDj').value.trim()); if (pendLogo !== null) lsSet('nd_logo', pendLogo); applyBrand(); lsSet('nd_app', $('#sApp').value.trim() || 'NEONDECK'); lsSet('nd_key', $('#sKey').value.trim()); lsSet('nd_jam', $('#sJam').value.trim()); setEl.hidden = true; audNotified = true; setTab('aud'); audSearch('');
 });
 $('#sTestBtn').addEventListener('click', async () => {
   const out = $('#sTest'); lsSet('nd_app', $('#sApp').value.trim() || 'NEONDECK'); lsSet('nd_key', $('#sKey').value.trim());
