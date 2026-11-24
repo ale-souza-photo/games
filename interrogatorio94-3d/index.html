@@ -52,6 +52,7 @@ button.on{background:#c9dcff;color:#13285e;border-color:#c9dcff}
 #end .mtr{display:flex;gap:6px;margin:12px 0}
 #end .mtr div{flex:1;border:2px solid #8f8489;border-radius:9px;padding:5px 4px;text-align:center;font-size:10px;color:#8f8489}#end .mtr b{display:block;color:#fff;font-size:17px}
 #snd{position:absolute;right:8px;top:calc(10px + env(safe-area-inset-top,0px));z-index:9;width:36px;height:36px;min-height:0;padding:0;border-radius:50%;background:#000c;font-size:16px;line-height:1}
+#menu .sea{margin:14px 0 6px;color:#f0b020;font-size:12px;letter-spacing:.06em;text-transform:uppercase}
 #spots{position:absolute;inset:0;display:none;z-index:4;pointer-events:none}
 #spots button{position:absolute;transform:translate(-50%,-50%);width:32px;height:32px;min-height:0;padding:0;border-radius:50%;background:#000c;border:2px solid #f0b020;color:#f0b020;font:700 14px 'Special Elite','Courier New',monospace;pointer-events:auto;box-shadow:0 0 0 2px #0009}
 #spots button.on{background:#f0b020;color:#2a1b00;border-color:#fff8e0}
@@ -1118,6 +1119,553 @@ CASES.push({
 })();
 
 </script>
+<script>/* ===== TEMPORADA 2 · 2000–2006 =====
+   Casos inspirados em crimes reais do Brasil no início dos anos 2000.
+   Nomes, cidades, valores, datas e detalhes foram trocados: são ficção. */
+(function(){
+
+/* ---------- 21 · inspirado no caso Celso Daniel (2002) ---------- */
+CASES.push({
+ id:'c21',year:2002,date:'27 de janeiro de 2002',dt:'27/01/02',where:'Vila Imperial',title:'O Prefeito da Serra',diff:4,
+ start:'06:30',limit:240,need:3,
+ brief:'Domingo, 27 de janeiro de 2002, 6h30. Ano de eleição, e a Grande São Paulo acorda com um prefeito morto numa estrada de terra.\n\nAugusto Lacerda, 50 anos, prefeito de Vila Imperial, foi levado na sexta à noite ao sair de uma churrascaria. Três carros fecharam a Pajero blindada em que ele voltava com um amigo. Ninguém pediu resgate. O corpo apareceu ontem, a 40 quilômetros, com oito tiros.\n\nA polícia fala em crime comum. A família fala em crime político. Três pessoas de confiança do prefeito estão na sala. Eu tenho até o fim da manhã.',
+ truth:'Válter Simas desviava para a campanha o repasse das empresas de ônibus. Augusto descobriu, montou um dossiê e ia entregá-lo ao promotor na segunda. Válter tirou a pasta da sala do prefeito, reservou o jantar, ligou para Henrique às 21h para confirmar horário e trajeto e passou tudo a uma quadrilha contratada para simular um sequestro comum.',
+ getaway:'Válter Simas assume a prefeitura interina como homem forte do partido. O dossiê do transporte nunca aparece.',
+ culprit:1,
+ confession:['Válter tira os óculos e limpa as lentes na gravata, devagar, como se tivesse todo o tempo do mundo.','Ele ia entregar todo mundo. O partido, a campanha, eu. Vinte anos de vida pública jogados num envelope. Eu disse que era pra assustar. Era só pra assustar. Eles não sabem assustar.'],
+ legal:{cl:'A viúva do prefeito procura você por um amigo comum: ela não acredita em crime comum e não confia na polícia da cidade.',o:'Diário do ABC',r:'Cláudia Reis',pn:'Deputado Armando Teles',pr:'líder do partido do prefeito na Assembleia',pk:'Ele quer a tese de crime comum e o caso fechado antes da convenção.',rest:'A Pajero blindada, no pátio da delegacia. O perito só libera com ofício.'},
+ sus:[
+  SU('Henrique Pazzini','Empresário, amigo · 51 anos','nervous',['m','r','side','','suito','',0.55,0.1],
+   'Henrique Pazzini não para de esfregar as mãos. Tem um corte na testa e a mesma camisa de sexta.',
+   'Henrique deixou a trava da Pajero com defeito e mentiu por vergonha, mas não sabia do plano: quem passou o trajeto foi Válter.',[
+   T('Por que a porta da Pajero abriu?','Eles arrombaram! Era um carro blindado, como é que eu ia saber?','Diz que os bandidos arrombaram a porta blindada.',true,'A trava tinha defeito de fábrica. Eu sabia. Nunca mandei consertar. Eu sei o que isso parece.','Admitiu que a trava tinha defeito e nunca foi consertada.'),
+   T('Alguém sabia do trajeto de vocês?','Ninguém. Foi um jantar improvisado.','Diz que ninguém sabia do trajeto.',true,'O Válter me ligou às nove. Perguntou a hora que a gente saía e se ia pela avenida ou pela marginal. Achei que era cuidado de amigo.','Válter ligou às 21h perguntando horário e trajeto.','e6'),
+   T('Por que não levaram o senhor também?','Eu não sei! Eu implorei pra irem embora!','Não sabe por que não foi levado.',false,'Um deles gritou: o outro não. Como se já soubesse quem era quem. Eu ouço isso toda noite.','Os sequestradores disseram que só queriam o prefeito.')]),
+  SU('Válter Simas','Secretário de Finanças · 56 anos','cold',['m','l','bald','rect','suit','',0.75,0],
+   'Válter Simas senta reto, pasta de couro no colo, gravata de nó perfeito. Fala com a calma de quem lê balancete.','',[
+   T('O senhor sabia do dossiê do transporte?','Que dossiê? Ninguém me falou de dossiê nenhum.','Disse nunca ter ouvido falar do dossiê.',true,'O prefeito comentou umas irregularidades. Eu disse que ia apurar. É o meu trabalho.','Admitiu que Augusto falou de irregularidades.'),
+   T('Quem marcou o jantar de sexta?','Não faço ideia. Eu nem estava lá.','Diz que não sabe quem marcou o jantar.',true,'Eu reservei a mesa. Era aniversário do Henrique. Uma gentileza, só isso.','Admitiu ter reservado o jantar.'),
+   T('O senhor falou com alguém naquela noite?','Fiquei em casa vendo o jogo. Não falei com ninguém.','Diz que ficou em casa e não falou com ninguém.',true,'Liguei pro Henrique, às nove. Pra saber se tinham gostado do lugar.','Admitiu ter ligado para Henrique às 21h.'),
+   T('Para onde foi o repasse das empresas de ônibus?','Está tudo contabilizado, inspetor. Pode auditar.','Diz que o repasse está todo contabilizado.',true,'É política. Campanha custa caro. Todo partido faz. O Augusto sabia disso quando entrou.','Admitiu que o repasse ia para a campanha.')]),
+  SU('Neide Carvalho','Chefe de gabinete · 47 anos','proud',['f','s','bun','round','blouse','',0.5,0.3],
+   'Neide Carvalho ajeita o broche no blazer. Olhos vermelhos, queixo erguido. Não vai chorar na sua frente.',
+   'Neide escondeu o que sabia por lealdade ao partido, mas estava na Câmara até as 23h e nada ganhou com a morte.',[
+   T('Em quem o prefeito confiava?','Em toda a equipe. Éramos uma família.','Diz que o prefeito confiava em toda a equipe.',true,'Não confiava mais no Válter. Me disse isso na sexta de manhã, de porta fechada.','Augusto já não confiava em Válter.'),
+   T('O que havia na pasta do prefeito?','Papéis de rotina. Despachos.','Diz que a pasta tinha papéis de rotina.',true,'Um dossiê do transporte. Ia para o promotor na segunda. Ele disse: nem o Válter sabe. Mas o Válter entrou na sala depois do almoço e saiu com a pasta.','Válter saiu da sala com a pasta do dossiê.','e7'),
+   T('Quem riscou a agenda do prefeito?','Ninguém mexe na agenda além de mim.','Diz que só ela mexe na agenda.',false,'Não fui eu. A letra do adiar é do Válter. Conheço há vinte anos.','Reconheceu a letra de Válter na agenda.')])
+ ],
+ ev:{
+  e0:EV('Laudo do IML','Morte na noite de sábado, cerca de 24 horas depois do sequestro. Oito tiros. Nenhum pedido de resgate foi feito.','lab',['tod',22,23,'Óbito estimado']),
+  e1:EV('A Pajero blindada','Porta do motorista destravada sem arrombamento. A trava tinha um defeito conhecido só por quem andava no carro.','photo',['pajero','Pajero blindada no pátio da delegacia']),
+  e2:EV('Estrada de terra','O corpo foi largado a 40 km. Ao lado, a pasta do prefeito, vazia. Os documentos sumiram, a carteira com dinheiro ficou.','photo',['estrada','Estrada de terra, local do encontro do corpo']),
+  e3:EV('Agenda do prefeito','Segunda, 9h: reunião com o promotor, entregar dossiê do transporte. Riscado a lápis, em outra letra: adiar.','doc',['AGENDA · 28/01/2002',['08:00  despacho gabinete','!09:00  promotor — entregar dossiê transporte','~09:00  (adiar)','11:00  inauguração creche','#Rasura a lápis, letra diferente']]),
+  e4:EV('Comanda da churrascaria','Mesa 14, reservada por telefone e paga antecipadamente com o cartão de Válter Simas, que não foi ao jantar.','ticket',['CHURRASCARIA GAUCHA IMPERIAL',['MESA 14   SEXTA 25/01/02','RESERVA  21:00 (TELEFONE)','2 RODIZIOS     R$ 78,00','PAGO ANTECIP. CARTAO','TITULAR  VALTER SIMAS'],'SAIDA DA MESA 22:41']),
+  e5:EV('Repasse do transporte','O repasse das empresas de ônibus à prefeitura caiu 80% em seis meses, enquanto o caixa de campanha engordou.','lab',['line','Repasse dos ônibus (mil)',[[1,120],[2,118],[3,90],[4,62],[5,40],[6,22]],'jul a dez/01','repasse']),
+  e6:EV('Declaração de Henrique','Válter ligou às 21h perguntando a hora exata da saída e se iriam pela avenida ou pela marginal.','doc',['DECLARAÇÃO DE HENRIQUE PAZZINI',['Às 21h o Sr. Válter me ligou perguntando','a que horas sairíamos e qual caminho.','Disse que era preocupação com a segurança.']],true),
+  e7:EV('Declaração de Neide','Na sexta, o prefeito disse que entregaria o dossiê na segunda e que nem Válter sabia. Depois do almoço, Válter saiu da sala com a pasta.','doc',['DECLARAÇÃO DE NEIDE CARVALHO',['O prefeito disse: segunda eu entrego,','nem o Válter sabe. Depois do almoço','vi o Sr. Válter sair da sala com a pasta.']],true)
+ },
+ conf:[
+  CF('e1','0.0',20,0,'A perícia diz que a porta abriu por dentro, pela trava com defeito. Ninguém forçou nada.','Eu sabia do defeito. Eu sei. Mas eu não abri porta nenhuma pra ninguém!','Admitiu conhecer o defeito da trava.'),
+  CF('e4','0.1',-8,0,'A comanda mostra que a mesa foi reservada por outra pessoa, não pelo senhor.','Viu? Eu nem sabia que tinha reserva. Achei que era sorte.'),
+  CF('e7','1.0',26,1,'A chefe de gabinete viu o senhor sair da sala do prefeito com a pasta do dossiê.','A Neide está abalada. Eu pego pastas o dia inteiro, é o meu trabalho.'),
+  CF('e3','1.0',22,1,'O dossiê estava na agenda dele. E alguém escreveu adiar ao lado, com a sua letra.','Uma sugestão de agenda. O prefeito estava cansado. Eu cuidava dele.'),
+  CF('e4','1.1',28,1,'Mesa 14, reservada por telefone e paga com o seu cartão. O senhor disse que nem sabia quem marcou.','Eu... paguei como presente. Esqueci. Um homem pode esquecer um presente.'),
+  CF('e6','1.2',26,1,'Henrique disse que o senhor ligou às nove para saber a hora e o caminho. O senhor disse que não falou com ninguém.','Um telefonema de cortesia não é crime, inspetor.'),
+  CF('e5','1.3',22,1,'O repasse dos ônibus caiu oitenta por cento em seis meses. O senhor disse que está tudo contabilizado.','Contabilizado onde eu quis. Isso é improbidade, não homicídio.'),
+  CF('e2','1.0',20,1,'Levaram os documentos e deixaram o dinheiro. Ladrão comum faz o contrário. Quem queria aquela pasta?','Qualquer um com um inimigo político. Ele tinha muitos.'),
+  CF('e3','2.2',14,0,'A senhora disse que só a senhora mexia na agenda. Tem uma rasura a lápis.','Eu disse que não fui eu. Olhe a letra. Olhe bem.')
+ ]
+});
+
+/* ---------- 22 · inspirado no sequestro de Washington Olivetto (2001–2002) ---------- */
+CASES.push({
+ id:'c22',year:2002,date:'2 de fevereiro de 2002',dt:'02/02/02',where:'Brooklin',title:'O Publicitário da Falsa Blitz',diff:3,
+ start:'23:10',limit:230,need:3,nobody:true,
+ mem:'Eu entrei no cubículo. Três metros quadrados, espuma nas paredes e o rádio ainda tocando bolero para ninguém.',
+ brief:'Sábado, 2 de fevereiro de 2002, 23h10. Cinquenta e três dias depois, São Paulo respira: o publicitário apareceu vivo.\n\nRenato Valença, 52 anos, dono da agência Valença e Mota, foi levado em 11 de dezembro numa falsa blitz no Itaim. Ficou num cubículo sem janela, numa casa do Brooklin, com música tocando dia e noite. Hoje à tarde os carcereiros sumiram, e uma vizinha ouviu as batidas na parede.\n\nO resgate de dez milhões nunca foi pago. Alguém de dentro passou a rota e a agenda. Três pessoas estão na sala até eu descobrir quem.',
+ truth:'Andrés Lucero, o falso professor de espanhol, era o homem de frente do grupo. Visitou a agência em novembro, conseguiu a agenda de Renato com o sócio, marcou como cliente argentino a reunião que mudou a rota, alugou a casa do Brooklin, dirigiu o Vectra na falsa blitz e, às 15h de hoje, ligou de um orelhão mandando os carcereiros fugirem.',
+ getaway:'Andrés Lucero cruza a fronteira em Foz do Iguaçu com outro nome. O grupo se dispersa pela América do Sul.',
+ culprit:2,
+ confession:['Andrés olha muito tempo para a fita cassete sobre a mesa. Cantarola baixinho dois versos de bolero.','Eu escolhia as músicas. Pra ele não ouvir a rua, pra não saber onde estava. Era uma causa, inspetor. Depois virou só dinheiro. E hoje virou só medo.'],
+ legal:{cl:'A família do publicitário pede, por meio do advogado, que você descubra quem de dentro entregou Renato.',o:'Jornal da Tarde Paulista',r:'Fábio Rangel',pn:'Secretário Adjunto Otávio Lins',pr:'secretário adjunto da Segurança Pública',pk:'Ele quer a vitória do resgate na conta da polícia e nenhuma pergunta sobre os 53 dias.',rest:'O cubículo do cativeiro, lacrado pela perícia até amanhã.'},
+ sus:[
+  SU('Wilson Prates','Motorista · 44 anos','sad',['m','o','crop','','tee','mustache',0.4,0.6],
+   'Wilson Prates ainda tem a marca roxa no olho, de 11 de dezembro. Segura o boné com as duas mãos.',
+   'Wilson apanhou na falsa blitz e nada recebeu. Escondeu que fugiu ao procurar a polícia tarde por medo de perder o emprego.',[
+   T('Por que o senhor mudou a rota naquele dia?','O doutor mandou. Eu só dirijo, senhor.','Diz que mudou a rota por ordem do patrão.',false,'Teve uma ligação de um tal cliente argentino, reunião urgente no Itaim. O mesmo homem já tinha ligado antes. Sotaque carregado.','Um cliente de sotaque estrangeiro marcou a reunião urgente.','e6'),
+   T('O que aconteceu na blitz?','Dois policiais mandaram parar, me puxaram e me bateram.','Diz que dois policiais o pararam e bateram nele.',false,'Policial nada. O colete era de camelô. Um deles falou rápido em espanhol, eu ouvi.','Ouviu um dos falsos policiais falar espanhol.'),
+   T('O senhor recebeu dinheiro de alguém?','Nunca, senhor.','Nega ter recebido dinheiro.',false,'Eu tenho três filhos e um Fiat 147. Se eu tivesse vendido o doutor, eu não morava em Itaquera.','Nega e diz que vive com pouco.')]),
+  SU('Gustavo Mota','Sócio da agência · 49 anos','proud',['m','s','side','aviator','suito','',0.5,0.1],
+   'Gustavo Mota cruza as pernas e checa o celular. Terno italiano, sem gravata. Acha que está numa reunião.',
+   'Gustavo deu a agenda ao falso professor por vaidade e queria vender a agência, mas não sabia do sequestro e não lucrou com ele.',[
+   T('A agência tinha seguro contra sequestro?','Isso não existe no Brasil, inspetor.','Diz que não existe seguro contra sequestro.',true,'Existe. A agência tinha uma apólice. Mas quem paga é a seguradora, não eu.','Admitiu que a agência tinha seguro de sequestro.'),
+   T('Quem tinha acesso à agenda do Renato?','A secretária, e só ela.','Diz que só a secretária tinha a agenda.',true,'Um professor de espanhol veio em novembro oferecer aulas. Pediu a agenda do Renato para encaixar horário. Eu dei. Que idiota.','Deu a agenda de Renato a um professor de espanhol.','e7'),
+   T('Vocês brigavam?','Sócios discutem. Normal.','Diz que discutiam como sócios.',false,'Eu queria vender a agência para um grupo americano. Ele não. Mas eu nunca, nunca...','Queria vender a agência e Renato não.')]),
+  SU('Andrés Lucero','Professor de espanhol · 41 anos','cold',['m','n','side','round','coat','beard',0.45,0.15],
+   'Andrés Lucero dobra o casaco no encosto da cadeira. Português correto, sotaque leve. Olha para a fita cassete na mesa e desvia.','',[
+   T('O senhor alugou a casa do Brooklin?','Eu alugo um quarto em Pinheiros. Não conheço essa casa.','Diz que mora num quarto em Pinheiros e não conhece a casa.',true,'Aluguei para um amigo. Ele precisava de um endereço. Eu não perguntei para quê.','Admitiu ter alugado a casa para um amigo.'),
+   T('Onde o senhor estava hoje às três da tarde?','Dando aula particular, numa casa em Moema.','Diz que dava aula particular às 15h.',true,'Fui ao centro. Liguei de um orelhão para um amigo. Só isso.','Admitiu ter ligado de um orelhão às 15h.'),
+   T('O senhor conhecia Renato Valença?','Pelo jornal, como todo mundo.','Diz que só conhecia Renato pelo jornal.',true,'Fui à agência uma vez, oferecer aulas. É o meu trabalho.','Admitiu ter ido à agência oferecer aulas.'),
+   T('O que fazia no Itaim em 11 de dezembro?','Nunca vou ao Itaim. Não é o meu bairro.','Diz que nunca vai ao Itaim.',true,'Eu dirigia o carro de um amigo naquela noite. Não sabia de nada.','Admitiu ter dirigido um carro no Itaim na noite da blitz.')])
+ ],
+ ev:{
+  e0:EV('O cubículo','Três metros quadrados, sem janela, forrado de espuma acústica. Um rádio tocava música sem parar para abafar a rua.','photo',['cubiculo','Cubículo do cativeiro, Brooklin']),
+  e1:EV('Fitas cassete','Fitas de boleros e música andina, etiquetadas à mão em espanhol. A letra é a mesma do contrato de aluguel.','photo',['k7','Fitas cassete achadas junto ao rádio']),
+  e2:EV('Contrato de aluguel','Casa alugada em outubro por Andrés Lucero, professor de espanhol. Fiador: uma escola de idiomas que não existe.','doc',['CONTRATO DE LOCAÇÃO · OUT/2001',['Imóvel: Rua das Acácias, 214, Brooklin','Locatário: ANDRÉS LUCERO','Profissão: professor de espanhol','!Fiador: Escola Idiomas Sur Ltda.','#CNPJ do fiador não existe']]),
+  e3:EV('Câmera do posto','Às 19h42 de 11 de dezembro, dois homens de colete param o Omega do publicitário. Um terceiro, de óculos redondos, espera ao volante de um Vectra.','cctv',['CAM 01 · POSTO JUSCELINO','19:42:10','street',[['car',100,104,''],['p',150,96],['p',165,98]]]),
+  e4:EV('Registro da Telefônica','Às 15h10 de hoje, um orelhão do centro ligou para o celular pré-pago achado na casa. Dez minutos depois, a casa estava vazia.','doc',['TELEFÔNICA · REGISTRO DE CHAMADAS',['02/02/02  15:10  TP 3311-0482 (Praça da Sé)','DESTINO  celular pré-pago 9122-74xx','DURAÇÃO  0:41','#Aparelho apreendido no cativeiro']]),
+  e5:EV('Nota do supermercado','Dia 10 de dezembro: sessenta litros de água, latas de sardinha, fita adesiva e espuma acústica, pagos em dinheiro, entrega em nome de A. Lucero.','ticket',['SUPERMERCADO BROOKLIN',['10/12/01   18:22','AGUA MINERAL 5L   X12','SARDINHA LATA     X40','FITA ADESIVA      X6','ESPUMA ACUSTICA   X8 M2'],'ENTREGA: A. LUCERO']),
+  e6:EV('Declaração de Wilson','O patrão mudou a rota por causa de um cliente de sotaque estrangeiro que marcou reunião urgente no Itaim e já tinha ligado antes.','doc',['DECLARAÇÃO DE WILSON PRATES',['No dia 11 um cliente argentino ligou','pedindo reunião urgente no Itaim.','O mesmo homem já tinha ligado antes.']],true),
+  e7:EV('Declaração de Gustavo','Em novembro, um professor de espanhol esteve na agência e levou a agenda de Renato para encaixar horário de aulas.','doc',['DECLARAÇÃO DE GUSTAVO MOTA',['Em novembro um professor de espanhol','ofereceu aulas e pediu a agenda do Renato.','Entreguei uma cópia.']],true)
+ },
+ conf:[
+  CF('e3','0.1',-8,0,'A câmera do posto mostra o senhor arrancado do carro e jogado no chão.','Eu disse, senhor. Eles me bateram.'),
+  CF('e6','0.0',-6,0,'O próprio patrão confirmou a ligação do cliente estrangeiro.','Viu? Eu só dirijo.'),
+  CF('e7','1.1',22,0,'O senhor disse que só a secretária tinha a agenda.','Eu dei uma cópia. Por educação. Isso me faz cúmplice?','Admitiu ter entregado a agenda.'),
+  CF('e2','2.0',26,1,'Contrato de aluguel, casa do Brooklin, locatário Andrés Lucero, professor de espanhol.','Eu já disse. Era para um amigo.'),
+  CF('e1','2.0',22,1,'As fitas do cativeiro estão etiquetadas à mão, em espanhol. A mesma letra do contrato.','Muita gente escreve em espanhol nesta cidade.'),
+  CF('e5','2.0',20,1,'Espuma acústica, sardinha, sessenta litros de água, entregues em nome de A. Lucero, um dia antes do sequestro.','Eu fiz um favor de compras. Para o meu amigo.'),
+  CF('e4','2.1',28,1,'O orelhão da Sé ligou para o celular do cativeiro às 15h10. Dez minutos depois, a casa estava vazia.','Eu liguei para um amigo. Não sei onde estava o telefone dele.'),
+  CF('e7','2.2',24,1,'Gustavo deu a agenda do Renato a um professor de espanhol em novembro. O senhor disse que só o conhecia pelo jornal.','Eu ofereço aulas a muita gente rica. Agenda é para encaixar horário.'),
+  CF('e6','2.2',20,1,'O cliente argentino que marcou a reunião urgente tinha um sotaque igual ao seu.','Argentino? Eu sou chileno, inspetor.'),
+  CF('e3','2.3',26,1,'Óculos redondos, ao volante do Vectra, às 19h42 no Itaim. O senhor disse que nunca vai ao Itaim.','Muita gente usa óculos redondos.')
+ ]
+});
+
+/* ---------- 23 · inspirado no caso Tim Lopes (2002) ---------- */
+CASES.push({
+ id:'c23',year:2002,date:'9 de junho de 2002',dt:'09/06/02',where:'Morro da Cruz',title:'O Repórter da Câmera Escondida',diff:4,
+ start:'23:30',limit:230,need:3,
+ brief:'Domingo, 9 de junho de 2002, 23h30. O país inteiro está acordado de madrugada para ver a Copa, e um repórter sumiu num baile.\n\nPaulo Cândido, 51 anos, repórter investigativo da Folha Paulistana, subiu o Morro da Cruz na sexta, às 21h, com uma câmera escondida numa pochete. Ia gravar a venda de drogas e armas num baile. Não voltou. Hoje a perícia achou restos humanos num cemitério clandestino no alto do morro.\n\nAlguém entregou o repórter. Três pessoas sabiam da visita. Elas estão na sala.',
+ truth:'Edilson Moraes, o Pastor, servia de contato do repórter e recebia dinheiro do tráfico para manter a igreja aberta. Na quinta, aceitou um envelope do gerente da boca. Na sexta, depois de ver Paulo entrar pela viela de trás com a pochete, desceu ao posto às 21h40 e ligou do orelhão para o celular do gerente. Paulo foi pego dez minutos depois.',
+ getaway:'O Pastor reabre a igreja no domingo seguinte. O culto começa com uma oração pelo repórter.',
+ culprit:1,
+ confession:['Edilson fecha a Bíblia que trouxe e põe as duas mãos em cima dela.','Eles disseram que só iam dar um susto e tomar a fita. Que repórter some e volta. Eu precisava da igreja aberta, inspetor. Eu vendi um homem pela minha igreja.'],
+ legal:{cl:'O editor-chefe da Folha Paulistana pede sua ajuda: a redação quer saber quem entregou o repórter antes de a polícia arquivar como crime do tráfico.',o:'Folha Paulistana',r:'Marta Coelho',pn:'Vereador Gilmar Paixão',pr:'vereador eleito com votos da comunidade',pk:'Ele quer que a investigação não suba o morro de novo antes da eleição.',rest:'A viela de trás do baile, controlada pelo tráfico. Só com escolta da PM ou ordem judicial.'},
+ sus:[
+  SU('Ronaldo Vieira','Motorista do jornal · 38 anos','sad',['m','o','cap','','tee','stubble',0.3,0.7],
+   'Ronaldo, o Nado, está de olhos inchados. Não dorme desde sexta. Repete o nome do Paulo baixinho.',
+   'Nado foi embora com medo e mentiu sobre a hora, mas ficou no carro o tempo todo e não sabia do contato com o tráfico.',[
+   T('Por que o senhor não subiu com ele?','Ele mandou eu esperar no carro.','Diz que Paulo mandou esperar no carro.',false,'Ele combinou com o Pastor de entrar sozinho, pela viela de trás, às nove. Só o Pastor sabia do horário e da pochete.','Paulo combinou a entrada só com o Pastor.','e6'),
+   T('O que o senhor fez quando ele não voltou?','Esperei até meia-noite e chamei a polícia.','Diz que esperou até meia-noite e chamou a polícia.',true,'Esperei até as duas. Tive medo. Fui embora sem chamar ninguém. Eu deixei ele lá.','Admitiu ter ido embora às 2h sem chamar ninguém.'),
+   T('Onde ficou a chave reserva do Palio?','Comigo, como sempre.','Diz que a chave reserva ficou com ele.',true,'A reserva estava com o Paulo, na pochete. Pra ele fugir se precisasse.','Paulo levava a chave reserva na pochete.')]),
+  SU('Edilson Moraes','Pastor, líder comunitário · 46 anos','proud',['m','r','side','','suitp','mustache',0.5,0.55],
+   'Edilson Moraes, o Pastor, ajeita o terno claro e põe uma Bíblia sobre a mesa. Cumprimenta você pelo nome.','',[
+   T('O senhor conhecia Paulo Cândido?','Conheço muita gente. Jornalista, nenhum.','Diz que não conhecia nenhum jornalista.',true,'Conheci. Ele veio duas vezes. Achei que queria ajudar a comunidade.','Admitiu ter recebido Paulo duas vezes.'),
+   T('Onde o senhor estava às 21h40 de sexta?','Na igreja, no culto de sexta.','Diz que estava no culto às 21h40.',true,'Desci ao posto. Fui telefonar pra minha irmã. Telefonar é crime agora?','Admitiu ter descido ao posto e telefonado.'),
+   T('O senhor sabia da câmera escondida?','Que câmera? Ninguém me falou de câmera.','Diz não saber de câmera nenhuma.',true,'Ele me mostrou a pochete. Pra eu ficar tranquilo. Eu não contei pra ninguém.','Admitiu saber da câmera escondida.'),
+   T('Qual a sua relação com o tráfico?','Eu sou um homem de Deus, inspetor.','Diz ser um homem de Deus.',true,'Aqui todo mundo convive. Eu negocio a paz. Pra igreja funcionar, eles precisam deixar.','Admitiu negociar com o tráfico.')]),
+  SU('Kelly Santos','Moradora, costureira · 34 anos','nervous',['f','o','curly','','tee','',0.3,0.8],
+   'Kelly Santos olha para a porta a cada barulho. Pediu para não ter o nome no jornal antes de sentar.',
+   'Kelly fez a denúncia ao jornal e negou por medo, mas estava em casa de luz apagada e não falou com ninguém do tráfico.',[
+   T('Foi a senhora que chamou o jornal?','Não sei de jornal nenhum.','Diz não saber de jornal nenhum.',true,'Fui eu. Liguei de um orelhão. Por causa do meu irmão, que eles levaram pro tráfico.','Admitiu ter feito a denúncia ao jornal.'),
+   T('A senhora viu alguém com o tráfico esta semana?','Eu não vejo nada. Aqui ninguém vê.','Diz não ver nada.',true,'Vi o Pastor com o gerente da boca, na quinta. Recebeu um envelope e voltou pra igreja.','Viu o Pastor receber um envelope do gerente da boca.','e7'),
+   T('Onde a senhora estava na sexta às 21h?','Em casa, costurando.','Diz que estava em casa.',false,'Em casa, de luz apagada. Ouvi gente correndo e um grito. Depois o baile aumentou o som.','Ouviu correria e um grito.')])
+ ],
+ ev:{
+  e0:EV('Laudo do IML','Restos identificados pela arcada dentária. Morte na noite do desaparecimento, entre 22h e 0h30. Fratura no crânio.','lab',['tod',22,24.5,'Óbito estimado']),
+  e1:EV('Câmera escondida','Mini-câmera de pochete, achada queimada no alto do morro. A fita sumiu, mas o lacre tem o número de patrimônio do jornal.','photo',['camera','Pochete com mini-câmera, queimada']),
+  e2:EV('Muro da viela','Pichação recente na viela do baile: X-9 aqui não. No chão, a chave reserva do Palio do jornal.','photo',['muro','Viela de trás do baile']),
+  e3:EV('Pauta do jornal','Matéria sobre venda de drogas e armas no baile. Fonte local: líder comunitário (E.M.). Terceira visita, sexta, 21h.','doc',['PAUTA · FOLHA PAULISTANA',['Repórter: Paulo Cândido','Tema: venda de drogas e armas no baile','!Fonte local: líder comunitário (E.M.)','Visita: sexta 07/06, 21h, entrada pela viela','#Equipamento: microcâmera na pochete']]),
+  e4:EV('Câmera do posto','Às 21h06, o Palio do jornal estaciona. Às 21h40, um homem de terno claro desce a pé e usa o orelhão do posto.','cctv',['CAM 01 · POSTO AVENIDA','21:40:12','street',[['car',90,104,''],['p',140,96]]]),
+  e5:EV('Registro de chamadas','Às 21h41, o orelhão do posto liga para um celular pré-pago usado pelo gerente da boca. Duração: 38 segundos.','doc',['TELEFÔNICA · ORELHÃO DO POSTO',['07/06/02  21:41','DESTINO  celular pré-pago 9876-02xx','DURAÇÃO  0:38','#Linha usada pelo gerente da boca (escuta da DRE)']]),
+  e6:EV('Declaração de Nado','Paulo combinou com o Pastor que entraria sozinho pela viela de trás, às 21h. Só o Pastor sabia do horário e da pochete.','doc',['DECLARAÇÃO DE RONALDO VIEIRA',['O Paulo combinou com o Pastor','de entrar sozinho pela viela de trás,','às 21h. Só o Pastor sabia da pochete.']],true),
+  e7:EV('Declaração de Kelly','Na quinta, viu o Pastor conversar com o gerente da boca, receber um envelope e voltar para a igreja.','doc',['DECLARAÇÃO (NOME RESERVADO)',['Na quinta vi o Pastor com o gerente','da boca. Ele recebeu um envelope','e voltou para a igreja.']],true)
+ },
+ conf:[
+  CF('e2','0.2',18,0,'A chave reserva do Palio estava no chão da viela. O senhor disse que ficou com ela.','Era a do Paulo! Ele levava na pochete! Eu menti porque fiquei com vergonha de ter deixado ele sozinho.','Confirmou que Paulo levava a chave reserva.'),
+  CF('e4','0.1',16,0,'A câmera do posto mostra o Palio parado até as 2h10. O senhor disse que chamou a polícia à meia-noite.','Eu fiquei com medo. Fiquei com medo, tá?','Admitiu ter ficado no carro até as 2h.'),
+  CF('e5','2.2',-8,0,'O telefonema para o gerente saiu do orelhão do posto, não da sua casa.','Eu disse. Eu não ligo pra ninguém de lá.'),
+  CF('e3','1.0',22,1,'A pauta do jornal cita a fonte local: líder comunitário, E.M. Edilson Moraes. O senhor disse que não conhecia jornalista nenhum.','Muita gente tem essas iniciais na comunidade.'),
+  CF('e4','1.1',26,1,'Terno claro, descendo a pé, usando o orelhão do posto às 21h40. O senhor disse que estava no culto.','Eu disse que desci pra telefonar. Não é crime.'),
+  CF('e5','1.1',28,1,'Às 21h41, o orelhão do posto ligou para o celular do gerente da boca. Trinta e oito segundos. Sua irmã é gerente de boca, Pastor?','Eu... errei o número. Acontece.'),
+  CF('e6','1.2',26,1,'Só o senhor sabia do horário e da pochete. Foi o próprio Paulo que combinou assim.','Ele confiava em mim. Eu confiava em Deus.'),
+  CF('e1','1.2',22,1,'A câmera da pochete foi achada queimada. Quem sabia que ela existia?','Eles revistam todo mundo. Acharam sozinhos.'),
+  CF('e7','1.3',26,1,'Na quinta, o senhor recebeu um envelope do gerente da boca e voltou para a igreja.','Dízimo. Até eles dão o dízimo, inspetor.')
+ ]
+});
+
+/* ---------- 24 · inspirado no caso Richthofen (2002) ---------- */
+CASES.push({
+ id:'c24',year:2002,date:'9 de novembro de 2002',dt:'09/11/02',where:'Campo Belo',title:'O Casarão do Campo Belo',diff:3,
+ start:'05:20',limit:240,need:3,
+ brief:'Sábado, 9 de novembro de 2002, 5h20. A rua arborizada do Campo Belo está cheia de viaturas e de vizinhos de roupão.\n\nFrederico e Lúcia Hartmann, ele engenheiro, ela psiquiatra, foram mortos enquanto dormiam. A filha disse ter chegado às 4h e achado a porta aberta, a biblioteca revirada e as joias no chão. O alarme estava desligado. Nenhuma janela foi forçada.\n\nA cena parece assalto. Parece demais. Três pessoas conheciam a casa por dentro.',
+ truth:'Bianca Hartmann planejou a morte dos pais, que tinham proibido o namoro e cortado o dinheiro dela. Desligou o alarme às 23h52 com o código novo, abriu a porta para o namorado e o irmão dele, que mataram o casal enquanto ela esperava na biblioteca, e encenou o roubo espalhando as joias. Depois foram ao motel para criar um álibi e voltaram às 4h.',
+ getaway:'Bianca é tratada como órfã pela imprensa. O namorado e o irmão dele vendem o Gol e viajam para o Paraná.',
+ culprit:0,
+ confession:['Bianca alisa a saia, devagar. Quando fala, a voz não treme.','Eles iam tirar tudo de mim. O Caio, a faculdade, o dinheiro. Eu só abri a porta. Eu nem olhei. Fiquei na biblioteca contando as joias da minha mãe.'],
+ legal:{cl:'O irmão de Frederico, que mora em Curitiba, liga para você: ele não acredita em assalto e não quer esperar o inquérito.',o:'Notícias Populares',r:'Alberto Garcia',pn:'Desembargador aposentado Raul Pinho',pr:'amigo da família e padrinho de Bianca',pk:'Ele quer que a afilhada seja tratada como vítima.',rest:'A biblioteca da casa, lacrada pelo plantão da Homicídios.'},
+ sus:[
+  SU('Bianca Hartmann','Filha, estudante · 19 anos','cold',['f','n','long','','blouse','',0.0,0],
+   'Bianca Hartmann senta de pernas cruzadas, olhos secos. Pergunta se vai demorar porque tem prova na segunda.','',[
+   T('Onde você estava entre as 23h e as 4h?','Com o meu namorado, num cybercafé em Moema. Depois fomos ao motel. Cheguei às quatro e achei a porta aberta.','Diz que estava num cybercafé, depois no motel, e voltou às 4h.',true,'Antes do cyber eu passei em casa. Só pra pegar um casaco. Eles estavam dormindo.','Admitiu ter passado em casa antes da meia-noite.'),
+   T('Quem sabia o código do alarme?','Todo mundo. Até a empregada. Meu pai anotava na porta da geladeira.','Diz que todos sabiam o código.',true,'O código novo, só eu e ele. Ele me passou na quinta. A Cida não sabia.','Admitiu que só ela e o pai sabiam o código novo.'),
+   T('Como era a relação com seus pais?','Normal. Família normal. Briga de família.','Diz que a relação era normal.',true,'Eles queriam que eu largasse o Caio. Cortaram meu cartão. Me trataram como criança.','Os pais exigiam o fim do namoro e cortaram o dinheiro dela.'),
+   T('O que levaram da casa?','As joias da minha mãe e os dólares do meu pai. Foi assalto, é óbvio.','Diz que levaram joias e dólares.',true,'Os dólares ficaram na pasta. Eu não sei por que eu disse isso.','Admitiu que os dólares ficaram na pasta.')]),
+  SU('Aparecida Nunes','Empregada da casa · 58 anos','sad',['f','r','bun','','uniform','',0.75,0.6],
+   'Dona Cida trabalha na casa há catorze anos. Ainda está de uniforme. Chora sem barulho.',
+   'Dona Cida dormiu em Diadema, na casa da irmã, e não sabia o código novo. Escondeu as brigas da família por respeito aos patrões.',[
+   T('A senhora estava na casa naquela noite?','Não, senhor. Folguei no sábado, dormi na casa da minha irmã, em Diadema.','Dormiu na casa da irmã, em Diadema.',false,'A menina me perguntou na quarta a que horas os patrões deitavam e se o código novo já tinha sido trocado. Achei esquisito.','Bianca perguntou a hora em que os pais dormiam e sobre o código.','e6'),
+   T('A senhora sabia o código do alarme?','O antigo eu sabia. O novo o doutor não me passou.','Sabia só o código antigo.',false,'O doutor disse que só ia me passar o novo depois que a menina tomasse juízo.','Frederico não passou o código novo à empregada.'),
+   T('Como estava o clima na casa?','Família fina, doutor. Ninguém gritava.','Diz que ninguém gritava em casa.',true,'Gritavam, sim. Por causa do namorado. A dona Lúcia chorou na cozinha na sexta.','Havia brigas por causa do namorado.')]),
+  SU('Álvaro Pires','Sócio de Frederico · 60 anos','proud',['m','s','side','rect','suit','',0.8,0],
+   'Álvaro Pires chega de terno às cinco da manhã. Pede café, reclama do café, e diz que conhece o secretário de Segurança.',
+   'Álvaro brigou com Frederico por dinheiro, mas estava em casa, em Alphaville, com a mulher e o porteiro como testemunhas.',[
+   T('Qual era a sua relação com Frederico?','Sócios há doze anos na construtora. Amigos.','Sócio e amigo de Frederico.',false,'Ele me devia satisfação de uma obra. A gente brigou feio no mês passado. Mas morte? Pelo amor de Deus.','Brigou com Frederico no mês passado.'),
+   T('Onde o senhor estava à meia-noite?','Em casa, em Alphaville, com a minha mulher.','Diz que estava em casa, em Alphaville.',false,'Em casa, sim. Minha mulher e o porteiro confirmam. Liguei pro Frederico às onze e ninguém atendeu.','Ligou para Frederico às 23h e ninguém atendeu.'),
+   T('Frederico falava da filha?','Assunto de família. Não me meto.','Diz não se meter em assunto de família.',true,'Falava. Ia tirar a Bianca da conta da poupança até ela largar o rapaz. Me pediu pra ser testemunha da mudança, na segunda.','Frederico ia tirar Bianca da poupança e pediu Álvaro como testemunha.','e7')])
+ ],
+ ev:{
+  e0:EV('Laudo do IML','O casal morreu entre 0h e 0h45, com golpes na cabeça. Nenhum sinal de luta: os dois dormiam.','lab',['tod',24,24.75,'Óbito estimado']),
+  e1:EV('Biblioteca revirada','Gavetas abertas e joias espalhadas pelo chão, sem nada faltando. Quem revirou não procurou nada: só bagunçou.','photo',['biblioteca','Biblioteca do casarão']),
+  e2:EV('Pasta de Frederico','A pasta de couro, com 5 mil dólares e 4 mil euros, ficou aberta sobre a cama de hóspedes. Intocada.','photo',['pasta','Pasta de couro no quarto de hóspedes']),
+  e3:EV('Registro do alarme','Alarme desarmado às 23h52 com o código do usuário 2, o código novo. Ninguém rearmou.','doc',['CENTRAL DE ALARME · 08/11/02',['22:10  armado (usuário 1)','!23:52  desarmado (usuário 2)','04:06  porta social aberta','#Usuário 2: código novo, criado em 07/11']]),
+  e4:EV('Câmera do posto','O Gol prata de Bianca passa pela esquina da casa às 0h51, saindo, com três pessoas dentro.','cctv',['CAM 02 · POSTO SANTA RITA','00:51:20','street',[['car',120,100,''],['p',60,96]]]),
+  e5:EV('Comanda do motel','Motel Estrela da Serra, suíte 12. Entrada à 0h58, saída às 3h40. Três pessoas. Pagamento em dinheiro.','ticket',['MOTEL ESTRELA DA SERRA',['SUITE 12','ENTRADA  09/11/02  00:58','SAIDA    09/11/02  03:40','OCUPANTES  3 (ADICIONAL)','PAGO EM ESPECIE  R$ 62,00'],'VOLTE SEMPRE']),
+  e6:EV('Declaração de Dona Cida','Na quarta, Bianca perguntou a que horas os pais dormiam e se o código novo do alarme já tinha sido trocado.','doc',['DECLARAÇÃO DE APARECIDA NUNES',['Na quarta a menina me perguntou','a que horas os patrões deitavam','e se o código novo já estava valendo.']],true),
+  e7:EV('Declaração de Álvaro','Frederico ia tirar Bianca da conta da poupança na segunda e pediu a Álvaro para ser testemunha.','doc',['DECLARAÇÃO DE ÁLVARO PIRES',['O Frederico ia tirar a filha da','conta da poupança na segunda-feira','e me pediu para ser testemunha.']],true)
+ },
+ conf:[
+  CF('e3','1.1',-8,0,'O alarme foi desligado com o código novo, que a senhora não tinha.','Eu disse, doutor. O novo eu não sabia.'),
+  CF('e3','2.1',-8,0,'A central registra seu telefonema às 23h: tocou e ninguém atendeu, porque o alarme ainda estava armado.','Viu? Eu estava em casa.'),
+  CF('e2','2.0',14,0,'Seu sócio deixou cinco mil dólares na pasta. O senhor, que brigou com ele por dinheiro, sabia disso?','Eu sabia que ele guardava dólar. Todo mundo sabia. Isso não me faz assassino.'),
+  CF('e4','0.0',28,1,'O seu Gol prata passa na esquina da casa às 0h51, saindo, com três pessoas. Não estava no cybercafé de Moema.','Eu disse que passei em casa. Pra pegar um casaco.'),
+  CF('e5','0.0',20,1,'Motel, entrada à 0h58. Sete minutos depois de o seu carro sair da sua rua. Três ocupantes.','Eu fui com o Caio. E o irmão dele. Isso é da minha vida particular.'),
+  CF('e3','0.1',26,1,'O alarme foi desligado às 23h52 com o código novo. Você mesma disse que só você e seu pai sabiam.','Eu disse que todo mundo sabia.'),
+  CF('e6','0.1',24,1,'Na quarta, você perguntou à Cida a que horas seus pais dormiam e se o código novo já valia.','A Cida é velha. Ela confunde as coisas.'),
+  CF('e7','0.2',24,1,'Seu pai ia tirar você da poupança na segunda. Pediu ao sócio para ser testemunha.','Eu não sabia disso. Eu juro.'),
+  CF('e2','0.3',26,1,'Os dólares que você disse que levaram estavam na pasta, à vista, intocados.','Eu me confundi. Eu estava em choque.'),
+  CF('e1','0.3',22,1,'As joias estavam espalhadas, mas nenhuma faltava. Ninguém roubou nada. Alguém encenou.','Eles devem ter se assustado e fugido.')
+ ]
+});
+
+/* ---------- 25 · inspirado no caso do juiz Machado Dias (2003) ---------- */
+CASES.push({
+ id:'c25',year:2003,date:'21 de março de 2003',dt:'21/03/03',where:'Presidente Ventura',title:'O Juiz das Cadeias',diff:4,
+ start:'20:30',limit:230,need:3,
+ brief:'Sexta-feira, 21 de março de 2003, 20h30. O oeste paulista tem mais presos do que eleitores em algumas cidades, e esta noite tem um juiz a menos.\n\nO doutor Leonel Bastos Rocha, 47 anos, juiz-corregedor dos presídios da região, levou cinco tiros às 18h05, ao sair do fórum pelo portão B, no seu Vectra prata sem blindagem. Logo hoje, a escolta não estava lá.\n\nA Facção mandou matar, isso todo mundo sabe. O que eu preciso saber é quem contou a ela que hoje ele estaria sozinho.',
+ truth:'Agnaldo Ruiz, agente penitenciário com dívidas, vendeu a rotina do juiz por 20 mil reais. Escreveu o bilhete com horário, portão e carro num formulário do almoxarifado que ele mesmo controla, redigiu um ofício falso dispensando a escolta, entregou o papel em mãos ao sargento dizendo que o juiz tinha pedido e recebeu o dinheiro em depósito três dias antes.',
+ getaway:'Agnaldo Ruiz pede transferência para outro presídio. A dívida está paga.',
+ culprit:0,
+ confession:['Agnaldo esfrega o rosto com as duas mãos e deixa ficar ali, cobrindo os olhos.','Disseram que era só pra assustar, que ia ser um recado. Eu devia pra agiota, pra meu sogro, pra todo mundo. Eu escrevi bonito, com a caligrafia do Senai. Ele me dava bom-dia todo dia, inspetor.'],
+ legal:{cl:'A Associação dos Magistrados pede, em sigilo, que você investigue o vazamento dentro do sistema prisional.',o:'O Imparcial do Oeste',r:'Rosana Leite',pn:'Deputado Wanderley Cruz',pr:'deputado da bancada da segurança',pk:'Ele quer pena de morte em discurso e nenhum servidor estadual envolvido.',rest:'O Vectra do juiz, no pátio do fórum, sob guarda da Polícia Federal.'},
+ sus:[
+  SU('Agnaldo Ruiz','Agente penitenciário · 39 anos','nervous',['m','o','crop','','uniform','mustache',0.35,0.4],
+   'Agnaldo Ruiz ainda está de farda. Bate o pé sem parar e pede água duas vezes antes de sentar.','',[
+   T('O senhor escreveu o ofício dispensando a escolta?','Não, senhor. Foi a direção que mandou.','Diz que o ofício veio da direção.',true,'Eu levei. A direção mandou levar. Eu só levei o papel.','Admitiu ter levado o ofício.'),
+   T('De onde vieram os 20 mil reais na sua conta?','Que 20 mil? Não tenho isso nem em sonho.','Nega ter recebido 20 mil.',true,'Vendi um carro. Um Uno. Não tem recibo, foi entre amigos.','Diz que vendeu um Uno sem recibo.'),
+   T('Quem tem acesso aos formulários do presídio?','Qualquer um, senhor. Fica em cima do balcão.','Diz que qualquer um tem acesso aos formulários.',true,'Os agentes. Eu cuido do almoxarifado de formulário.','Admitiu cuidar do almoxarifado de formulários.'),
+   T('O senhor conhece a letra do bilhete?','Nunca vi essa letra na vida.','Diz nunca ter visto a letra.',true,'É parecida com a minha. Muita gente escreve assim. Eu fiz caligrafia no Senai.','Admitiu que a letra parece a sua.')]),
+  SU('Dr. Fábio Lessa','Advogado criminalista · 52 anos','proud',['m','l','side','aviator','suit','',0.6,0.1],
+   'Fábio Lessa põe o cartão da OAB na mesa antes de dizer bom-noite. Defende presos há vinte anos e quer que você saiba disso.',
+   'Fábio defende presos da Facção, mas recusou o pedido de Agnaldo e estava no escritório com dois clientes às 18h.',[
+   T('O senhor defende membros da Facção?','Defendo pessoas. A Constituição garante.','Diz que defende pessoas, como garante a lei.',false,'Defendo. E isso não me faz um deles. Pergunte o que quiser.','Admitiu defender presos da Facção.'),
+   T('Alguém lhe pediu dinheiro recentemente?','Absurdo. Não sou banco.','Nega que alguém tenha pedido dinheiro.',true,'O Agnaldo. Em fevereiro. Vinte mil, pra um problema de família. E disse que a sexta do juiz era sem escolta. Achei que era só conversa de porta de cadeia.','Agnaldo pediu 20 mil e falou da sexta sem escolta.','e8'),
+   T('Onde o senhor estava às 18h?','No meu escritório.','Diz que estava no escritório.',false,'No escritório, com dois clientes. Tem livro de visitas e a minha secretária.','Estava no escritório com clientes.')]),
+  SU('Sgt. Adilson Prado','PM da escolta · 44 anos','hot',['m','s','crop','','uniform','',0.5,0.5],
+   'O sargento Adilson Prado entra de boina na mão. Fala alto, como quem quer se convencer.',
+   'Adilson foi enganado pelo ofício e não confirmou com o juiz para ir ao aniversário da filha. Errou por descuido, não por dinheiro.',[
+   T('Por que a escolta faltou hoje?','Fui dispensado, ué. Ordem é ordem.','Diz que foi dispensado por ordem.',false,'O Agnaldo trouxe o ofício na mão e disse: o juiz pediu. Não confirmei. Burrice minha.','Agnaldo entregou o ofício dizendo que o juiz pediu.','e7'),
+   T('O senhor confirmou a dispensa com o juiz?','Confirmei, claro. É procedimento.','Diz que confirmou com o juiz.',true,'Não confirmei! Tá bom? Não liguei. Eu queria ir no aniversário da minha filha.','Admitiu não ter confirmado com o juiz.'),
+   T('Já viu um Gol branco sem placa por aqui?','Nunca. Tem Gol branco aos montes.','Diz nunca ter visto o Gol.',false,'Na terça, parado na frente do presídio. Sem placa. Achei que era visita.','Viu o Gol branco na frente do presídio na terça.')])
+ ],
+ ev:{
+  e0:EV('Laudo do IML','Cinco tiros de pistola 9 mm pela janela do motorista. Morte imediata, às 18h05.','lab',['tod',18,18.25,'Óbito estimado']),
+  e1:EV('O Vectra do juiz','Vidro do motorista estilhaçado. O carro não era blindado: o pedido de blindagem estava parado havia oito meses.','photo',['vectra','Vectra prata no portão B']),
+  e2:EV('Bilhete apreendido','Achado ontem na cela de um líder da Facção: sexta sem escolta, saída 18h pelo portão B, Vectra prata. Letra caprichada, em formulário do presídio.','doc',['BILHETE · CELA 14, RAIO 2',['!SEXTA SEM ESCOLTA','SAI 18H PORTÃO B','VECTRA PRATA','#Papel: formulário de pedido de saída temporária']]),
+  e3:EV('Escala da escolta','A escolta foi dispensada por ofício da direção do presídio, assinado A. Ruiz, sem o visto do diretor.','doc',['ESCALA DA ESCOLTA · 21/03/03',['Juiz-corregedor: escolta 2 PMs','!DISPENSADA por ofício 017/03','Assinatura: A. Ruiz','#Sem visto do diretor do presídio']]),
+  e4:EV('Câmera do fórum','Às 18h04, um Gol branco sem placa espera junto ao portão B. O motorista usa capacete.','cctv',['CAM 03 · PORTAO B','18:04:50','garage',[['car',110,104,''],['p',60,96]]]),
+  e5:EV('Comprovante de depósito','Depósito de 20 mil reais em dinheiro na conta de Agnaldo Ruiz, três dias antes do crime.','ticket',['BANCO DO ESTADO',['AG 0412 PRES. VENTURA','DEPOSITO EM ESPECIE','VALOR  R$ 20.000,00','FAVORECIDO  A. RUIZ'],'18/03/03  10:22']),
+  e6:EV('Cápsulas no asfalto','Cinco cápsulas 9 mm e um formulário de pedido de saída temporária, amassado e em branco, igual ao papel do bilhete.','photo',['capsulas','Cápsulas junto ao meio-fio']),
+  e7:EV('Declaração do Sgt. Adilson','Agnaldo entregou em mãos o ofício dispensando a escolta e disse que o juiz tinha pedido.','doc',['DECLARAÇÃO DO SGT. ADILSON PRADO',['O agente Agnaldo me entregou o ofício','em mãos e disse que o juiz pediu.','Não confirmei com o gabinete.']],true),
+  e8:EV('Declaração do Dr. Fábio','Em fevereiro, Agnaldo pediu 20 mil reais emprestados e comentou que a sexta do juiz era sem escolta.','doc',['DECLARAÇÃO DE FÁBIO LESSA, ADV.',['Em fevereiro o agente Agnaldo me pediu','R$ 20 mil e comentou que às sextas','o juiz saía sem escolta.']],true)
+ },
+ conf:[
+  CF('e4','2.2',-6,0,'O Gol branco da câmera bate com o que o senhor viu na terça.','Eu disse. Eu vi o carro.'),
+  CF('e3','2.0',14,0,'O ofício não tem visto do diretor. Qualquer sargento confere isso.','Eu sei! Eu sei. Não precisa esfregar na minha cara.'),
+  CF('e2','1.0',12,0,'O bilhete fala da sexta sem escolta. Seu cliente estava nessa cela.','Meu cliente não escreve tão bem, inspetor. Repare na letra.'),
+  CF('e3','0.0',26,1,'O ofício que dispensou a escolta tem a sua assinatura, A. Ruiz, e nenhum visto do diretor.','Assinei como portador. Só isso.'),
+  CF('e7','0.0',24,1,'O sargento diz que o senhor entregou o ofício em mãos e disse que o juiz tinha pedido.','O sargento quer salvar a pele dele.'),
+  CF('e5','0.1',28,1,'Vinte mil em dinheiro, depositados três dias antes do crime, na sua conta.','O Uno. Eu disse. Vendi o Uno.'),
+  CF('e8','0.1',24,1,'Em fevereiro o senhor pediu 20 mil ao advogado e disse que a sexta do juiz era sem escolta.','Eu pedi emprestado. Todo mundo pede. Não falei de juiz nenhum.'),
+  CF('e2','0.2',22,1,'O bilhete foi escrito num formulário do presídio. O almoxarifado desses formulários é seu.','Qualquer um pega um formulário!'),
+  CF('e6','0.2',20,1,'Ao lado das cápsulas, um formulário em branco, igual ao do bilhete. Do seu almoxarifado.','Isso foi plantado. Estão me usando.'),
+  CF('e2','0.3',26,1,'Letra caprichada, de quem fez caligrafia. O senhor mesmo disse que a sua é assim.','Eu não... É parecida. Só parecida.')
+ ]
+});
+
+
+/* ---------- 26 · inspirado na chacina de Unaí (2004) ---------- */
+CASES.push({
+ id:'c26',year:2004,date:'3 de fevereiro de 2004',dt:'03/02/04',where:'Itaporã',title:'Emboscada na Estrada do Feijão',diff:4,
+ start:'21:40',limit:240,need:3,
+ brief:'Terça-feira, 3 de fevereiro de 2004, 21h40. Itaporã vive do feijão e do silêncio. Hoje o silêncio custou quatro vidas.\n\nÀs 8h30, três auditores fiscais do trabalho e o motorista do ministério foram emboscados numa estrada vicinal, a caminho de uma fiscalização. Uma picape esperava atravessada na estrada. Tiros de pistola, à queima-roupa. A pasta de autuações sumiu.\n\nO chefe da equipe, Nilton Siqueira, já tinha multado a mesma fazenda três vezes por trabalho escravo. A cidade inteira sabe de quem é a fazenda. Ninguém fala.',
+ truth:'Teodoro Brasil Vaz, fazendeiro e ex-vereador, mandou matar Nilton Siqueira para acabar com as fiscalizações na Fazenda Santa Teodora. Recebeu a pauta da operação por fax da prefeitura, chamou o despachante Fausto Lemes no sábado, pagou 45 mil reais pela empreitada e fez Fausto contratar dois pistoleiros de fora, hospedados no hotel da cidade.',
+ getaway:'Teodoro Brasil Vaz se candidata a prefeito de Itaporã em outubro. Ganha no primeiro turno.',
+ culprit:0,
+ confession:['Teodoro bate o chapéu na perna, devagar, uma vez, duas.','Aquele homem ia me quebrar. Três multas, a imprensa, a palavra escravo na frente dos meus filhos. Eu disse ao Fausto pra resolver. Eu não disse como. Eu nunca digo como.'],
+ legal:{cl:'O sindicato dos auditores fiscais pede sua ajuda: a Polícia Federal assumiu, mas a cidade fecha a boca para quem tem distintivo.',o:'Folha Rural',r:'Jairo Prestes',pn:'Senador Hermes Antunes',pr:'senador da bancada ruralista',pk:'Ele quer a tese de latrocínio e nenhum fazendeiro na manchete.',rest:'A picape do ministério, guardada no pátio da delegacia de Itaporã. O delegado local não libera sem ordem da Federal.'},
+ sus:[
+  SU('Teodoro Brasil Vaz','Fazendeiro, ex-vereador · 63 anos','proud',['m','r','cap','','suito','mustache',0.8,0.1],
+   'Teodoro Brasil Vaz senta com o chapéu no joelho e o relógio de ouro à mostra. Diz que doou a ambulância da cidade.','',[
+   T('O senhor sabia da fiscalização de hoje?','Fiscalização? Ninguém me avisa de nada nesta terra.','Diz que não sabia da fiscalização.',true,'A prefeitura me mandou um fax, por cortesia. Sou ex-vereador, é praxe.','Admitiu ter recebido a pauta por fax.'),
+   T('O senhor conhece Fausto Lemes?','Nunca ouvi falar.','Diz nunca ter ouvido falar de Fausto.',true,'É despachante. Cuida dos meus papéis de terra. Todo fazendeiro tem um.','Admitiu que Fausto é seu despachante.'),
+   T('Por que o senhor sacou 45 mil reais no sábado?','Não saquei nada. Pode olhar.','Nega ter sacado dinheiro.',true,'Paguei uma regularização de terra. Em dinheiro, que é como se paga aqui.','Diz que pagou uma regularização em dinheiro.'),
+   T('O que o senhor achava do fiscal Nilton?','Um servidor como outro qualquer.','Diz que Nilton era um servidor qualquer.',true,'Um perseguidor! Três multas! Chamou meus colonos de escravos na frente dos meus filhos. Mas eu sou cristão, inspetor.','Chamou Nilton de perseguidor e admitiu a raiva.')]),
+  SU('Zé Ribamar Lopes','Gerente da fazenda · 50 anos','nervous',['m','s','cap','','tee','stubble',0.55,0.6],
+   'Zé Ribamar torce o boné entre os dedos. Pergunta duas vezes se o patrão vai saber o que ele disser.',
+   'Zé Ribamar escondeu os trabalhadores sem registro por medo do patrão, mas estava na balança com o caminhoneiro às 8h30.',[
+   T('O que o senhor viu na fazenda no sábado?','Nada, senhor. Sábado eu folgo.','Diz que folgou no sábado.',true,'O patrão recebeu um fax, rasgou e mandou chamar o Fausto. Ficaram uma hora trancados no escritório.','Teodoro rasgou um fax e se trancou com Fausto no sábado.','e6'),
+   T('Tem trabalhador sem registro na fazenda?','Tudo registrado, de carteira assinada.','Diz que todos são registrados.',true,'Tem uns quarenta no feijão. Dormem no galpão. Eu só cumpro ordem.','Admitiu cerca de quarenta trabalhadores sem registro.'),
+   T('Onde o senhor estava às 8h30?','Na balança, pesando feijão.','Diz que estava na balança às 8h30.',false,'Na balança, com o caminhoneiro. Ele tem o ticket da pesagem.','Estava na balança, com ticket da pesagem.')]),
+  SU('Celeste Arruda','Dona do hotel · 57 anos','sad',['f','o','bun','round','dress','',0.7,0.3],
+   'Dona Celeste trouxe o livro de hóspedes no colo, abraçado. As mãos tremem quando você pede para ver.',
+   'Celeste arrancou as folhas do livro por medo de Fausto, mas não sabia para que serviam os hóspedes.',[
+   T('Por que faltam folhas no livro de hóspedes?','Rasgou, coisa de criança da casa.','Diz que uma criança rasgou o livro.',true,'Fui eu. O Fausto pediu na segunda. Mandou arrancar e disse que era a pedido de gente grande.','Arrancou as folhas a pedido de Fausto.','e7'),
+   T('Quem se hospedou de quinta a segunda?','Caixeiros-viajantes, como sempre.','Diz que hospedou caixeiros-viajantes.',true,'Dois moços de fora, de Goiás. Saíam de madrugada numa picape vermelha. O Fausto pagou tudo.','Dois homens de fora, com picape vermelha, pagos por Fausto.'),
+   T('A senhora tem medo?','Medo de quê, doutor?','Diz não ter medo.',false,'Tenho. Meu marido morreu devendo a esse povo. A cidade inteira deve.','Tem medo: a cidade deve aos fazendeiros.')])
+ ],
+ ev:{
+  e0:EV('Laudo do IML','Quatro mortos entre 8h30 e 9h. Tiros de pistola .380, à queima-roupa. Execução: nada foi roubado das vítimas.','lab',['tod',8.5,9,'Óbito estimado']),
+  e1:EV('A picape do ministério','Picape oficial crivada de tiros, parada na vicinal. A pasta de autuações sumiu do banco de trás. Carteiras e relógios ficaram.','photo',['picape','Picape do ministério na estrada vicinal']),
+  e2:EV('Cápsulas na estrada','Onze cápsulas .380 e marcas de pneu largo de uma picape vermelha que esperava atravessada na estrada.','photo',['capsulas','Cápsulas na estrada do feijão']),
+  e3:EV('Pauta da fiscalização','Nova inspeção na Fazenda Santa Teodora, dia 3, às 8h. Três multas anteriores por trabalho escravo. Pauta enviada por fax à prefeitura.','doc',['MINISTÉRIO DO TRABALHO · PAUTA',['Equipe: N. Siqueira e mais 2 auditores','Alvo: Fazenda Santa Teodora','!Data: 03/02/04, 8h','Autuações anteriores: 3 (trabalho escravo)','#Cópia por fax: Prefeitura de Itaporã']]),
+  e4:EV('Livro de hóspedes','Duas folhas arrancadas: 29 e 30 de janeiro. A numeração pula da página 112 para a 115.','doc',['HOTEL PARANAPANEMA · LIVRO',['pág. 111  27/01  representante','pág. 112  28/01  casal de Ourinhos','!pág. 113-114  ARRANCADAS','pág. 115  02/02  vendedor de sementes']]),
+  e5:EV('Recibo de saque','Saque de 45 mil reais em dinheiro no sábado, na conta de Teodoro Brasil Vaz. No verso, a lápis: F.L.','ticket',['BANCO DO ESTADO',['AG 0219 ITAPORA','SAQUE EM ESPECIE','VALOR  R$ 45.000,00','CONTA  TEODORO B. VAZ','VERSO (A LAPIS): F.L.'],'31/01/04  11:48']),
+  e6:EV('Declaração de Zé Ribamar','No sábado, o patrão leu um fax, rasgou e mandou chamar o despachante Fausto. Ficaram uma hora trancados.','doc',['DECLARAÇÃO DE JOSÉ RIBAMAR LOPES',['No sábado o patrão recebeu um fax,','rasgou e mandou chamar o Fausto.','Ficaram uma hora trancados.']],true),
+  e7:EV('Declaração de Celeste','Fausto pagou a hospedagem de dois homens de fora e, na segunda, pediu que ela arrancasse as folhas, a pedido de gente grande.','doc',['DECLARAÇÃO DE CELESTE ARRUDA',['O Fausto pagou dois hóspedes de fora','e na segunda pediu para arrancar','as folhas. Disse: é gente grande.']],true)
+ },
+ conf:[
+  CF('e4','2.0',18,0,'Faltam as páginas dos dias 29 e 30. Criança não arranca páginas com régua.','Eu já contei. O Fausto mandou. Pelo amor de Deus, não conta que fui eu que falei.','Confirmou que arrancou as folhas a pedido de Fausto.'),
+  CF('e2','2.1',16,0,'Uma picape vermelha esperava na estrada. Igual à dos seus hóspedes.','Eu não sabia pra que eles vinham. Eu juro por Nossa Senhora.'),
+  CF('e3','1.0',14,0,'A pauta chegou por fax à prefeitura e foi parar na fazenda no sábado.','Eu vi o papel na mão dele. Só isso que eu sei.'),
+  CF('e3','0.0',22,1,'A pauta foi enviada por fax à prefeitura. E foi parar na sua fazenda no sábado.','Fax é público. Qualquer um recebe fax.'),
+  CF('e6','0.0',26,1,'Seu gerente viu o senhor ler um fax no sábado, rasgar e mandar chamar o Fausto.','O Zé bebe. Quem bebe vê coisa.'),
+  CF('e6','0.1',22,1,'O senhor disse que nunca ouviu falar de Fausto Lemes. Ficaram uma hora trancados no seu escritório.','Despachante a gente nem lembra o nome. É como dentista.'),
+  CF('e5','0.2',28,1,'Saque de 45 mil no sábado, da sua conta. No verso, a lápis: F.L.','Regularização de terra. Eu disse.'),
+  CF('e7','0.1',24,1,'Fausto pagou o hotel de dois pistoleiros e mandou sumir com o registro. Fausto, o seu despachante.','O que o Fausto faz fora do expediente não é da minha conta.'),
+  CF('e1','0.3',20,1,'Levaram a pasta de autuações e deixaram as carteiras. Quem precisava sumir com as multas?','Qualquer fazendeiro da região. Ele perseguia todos.')
+ ]
+});
+
+/* ---------- 27 · inspirado no caso Dorothy Stang (2005) ---------- */
+CASES.push({
+ id:'c27',year:2005,date:'19 de fevereiro de 2005',dt:'19/02/05',where:'São João do Ribeira',title:'A Irmã da Terra',diff:4,
+ start:'17:50',limit:240,need:3,
+ brief:'Sábado, 19 de fevereiro de 2005, 17h50. No Vale do Ribeira, a terra é pública no papel e particular na cerca.\n\nA irmã Margarida Kessler, 73 anos, missionária nascida na Alemanha, foi morta às 7h30 numa trilha de lama, a caminho de uma reunião com os assentados do lote 55. Seis tiros. A Bíblia ficou aberta no chão, perto da mão dela.\n\nNa segunda, sairia a ordem de despejo contra o fazendeiro que cercou o lote. Os pistoleiros fugiram para o mato. Quem pagou está na minha sala, com mais duas pessoas que sabem demais.',
+ truth:'Benedito Gama grilou o lote 55 com escritura de outra comarca e ia ser despejado na segunda. Mandou o capataz Quincas comprar munição e botas na sua conta do armazém e oferecer 50 mil reais a dois rapazes de fora pelo serviço. Esperou a notícia no sítio, tomando café.',
+ getaway:'Benedito Gama consegue uma liminar e segura o despejo. A cerca continua de pé.',
+ culprit:0,
+ confession:['Benedito olha para as próprias botas. Lama seca na costura.','Ela não ia sair dali. Não aceitava dinheiro, não tinha medo de nada, ria na minha cara. Eu disse ao Quincas que a terra era minha e que alguém tinha que entender. Ela leu a Bíblia pros meninos antes. Me contaram.'],
+ legal:{cl:'A congregação da irmã Margarida procura você: eles querem o mandante, não só os pistoleiros.',o:'Jornal do Vale',r:'Ivone Sampaio',pn:'Deputado Rubens Gama',pr:'deputado estadual, primo do fazendeiro',pk:'Ele quer o caso tratado como briga entre assentados.',rest:'A trilha do lote 55, dentro da cerca da fazenda. O fazendeiro não deixa entrar sem ordem.'},
+ sus:[
+  SU('Benedito Gama','Fazendeiro · 61 anos','proud',['m','r','cap','','suito','beard',0.75,0.2],
+   'Benedito Gama entra de botas sujas e chapéu na mão. Cumprimenta o escrivão pelo apelido.','',[
+   T('O senhor ameaçou a irmã Margarida?','Nunca. Eu respeito a Igreja.','Nega ter ameaçado a irmã.',true,'Falei por falar, numa reunião quente. Quem não fala?','Admitiu ter dito a frase na reunião.'),
+   T('De quem é o lote 55?','Meu. Tenho escritura.','Diz ser dono do lote, com escritura.',true,'A escritura foi feita em cartório de outra comarca. Todo mundo regulariza assim.','Admitiu escritura de outra comarca.'),
+   T('O senhor comprou munição esta semana?','Não compro bala desde noventa.','Nega ter comprado munição.',true,'Quem compra é o Quincas, pra caçar paca. Põe na minha conta, é normal.','Admitiu que Quincas compra na sua conta.'),
+   T('Onde o senhor estava às 7h30?','No sítio, tomando café.','Diz que tomava café no sítio às 7h30.',false,'No sítio. Esperando notícia. Quer dizer, esperando o leite.','Deixou escapar que esperava notícia.')]),
+  SU('Laércio Souto','Assentado · 36 anos','hot',['m','s','messy','','tee','stubble',0.3,0.6],
+   'Laércio Souto tem as mãos rachadas de enxada e os olhos vermelhos de choro e de raiva. Não quer sentar.',
+   'Laércio brigou com a irmã por impaciência, mas estava no roçado com os dois filhos e contou os tiros de longe.',[
+   T('O senhor brigou com a irmã?','Briguei nada!','Nega ter brigado com a irmã.',true,'Briguei! Ela queria que a gente esperasse a Justiça. A Justiça não vem!','Brigou com a irmã por causa da demora da Justiça.'),
+   T('Viu alguém de fora na vila esta semana?','Ninguém.','Diz não ter visto ninguém de fora.',true,'Dois rapazes de fora, na porta do bar, na sexta. O Quincas ofereceu cinquenta mil pelo serviço da freira. Disse que o dinheiro era do patrão.','Quincas ofereceu 50 mil a dois rapazes, dinheiro do patrão.','e6'),
+   T('Onde o senhor estava às 7h30?','No roçado.','Diz que estava no roçado.',false,'No roçado, com meus dois filhos. Ouvi seis tiros. Contei.','Ouviu seis tiros do roçado.')]),
+  SU('Josefa Bastos','Dona do armazém · 66 anos','sad',['f','r','bun','','dress','',0.85,0.5],
+   'Dona Zefa traz um terço enrolado no pulso. Diz que vendeu pão para a irmã todo dia, por quinze anos.',
+   'Dona Zefa vendeu o que pediram e anotou no fiado por costume. Escondeu por medo, mas não sabia para que era.',[
+   T('Quem comprou munição esta semana?','Ninguém. Aqui não vende bala.','Diz que não vende munição.',true,'O Quincas. Duas caixas. Mandou pendurar na conta do seu Benedito, como sempre.','Quincas comprou balas na conta de Benedito.','e7'),
+   T('Quem comprou as botas novas?','Não lembro, meu filho.','Diz não lembrar quem comprou as botas.',true,'Dois moços de fora, com o Quincas. Número quarenta e quarenta e dois.','Dois moços compraram botas 40 e 42 com Quincas.'),
+   T('A irmã frequentava o armazém?','Todo dia, pra comprar pão.','Diz que a irmã comprava pão todo dia.',false,'Toda manhã. Ela me disse que tinha medo, que ia morrer. E riu.','A irmã disse que tinha medo de morrer.')])
+ ],
+ ev:{
+  e0:EV('Laudo do IML','Seis tiros de revólver .38, um deles à queima-roupa. Morte entre 7h30 e 8h. A Bíblia estava aberta junto à mão.','lab',['tod',7.5,8,'Óbito estimado']),
+  e1:EV('Trilha do lote 55','Pegadas de botas novas números 40 e 42 na lama e restos de fumo de rolo onde dois homens esperaram.','photo',['trilha','Trilha de lama do lote 55']),
+  e2:EV('Cerca derrubada','A cerca nova da fazenda Gama avança 3 km sobre o lote do assentamento. Os mourões têm a marca da serraria de Benedito.','photo',['cerca','Cerca da fazenda sobre o lote 55']),
+  e3:EV('Ofício do Instituto de Terras','Lote 55 declarado terra pública. Ordem de despejo contra Benedito Gama marcada para segunda, dia 21.','doc',['INSTITUTO DE TERRAS · OFÍCIO 112/05',['Lote 55: terra devoluta do Estado','Ocupante irregular: BENEDITO GAMA','!Despejo: 21/02/2005, 8h','#Escritura de outra comarca: nula']]),
+  e4:EV('Recorte de jornal','Em reunião na Câmara, Benedito Gama teria dito que a irmã não veria o carnaval. Ele nega.','news',['Jornal do Vale · 05/02/2005','Fazendeiro ameaça missionária em reunião','Na reunião da Câmara sobre o lote 55, o fazendeiro Benedito Gama teria dito, diante de testemunhas, que a irmã Margarida não veria o carnaval. Procurado, ele negou e disse respeitar a Igreja.']),
+  e5:EV('Nota do armazém','Na terça: duas caixas de munição .38, fumo de rolo e dois pares de botas, 40 e 42. Anotado no fiado de Benedito Gama.','ticket',['ARMAZEM SANTA ZEFA',['15/02/05','2 CX MUNICAO .38','1 KG FUMO DE ROLO','2 PAR BOTA N. 40 E 42'],'FIADO: SR. BENEDITO GAMA']),
+  e6:EV('Declaração de Laércio','Na sexta, o capataz Quincas ofereceu 50 mil reais pelo serviço da freira a dois rapazes de fora e disse que o dinheiro era do patrão.','doc',['DECLARAÇÃO DE LAÉRCIO SOUTO',['Na sexta o Quincas ofereceu cinquenta mil','a dois rapazes de fora pelo serviço da freira.','Disse que o dinheiro era do patrão.']],true),
+  e7:EV('Declaração de Dona Zefa','O capataz Quincas comprou a munição e as botas e mandou anotar na conta do patrão, como sempre.','doc',['DECLARAÇÃO DE JOSEFA BASTOS',['O Quincas comprou as balas e as botas','e mandou pendurar na conta do','seu Benedito, como sempre fazia.']],true)
+ },
+ conf:[
+  CF('e1','1.2',16,0,'Duas botas novas esperaram na trilha. As suas são velhas, de enxada.','Viu? Não fui eu. Eu tava no roçado com meus meninos.'),
+  CF('e4','1.0',-6,0,'O jornal mostra quem ameaçou a irmã na Câmara. Não foi o senhor.','Eu brigava com ela porque eu amava ela, porra.'),
+  CF('e5','2.0',18,0,'As balas estão no seu caderno de fiado.','Eu anoto tudo, meu filho. Eu anoto até o pão da irmã.'),
+  CF('e4','0.0',22,1,'Diante de testemunhas, na Câmara: a irmã não vê o carnaval. O carnaval foi semana passada.','Frase de reunião quente. O jornal aumenta.'),
+  CF('e3','0.1',24,1,'O lote 55 é terra pública, e sua escritura foi anulada. Despejo na segunda.','Liminar a gente consegue. Eu tenho advogado.'),
+  CF('e2','0.1',20,1,'Três quilômetros de cerca sobre o lote, com mourões da sua serraria.','Cerca se põe onde a gente acha que é nosso.'),
+  CF('e5','0.2',28,1,'Duas caixas de munição .38 e duas botas, na terça, no seu fiado.','O Quincas caça paca. Eu já disse.'),
+  CF('e7','0.2',24,1,'Dona Zefa diz que Quincas comprou as balas e as botas e mandou pendurar na sua conta, como sempre.','Como sempre: ele caça. Paca não acaba nunca.'),
+  CF('e6','0.3',26,1,'Na sexta, seu capataz ofereceu cinquenta mil pelo serviço da freira. Disse que o dinheiro era seu. E o senhor esperava notícia às 7h30.','Eu esperava o leite. O leite.')
+ ]
+});
+
+/* ---------- 28 · inspirado no furto ao Banco Central de Fortaleza (2005) ---------- */
+CASES.push({
+ id:'c28',year:2005,date:'8 de agosto de 2005',dt:'08/08/05',where:'Rua Boa Vista',title:'O Túnel da Rua Boa Vista',diff:4,
+ start:'10:20',limit:240,need:3,nobody:true,
+ mem:'Eu desci pelo buraco. Setenta e oito metros de terra escorada, ar frio de exaustor e cheiro de mofo.',
+ brief:'Segunda-feira, 8 de agosto de 2005, 10h20. O Centro abre as portas e descobre que o maior furto da história do país aconteceu no fim de semana, debaixo da rua.\n\nO cofre-forte da Corretora Atlântica, na Rua Boa Vista, amanheceu sem 156 milhões de reais em notas de cinquenta velhas, separadas para descarte e sem número de série registrado. Um túnel de 78 metros, escorado e ventilado, saía de uma casa alugada como loja de gramado sintético.\n\nQuem cava setenta e oito metros sem desabar uma calçada sabe o que faz. Três pessoas ajudaram, de um jeito ou de outro.',
+ truth:'Edgar Salles, engenheiro de minas aposentado e cheio de dívidas, projetou o túnel. Em abril, vistoriou o cofre se passando por engenheiro da prefeitura, mediu as paredes, foi com o falso inquilino conferir o lençol freático, comprou as escoras assinando o próprio nome e passou as madrugadas de julho na casa conferindo o escoramento.',
+ getaway:'Edgar Salles recebe sua parte em notas de cinquenta e some num sítio no interior. O resto do bando se espalha pelo país.',
+ culprit:0,
+ confession:['Edgar apoia as duas mãos na bengala e fala para ela, não para você.','Quarenta anos abrindo galeria para mineradora, e me aposentaram com um salário mínimo. Eu só queria provar que dava. Setenta e oito metros, sem uma rachadura na calçada. Ninguém nunca vai fazer igual.'],
+ legal:{cl:'A seguradora da corretora contrata você por fora: ela quer o cérebro do túnel antes que o dinheiro suma no país.',o:'Gazeta Mercantil Paulista',r:'Rodrigo Feltrin',pn:'Senador Caio Borba',pr:'senador da comissão de assuntos econômicos',pk:'Ele quer prisões rápidas para a TV e nenhuma pergunta sobre a segurança da corretora.',rest:'A boca do túnel, dentro do cofre da corretora. A Federal só deixa descer com ordem.'},
+ sus:[
+  SU('Edgar Salles','Engenheiro de minas aposentado · 68 anos','cold',['m','l','bald','rect','coat','',0.95,0],
+   'Edgar Salles entra devagar, de bengala, e escolhe a cadeira mais firme. Corrige o escrivão quando ele diz buraco.','',[
+   T('O que o senhor fazia nas madrugadas de julho?','Eu durmo cedo. Sou aposentado, tenho sessenta e oito anos.','Diz que dorme cedo.',true,'Eu jogava bingo, no Brás. Não gosto de dizer porque minha filha não sabe.','Alega que jogava bingo de madrugada.'),
+   T('O senhor conhece a Rua Boa Vista?','Só de passagem, como qualquer paulistano.','Diz conhecer a rua só de passagem.',true,'Fiz uma vistoria de fundação ali perto em abril, como consultor. Trabalho legal.','Admitiu ter feito uma vistoria em abril.'),
+   T('Comprou material de construção recentemente?','Não. Para quê? Eu moro de aluguel.','Nega ter comprado material.',true,'Comprei escoras pra um sobrado da minha irmã, em Itaquera.','Diz que comprou escoras para a obra da irmã.'),
+   T('O que o senhor acha de quem fez esse túnel?','Gente sem estudo, com sorte.','Diz que foi obra de gente sem estudo.',true,'Sem estudo? Aquilo tem cálculo de carga, ventilação forçada, desvio de lençol. É trabalho de mestre. Nenhum amador faz.','Elogiou o túnel como trabalho de mestre.')]),
+  SU('Marlene Duarte','Corretora de imóveis · 45 anos','nervous',['f','o','long','','blouse','',0.5,0.2],
+   'Marlene Duarte não para de abrir e fechar a bolsa. Trouxe o contrato, a cópia do RG do inquilino e três recibos.',
+   'Marlene aceitou dinheiro vivo sem perguntar pela comissão, mas não sabia do túnel e entregou tudo à polícia.',[
+   T('Quem alugou a casa?','Um tal Paulo Sérgio. Pagou seis meses à vista. Documento em ordem.','Diz que um Paulo Sérgio alugou e pagou seis meses.',false,'Dinheiro vivo, numa sacola de supermercado. Eu precisava da comissão. Não perguntei nada.','Recebeu seis meses em dinheiro vivo e não questionou.'),
+   T('O inquilino veio sozinho ver a casa?','Sozinho.','Diz que o inquilino veio sozinho.',true,'Veio com um senhor grisalho, de bengala, que só perguntava de lençol freático e da rede de esgoto.','O inquilino veio com um senhor grisalho de bengala.','e6'),
+   T('A senhora voltou à casa depois?','Nunca mais.','Diz que nunca mais voltou.',true,'Passei em junho. Tinha terra até no teto da sala e um barulho de motor. Disseram que era gramado sintético.','Viu terra e ouviu motor em junho.')]),
+  SU('Jair Bezerra','Vigilante-chefe · 50 anos','hot',['m','s','crop','','uniform','mustache',0.55,0.5],
+   'Jair Bezerra entra de farda da corretora, com o crachá virado. Está com cara de quem já foi demitido.',
+   'Jair silenciou o sensor por cansaço e deixou entrar um falso engenheiro, mas ganha mil e duzentos e não recebeu nada.',[
+   T('Por que o sensor sísmico do cofre foi desligado?','Ordem técnica. Disparava à toa.','Diz que o sensor foi desligado por ordem técnica.',false,'Fui eu, tá? Onze alarmes em julho, o gerente me esculachando de madrugada. Desliguei. Errei.','Admitiu ter silenciado o sensor por conta própria.'),
+   T('Alguém de fora visitou o cofre este ano?','Ninguém entra no cofre.','Diz que ninguém de fora entrou no cofre.',true,'Um engenheiro da prefeitura, em abril. Vistoria de fundação. Tinha crachá. Grisalho, de bengala. Mediu as paredes com trena.','Um engenheiro de bengala vistoriou o cofre em abril.','e7'),
+   T('O senhor recebeu dinheiro de alguém?','Tá me chamando de ladrão?','Nega ter recebido dinheiro.',false,'Eu ganho mil e duzentos. Se eu tivesse levado alguma coisa, eu tava em Cancún, não aqui.','Ganha mil e duzentos e nega ter recebido.')])
+ ],
+ ev:{
+  e0:EV('Boca do túnel','Túnel de 78 metros, escorado com eucalipto, com luz elétrica e exaustor. Sai exatamente no ponto mais fino do piso do cofre.','photo',['tunel','Saída do túnel no piso do cofre']),
+  e1:EV('Prancheta com cálculos','Croqui do escoramento, com cálculo de carga em letra técnica. Na margem, as iniciais E.S. e um carimbo de CREA raspado.','photo',['prancheta','Prancheta achada na casa do túnel']),
+  e2:EV('Contrato de locação','Casa alugada em maio por Paulo Sérgio Lima, com RG falso. Seis meses pagos em dinheiro. Ramo declarado: gramado sintético.','doc',['CONTRATO DE LOCAÇÃO · MAIO/2005',['Imóvel: Rua Boa Vista, 17 (fundos)','Locatário: PAULO SÉRGIO LIMA','Ramo: gramado sintético','!Pagamento: 6 meses em espécie','#RG do locatário: número inexistente']]),
+  e3:EV('Nota da loja de ferragens','Cento e vinte escoras de eucalipto, quarenta sacos de cimento e dois exaustores, pagos em dinheiro. Retirada assinada: E. Salles.','ticket',['CASA FABBRI FERRAGENS',['NF 2291   12/05/05','ESCORA EUCALIPTO 3M  X120','CIMENTO 50KG         X40','EXAUSTOR AXIAL       X2'],'RETIRADO POR: E. SALLES']),
+  e4:EV('Câmera do banco vizinho','Toda madrugada de julho, um Corolla verde-escuro para no estacionamento às 2h e sai às 5h. A placa é de Edgar Salles.','cctv',['CAM 04 · ESTAC. BOA VISTA','02:14:05','lot',[['car',130,104,''],['p',70,94]]]),
+  e5:EV('Relatório do sensor sísmico','O sensor do cofre disparou onze vezes em julho e foi silenciado depois do quarto falso alarme, por ordem do vigilante-chefe.','doc',['SEGURANÇA · SENSOR SÍSMICO',['Julho/2005: 11 disparos','04/07  disparo 02:40  falso alarme','!09/07  sensor silenciado (J. Bezerra)','#Sem comunicação à diretoria']]),
+  e6:EV('Declaração de Marlene','O inquilino visitou a casa com um senhor grisalho de bengala, que perguntou da profundidade do lençol freático e da rede de esgoto.','doc',['DECLARAÇÃO DE MARLENE DUARTE',['O inquilino veio com um senhor grisalho,','de bengala, que perguntou do lençol','freático e da planta do esgoto.']],true),
+  e7:EV('Declaração de Jair','Em abril, um engenheiro da prefeitura, grisalho e de bengala, vistoriou o cofre e mediu as paredes com trena.','doc',['DECLARAÇÃO DE JAIR BEZERRA',['Em abril veio um engenheiro da prefeitura,','grisalho, de bengala, com crachá.','Mediu as paredes do cofre.']],true)
+ },
+ conf:[
+  CF('e5','2.0',16,0,'O relatório mostra quem silenciou o sensor: J. Bezerra.','Eu disse que fui eu! Quer que eu pinte na parede?'),
+  CF('e2','1.0',14,0,'Seis meses em dinheiro, RG que não existe. A senhora não estranhou?','Estranhei! Mas era a comissão do ano. Eu tenho dois filhos na faculdade.'),
+  CF('e4','2.2',-8,0,'O carro das madrugadas não é seu. É de um aposentado.','Viu? Eu vou de ônibus.'),
+  CF('e4','0.0',28,1,'Seu Corolla para ao lado da corretora toda madrugada de julho, das duas às cinco. O senhor disse que dorme cedo.','Bingo. Eu disse. Eu estacionava ali para ir ao bingo.'),
+  CF('e7','0.1',24,1,'Em abril, um engenheiro grisalho de bengala, com crachá da prefeitura, mediu as paredes do cofre. O senhor disse que só passou pela rua.','Fui contratado para uma vistoria. Não sabia que era o cofre.'),
+  CF('e6','0.1',22,1,'O falso inquilino veio ver a casa com um senhor de bengala que perguntou do lençol freático.','Muitos homens de bengala nesta cidade, inspetor.'),
+  CF('e3','0.2',26,1,'Cento e vinte escoras, dois exaustores. Retirada assinada: E. Salles.','O sobrado da minha irmã. Em Itaquera.'),
+  CF('e1','0.3',26,1,'Cálculo de carga com as iniciais E.S. O senhor mesmo disse: é trabalho de mestre.','Eu disse que era bom. Não disse que era meu.'),
+  CF('e0','0.3',18,1,'Saída no ponto mais fino do piso. Só quem mediu o cofre por dentro acerta isso.','Ou quem teve sorte. Muita sorte.')
+ ]
+});
+
+/* ---------- 29 · inspirado no roubo do Museu Chácara do Céu (2006) ---------- */
+CASES.push({
+ id:'c29',year:2006,date:'25 de fevereiro de 2006',dt:'25/02/06',where:'Pacaembu',title:'Os Quadros do Carnaval',diff:3,
+ start:'20:00',limit:220,need:3,nobody:true,
+ mem:'Eu voltei à sala do museu. Quatro ganchos vazios, confete no chão e o som do bloco ainda passando lá fora.',
+ brief:'Sábado de carnaval, 25 de fevereiro de 2006, 20h. O bloco ainda está passando na rua, e a cidade nem percebeu o que perdeu.\n\nÀs 16h12, quatro homens com a camisa do bloco entraram no Museu Casa Alta, no Pacaembu, como visitantes. Renderam o vigia, tiraram da parede um Dalí, um Picasso, um Matisse e um Monet, e sumiram no meio da multidão.\n\nDas dezesseis câmeras, quatro funcionavam. As molduras foram desparafusadas sem quebrar um vidro. Alguém ensinou a eles como fazer. Três pessoas conheciam aquelas paredes.',
+ truth:'Maurício Dalla Costa, marchand afundado em dívidas com a Receita, encomendou o roubo para vender as obras a um colecionador estrangeiro. Tentou comprar o Dalí em janeiro e foi recusado. Na terça, fotografou as fixações com autorização da diretora. Na sexta, pagou cem reais ao vigia para ver o portão do jardim, por onde a quadrilha saiu para o bloco.',
+ getaway:'Maurício Dalla Costa embarca para Lisboa na Quarta-Feira de Cinzas. As obras nunca mais aparecem.',
+ culprit:2,
+ confession:['Maurício ajeita os punhos da camisa e sorri pela primeira vez. É um sorriso cansado.','Aquelas obras estavam morrendo naquela casa, com quatro câmeras e um vigia de sessenta anos. Eu ia dar a elas um dono que as merecesse. E pagar a Receita. Nessa ordem.'],
+ legal:{cl:'A família que doou o acervo ao museu procura você: eles não confiam na polícia para achar quadros que valem mais que o prédio.',o:'Gazeta das Artes',r:'Helena Varga',pn:'Secretário de Cultura Ruy Bastos',pr:'secretário estadual de Cultura',pk:'Ele quer esconder que o conserto das câmeras estava parado na secretaria.',rest:'A sala do Dalí, lacrada pela perícia da Federal.'},
+ sus:[
+  SU('Severino Lopes','Vigia do museu · 61 anos','sad',['m','o','bald','','uniform','mustache',0.85,0.6],
+   'Seu Severino ainda tem confete preso na farda. Repete que estava sozinho e que tinha uma arma na cara dele.',
+   'Severino aceitou cem reais por um favor que parecia inocente e não reagiu sob a mira de uma arma. Não sabia do plano.',[
+   T('Por que as câmeras não funcionavam?','Funcionavam, sim, senhor.','Diz que as câmeras funcionavam.',true,'Só quatro, doutor. Eu pedi conserto em novembro. Ninguém fez.','Só quatro câmeras funcionavam desde novembro.'),
+   T('Alguém estranho visitou o museu esta semana?','Só turista, senhor.','Diz que só vieram turistas.',true,'Na sexta, o seu Maurício pediu pra ver o jardim e perguntou se o portão dava pra rua do bloco. Me deu cem reais.','Maurício perguntou sobre o portão do jardim e lhe deu cem reais.','e6'),
+   T('O que o senhor fez quando os homens entraram?','Corri atrás deles.','Diz que correu atrás dos ladrões.',true,'Eu levantei a mão. Tinha uma arma na minha cara. Eu tenho sessenta e um anos.','Rendido, não reagiu.')]),
+  SU('Dra. Íris Sampaio','Diretora do museu · 54 anos','proud',['f','l','bun','round','coat','',0.6,0.1],
+   'A doutora Íris Sampaio fala baixo e escolhe as palavras como quem escolhe obras para uma sala.',
+   'Íris autorizou as fotos e recusou a venda do Dalí. Errou por confiança e por falta de verba, não por dinheiro.',[
+   T('Por que a senhora permitiu fotos com flash?','Eu não permiti. Ninguém fotografa o acervo.','Diz que não permitiu fotos.',true,'Permiti. Ele é respeitado no meio. Achei que era pesquisa séria.','Admitiu ter autorizado as fotos de Maurício.'),
+   T('Alguém tentou comprar obras do acervo?','Absurdo. Museu público não vende.','Diz que ninguém tentou comprar.',true,'O Maurício, em janeiro. Falou em colecionador estrangeiro, venda discreta. Eu o pus pra fora.','Maurício tentou comprar o Dalí em janeiro.','e7'),
+   T('Por que o conserto das câmeras parou?','Questões orçamentárias.','Diz que foi questão de orçamento.',false,'Não tinha verba. A secretaria cortou. Eu escrevi três ofícios.','Faltou verba; ela escreveu três ofícios.')]),
+  SU('Maurício Dalla Costa','Marchand · 58 anos','cold',['m','n','side','','suit','goatee',0.65,0],
+   'Maurício Dalla Costa tira as luvas de camurça dedo por dedo. Elogia a luz da sala, como se fosse uma galeria.','',[
+   T('Quando o senhor esteve no museu pela última vez?','Há anos. Não frequento museu de bairro.','Diz não ir ao museu há anos.',true,'Terça passada. Pesquisa para um catálogo. Fotografei, com autorização.','Admitiu ter estado no museu na terça, fotografando.'),
+   T('O senhor já trabalhou com essas obras?','Nunca encostei nelas.','Diz nunca ter tocado nas obras.',true,'Restaurei a moldura do Matisse em noventa e oito. Por isso conheço a fixação. Isso não é crime.','Admitiu ter restaurado a moldura do Matisse.'),
+   T('Como vão os negócios da galeria?','Melhor do que nunca.','Diz que a galeria vai muito bem.',true,'A Receita quer três milhões. Os bancos fecharam a porta. Satisfeito?','Admitiu dever três milhões à Receita.'),
+   T('O senhor já tentou comprar alguma obra do museu?','Museu não vende. Todo mundo sabe.','Diz que museu não vende.',true,'Fiz uma sondagem em janeiro, para um cliente. Formalidade. Ela disse não.','Admitiu ter sondado a compra do Dalí.')])
+ ],
+ ev:{
+  e0:EV('Paredes vazias','Quatro ganchos vazios. As molduras foram desparafusadas com chave Phillips, sem quebrar um vidro. Quem tirou sabia como as peças eram presas.','photo',['paredes','Sala do acervo, quatro ganchos vazios']),
+  e1:EV('Moldura abandonada','A moldura do Matisse ficou no jardim, junto ao portão. Atrás, uma etiqueta de restauração da Galeria Dalla Costa, de 1998.','photo',['moldura','Moldura do Matisse no jardim']),
+  e2:EV('Câmera da portaria','Às 16h12, quatro homens de bermuda e camisa do bloco entram como visitantes. Um carrega uma sacola de lona grande.','cctv',['CAM 02 · PORTARIA','16:12:40','hall',[['p',70,96],['p',90,98],['p',110,96],['p',130,98]]]),
+  e3:EV('Livro de visitas','Na terça anterior, M. D. Costa, pesquisa, passou duas horas na sala do Dalí. Fotos autorizadas pela diretoria.','doc',['MUSEU CASA ALTA · VISITAS',['21/02  10:05  M. D. Costa — pesquisa','!Sala: Dalí / Picasso','Saída: 12:10','#Fotografias autorizadas pela diretoria']]),
+  e4:EV('Recorte de jornal','A Receita aponta que a Galeria Dalla Costa deve 3 milhões de reais e teria vendido peças de procedência duvidosa a colecionadores.','news',['Gazeta das Artes · 10/02/2006','Marchand paulista na mira da Receita','A Galeria Dalla Costa deve cerca de R$ 3 milhões em impostos, segundo a Receita, e é investigada por vender a colecionadores peças de procedência duvidosa. O marchand não respondeu.']),
+  e5:EV('Câmeras do museu','Das dezesseis câmeras instaladas, só quatro funcionavam. O pedido de conserto estava parado desde novembro.','lab',['bars','Câmeras do museu',[['Instaladas',16,16,''],['Funcionando',4,16,'']]]),
+  e6:EV('Declaração de Severino','Na sexta, Maurício pediu para ver o jardim, perguntou se o portão dava para a rua do bloco e deu cem reais ao vigia.','doc',['DECLARAÇÃO DE SEVERINO LOPES',['Na sexta o Sr. Maurício pediu pra ver','o jardim e perguntou se o portão dava','na rua do bloco. Me deu cem reais.']],true),
+  e7:EV('Declaração da Dra. Íris','Em janeiro, Maurício ofereceu intermediar a venda discreta do Dalí para um colecionador estrangeiro. Ela recusou.','doc',['DECLARAÇÃO DE ÍRIS SAMPAIO',['Em janeiro o Sr. Maurício propôs','a venda discreta do Dalí a um','colecionador estrangeiro. Recusei.']],true)
+ },
+ conf:[
+  CF('e5','0.0',18,0,'Dezesseis câmeras, quatro funcionando. O senhor disse que todas funcionavam.','Eu tinha vergonha, doutor. Quatro câmeras pra uma casa inteira.','Admitiu que só quatro câmeras funcionavam.'),
+  CF('e2','0.2',-8,0,'A câmera mostra quatro homens e uma arma apontada para o senhor.','Eu disse. Eu levantei a mão.'),
+  CF('e3','1.0',16,0,'O livro de visitas diz: fotos autorizadas pela diretoria.','Fui eu. Eu confiei nele. Isso vai me perseguir pelo resto da vida.'),
+  CF('e3','2.0',26,1,'Terça passada, duas horas na sala do Dalí, fotografando. O senhor disse que não vinha aqui há anos.','Pesquisa. Eu disse que foi pesquisa.'),
+  CF('e6','2.0',22,1,'Na sexta, o senhor deu cem reais ao vigia para ver o portão do jardim, o que dá para a rua do bloco.','Eu gosto de jardins. E de ser gentil com quem trabalha.'),
+  CF('e1','2.1',28,1,'A moldura do Matisse ficou no jardim, com a etiqueta da sua galeria. O senhor disse que nunca encostou nas obras.','Eu restaurei a moldura. Anos atrás. Isso é currículo, não prova.'),
+  CF('e0','2.1',20,1,'Desparafusaram as molduras sem quebrar um vidro. Só quem conhecia a fixação faz isso em dez minutos.','Qualquer restaurador sabe.'),
+  CF('e4','2.2',24,1,'Três milhões devidos à Receita e peças de procedência duvidosa. O senhor disse que a galeria vai melhor do que nunca.','A imprensa cultural adora uma tragédia.'),
+  CF('e7','2.3',26,1,'Em janeiro, o senhor tentou comprar o Dalí para um colecionador estrangeiro. A diretora o pôs para fora.','Sondagem. Formalidade de mercado.')
+ ]
+});
+
+/* ---------- 30 · inspirado no caso do caseiro Francenildo (2006) ---------- */
+CASES.push({
+ id:'c30',year:2006,date:'30 de março de 2006',dt:'30/03/06',where:'Avenida Paulista',title:'O Caseiro e o Extrato',diff:3,
+ start:'21:00',limit:220,need:3,nobody:true,
+ mem:'Eu voltei ao vigésimo segundo andar. Carpete grosso, impressora ainda quente, e a Paulista inteira acesa lá embaixo.',
+ brief:'Quinta-feira, 30 de março de 2006, 21h. Ano de eleição, CPI na Assembleia, e um caseiro virou o homem mais exposto de São Paulo.\n\nJosenildo Araújo, 24 anos, caseiro de uma mansão no Morumbi, disse à CPI que o secretário da Fazenda frequentava a casa onde lobistas dividiam dinheiro. Quatro dias depois, um site de revista publicou o extrato bancário dele, com 38 mil reais em depósitos, como se fosse propina.\n\nO dinheiro era herança do pai. Mas o extrato vazou de dentro do Banco do Estado, e isso é crime. Três pessoas tocaram naquele papel.',
+ truth:'O doutor Jorge Medeiros Falcão, presidente do Banco do Estado, recebeu às 18h30 de sexta uma ligação do secretário da Fazenda pedindo munição contra o caseiro. Chamou o gerente às 19h, pegou a senha dele para uma falsa auditoria, consultou a conta do caseiro no próprio terminal, imprimiu na impressora da presidência e entregou o envelope em mãos à assessora do secretário.',
+ getaway:'Jorge Medeiros Falcão deixa a presidência do banco por motivos pessoais e assume uma diretoria numa empresa privada.',
+ culprit:1,
+ confession:['O doutor Jorge desabotoa o paletó. Pela primeira vez, parece um homem cansado e não um cargo.','Ele me ligou às seis e meia e disse: preciso de munição. Eu tenho trinta anos de banco, inspetor. Eu sabia exatamente o que estava fazendo. Só não achei que um caseiro valesse tanto barulho.'],
+ legal:{cl:'O advogado do caseiro, voluntário, procura você: a polícia não quer mexer com o banco do Estado, e o rapaz perdeu o emprego.',o:'Revista Pauta',r:'Lúcio Amaral',pn:'Secretário da Fazenda Rodolfo Vilela',pr:'secretário da Fazenda, citado pelo caseiro',pk:'Ele quer o caseiro desmoralizado e o vazamento tratado como erro de agência.',rest:'O terminal da agência, apreendido e lacrado pela auditoria do banco.'},
+ sus:[
+  SU('Marcos Antunes','Gerente de agência · 33 anos','nervous',['m','o','side','rect','suitp','',0.25,0.2],
+   'Marcos Antunes está pálido, de gravata frouxa. Diz que ainda tem o emprego até amanhã de manhã.',
+   'Marcos entregou a senha por medo do presidente e mentiu para se proteger, mas não consultou a conta nem imprimiu o extrato.',[
+   T('O senhor consultou a conta do caseiro?','Nunca. Não é minha função.','Diz nunca ter consultado a conta.',true,'Foi a minha senha. Mas não fui eu. O presidente me chamou às sete e pediu minha senha pra uma auditoria urgente. Me mandou esperar no corredor.','O presidente pediu sua senha e o mandou esperar no corredor.','e6'),
+   T('Por que o senhor subiu à presidência na sexta?','Fui entregar um relatório.','Diz que subiu para entregar relatório.',true,'Fui chamado. Eu tremia. Ninguém diz não ao presidente.','Foi chamado pelo presidente.'),
+   T('O caseiro é seu cliente há quanto tempo?','Uns cinco anos.','Diz que o caseiro é cliente há cinco anos.',false,'Cinco anos. Os 38 mil são do pai dele, que reconheceu o filho tarde. Eu vi o DOC. Ele é honesto.','Os 38 mil vieram do pai biológico do caseiro.')]),
+  SU('Dr. Jorge Medeiros Falcão','Presidente do Banco do Estado · 61 anos','proud',['m','s','side','','suit','',0.8,0],
+   'O doutor Jorge Medeiros Falcão chega com dois advogados e dispensa os dois na porta. Quer mostrar que não precisa.','',[
+   T('O senhor sabia do extrato antes da revista?','Soube pela imprensa, como todos.','Diz ter sabido pela imprensa.',true,'Ouvi falar na sexta. Boato de corredor.','Admitiu ter ouvido do extrato na sexta.'),
+   T('Onde o senhor estava às 19h de sexta?','Já tinha ido para casa.','Diz que já estava em casa às 19h.',true,'Fiquei até mais tarde. Despachos. Presidente de banco não tem hora.','Admitiu estar no 22º andar às 19h.'),
+   T('O senhor falou com o secretário da Fazenda na sexta?','Não falo com ele há semanas.','Diz não falar com o secretário há semanas.',true,'Ele me ligou. Assuntos do banco. Nada sobre o caseiro.','Admitiu ter falado com o secretário na sexta.'),
+   T('Quem pode consultar a conta de um cliente?','Só o gerente da agência, com a senha dele. A presidência não tem acesso.','Diz que só o gerente, com a senha, acessa a conta.',true,'Com a senha do gerente, qualquer terminal acessa. É uma falha do sistema, não minha.','Admitiu que a senha do gerente funciona em qualquer terminal.')]),
+  SU('Tânia Leme','Assessora de imprensa · 39 anos','cold',['f','n','long','','suitp','',0.35,0.1],
+   'Tânia Leme deixa o celular virado para baixo na mesa. Não pisca quando você diz a palavra crime.',
+   'Tânia entregou o envelope à revista, o que é grave, mas recebeu o extrato pronto e não teve acesso ao sistema do banco.',[
+   T('A senhora entregou o extrato à revista?','Assessoria não vaza documento.','Diz que assessoria não vaza documento.',true,'Entreguei. Mas eu não tirei extrato nenhum. Recebi pronto.','Admitiu ter entregado o extrato à revista.'),
+   T('De quem a senhora recebeu o envelope?','De fonte anônima. Sigilo de fonte.','Diz que recebeu de fonte anônima.',true,'Do presidente do banco. Em mãos. Ele disse: isso aqui encerra a CPI.','Recebeu o envelope do presidente do banco.','e7'),
+   T('O secretário sabia?','O secretário não sabe de nada.','Diz que o secretário não sabia.',true,'O secretário pediu munição. Não disse como. Ninguém nunca diz como.','O secretário pediu munição contra o caseiro.')])
+ ],
+ ev:{
+  e0:EV('Terminal da agência','Terminal 3 da agência Paulista. Consulta à conta do caseiro às 19h12 de sexta, com a senha do gerente, depois do expediente, por acesso remoto.','photo',['terminal','Terminal 3 da agência Paulista']),
+  e1:EV('Envelope pardo','Envelope com timbre da presidência do banco, achado na lixeira da sala. Dentro, um rascunho com o número da conta do caseiro, a caneta-tinteiro.','photo',['envelope','Envelope pardo na lixeira da presidência']),
+  e2:EV('Log do sistema','Consulta às 19h12 com a senha do gerente. Impressão às 19h14, na impressora da presidência, 22º andar. Não na agência.','doc',['BANCO DO ESTADO · LOG DE ACESSO',['24/03/06 19:12  consulta c/c 0041-77xx','Usuário: M. ANTUNES (senha)','!Estação: PRES-22-01','!19:14  impressão: impressora PRES-22','#Agência: nenhum acesso no horário']]),
+  e3:EV('Recorte do site','A revista publica que o caseiro tem 38 mil reais em depósitos. A assessoria do secretário diz que os fatos falam por si.','news',['Revista Pauta Online · 28/03/2006','Caseiro da CPI tem R$ 38 mil na conta','Extrato obtido pela revista mostra depósitos de R$ 38 mil na conta do caseiro que acusou o secretário da Fazenda. A assessoria do secretário diz que os fatos falam por si.']),
+  e4:EV('Registro da portaria','Na sexta, o gerente subiu à presidência às 19h05 e desceu às 19h20. A assessora Tânia Leme entrou às 19h40 e saiu doze minutos depois.','ticket',['BANCO DO ESTADO · PORTARIA 22º',['ENTRADA  M. ANTUNES   19:05','SAIDA    M. ANTUNES   19:20','VISITA   T. LEME      19:40','SAIDA    T. LEME      19:52'],'ACESSO AUTORIZADO: PRESIDENCIA']),
+  e5:EV('Agenda da presidência','Sexta, 18h30: ligação do secretário F. Sábado: almoço com T.L.','doc',['PRESIDÊNCIA · AGENDA',['24/03 sexta','!18:30  ligação Secretário F.','19:00  despachos','25/03 sábado','!13:00  almoço — T.L.']]),
+  e6:EV('Declaração de Marcos','O presidente o chamou às 19h, pediu a senha dele para uma auditoria urgente e mandou que esperasse no corredor.','doc',['DECLARAÇÃO DE MARCOS ANTUNES',['Às 19h o presidente me chamou,','pediu minha senha para uma auditoria','urgente e me mandou esperar no corredor.']],true),
+  e7:EV('Declaração de Tânia','Recebeu do próprio presidente, em mãos, o envelope pardo, com a frase: isso aqui encerra a CPI.','doc',['DECLARAÇÃO DE TÂNIA LEME',['Recebi o envelope pardo em mãos','do presidente do banco. Ele disse:','isso aqui encerra a CPI.']],true)
+ },
+ conf:[
+  CF('e0','0.0',20,0,'A consulta saiu com a sua senha, às 19h12. O senhor disse que nunca consultou.','A senha é minha. O dedo não. Eu tava no corredor!','Admitiu que a senha usada era a sua.'),
+  CF('e2','0.0',-8,0,'A impressão saiu no 22º andar, não na sua agência.','Eu disse. Eu nem tenho acesso àquela impressora.'),
+  CF('e3','2.0',18,0,'Os fatos falam por si, diz a assessoria do secretário. A sua assessoria.','Eu escrevi a nota. Não escrevi o extrato.'),
+  CF('e4','2.0',16,0,'A senhora entrou na presidência às 19h40 e saiu doze minutos depois. Fonte anônima?','Fonte é fonte. Mesmo quando tem crachá.'),
+  CF('e7','1.0',28,1,'A assessora do secretário diz que recebeu o envelope do senhor, em mãos. O senhor disse que soube pela imprensa.','A palavra de uma assessora de imprensa contra a minha.'),
+  CF('e1','1.0',22,1,'Envelope com o timbre da presidência na sua lixeira, com o número da conta escrito a tinteiro. O senhor usa tinteiro.','Meia diretoria usa tinteiro. É tradição da casa.'),
+  CF('e2','1.1',26,1,'Impressão às 19h14 na impressora da presidência. O senhor disse que já tinha ido para casa.','Eu disse que fiquei para despachos.'),
+  CF('e4','1.1',20,1,'O gerente subiu à presidência às 19h05, chamado. Às 19h12 alguém consultou a conta. O senhor estava lá.','Muita gente circula pelo andar.'),
+  CF('e5','1.2',24,1,'Na sua própria agenda: 18h30, ligação do secretário. O senhor disse que não falava com ele há semanas.','Agendas mentem. Secretárias anotam errado.'),
+  CF('e6','1.3',28,1,'O gerente diz que o senhor pediu a senha dele para uma auditoria urgente e o mandou esperar no corredor.','Ele é um rapaz nervoso. Inventa para se salvar.')
+ ]
+});
+
+})();
+</script>
 <script>(function(W){
 var DEC={
  office:['Gavetas reviradas, mas só papel velho e clipes.','Uma xícara de café frio. Ninguém aqui bebeu nela hoje.','Calendário de parede com compromissos antigos. Nada da noite.'],
@@ -1178,7 +1726,7 @@ function hh(s){var h=7;for(var i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))|0;ret
 W.Legal={
  LAW:LAW,
  data:function(C){
-  var d=D[C.id]||{cl:'O delegado Moura pede sua ajuda extraoficial.',o:'Tribuna Paulistana',r:'Sandra Bittar',pn:'Vereador Hélio Santoro',pr:'vereador',pk:'Ele quer o caso fechado depressa.',rest:'Um local trancado, sem autorização.'};
+  var d=C.legal||D[C.id]||{cl:'O delegado Moura pede sua ajuda extraoficial.',o:'Tribuna Paulistana',r:'Sandra Bittar',pn:'Vereador Hélio Santoro',pr:'vereador',pk:'Ele quer o caso fechado depressa.',rest:'Um local trancado, sem autorização.'};
   var lw=[0,1,2].map(function(i){return LAWYERS[(hh(C.id)+i*3)%LAWYERS.length]});
   return {cl:d.cl,press:{o:d.o,r:d.r},pol:{n:d.pn,r:d.pr,k:d.pk},rest:d.rest,lawyers:lw};
  },
@@ -1199,7 +1747,8 @@ W.Legal={
   var R=[];
   function opt(t,ok,eff){return {t:t,ok:!!ok,eff:eff||''}}
   /* corpo de delito */
-  if(!X.iml)R.push({law:'CPP art. 158',obj:'O advogado de defesa: Excelência, a infração deixou vestígios e não há exame de corpo de delito juntado. A confissão não supre o laudo.',opts:[opt('Admitir que o laudo do IML não foi juntado.',false),opt('Alegar que o corpo foi visto por testemunhas.',false),opt('Insistir que a confissão basta.',false)],lost:true});
+  if(X.nobody){}
+  else if(!X.iml)R.push({law:'CPP art. 158',obj:'O advogado de defesa: Excelência, a infração deixou vestígios e não há exame de corpo de delito juntado. A confissão não supre o laudo.',opts:[opt('Admitir que o laudo do IML não foi juntado.',false),opt('Alegar que o corpo foi visto por testemunhas.',false),opt('Insistir que a confissão basta.',false)],lost:true});
   else R.push({law:'CPP art. 158',obj:'O advogado de defesa: Excelência, a acusação precisa de exame de corpo de delito. A confissão não basta.',opts:[opt('Juntar o laudo do IML já anexado ao caderno e demonstrar a causa da morte.',true),opt('Alegar que a causa da morte é evidente a olho nu.',false),opt('Argumentar que o laudo é desnecessário diante da confissão.',false)]});
   if(X.tainted)R.push({law:'CF art. 5º, XI e LVI',obj:'O advogado de defesa: Excelência, parte da prova foi obtida sem autorização, em local trancado. Prova ilícita, inadmissível.',opts:[opt('Reconhecer o erro, retirar a prova ilícita e sustentar o caso nas demais.',true),opt('Alegar que o dono do local nunca ia perceber.',false),opt('Dizer que o fim justifica o meio.',false)]});
   if(X.coer)R.push({law:'CF art. 5º, III e LXIII',obj:'O advogado de defesa: Excelência, meu cliente foi pressionado até o limite. Isso é coação. A confissão deve ser anulada.',opts:[opt('Mostrar que o suspeito foi ouvido com advogado à disposição, sem violência, e que o caso se sustenta nas contradições documentadas.',true),opt('Dizer que interrogatório é assim mesmo.',false),opt('Negar que houve pressão.',false)]});
@@ -2048,6 +2597,7 @@ function buildCrime(room){
   // corpo coberto por lençol (formas arredondadas)
   var body=new THREE.Group();body.position.set(0,0,.1);body.rotation.y=.4;G.add(body);var sheet=M(.8);
   var pool=mesh(new THREE.CircleGeometry(.7,22).rotateX(-Math.PI/2),Lam({color:0x0b0b0b}),0,.008,-.6,false);pool.scale.set(1.15,1,.95);pool.receiveShadow=true;body.add(pool);
+  C.body=body;
   body.add(sph(.14,sheet,0,.13,-1.05,1,.9,1.15));body.add(sph(.3,sheet,0,.14,-.68,1.15,.5,.85));body.add(sph(.25,sheet,0,.12,-.3,1.05,.5,1));body.add(sph(.24,sheet,0,.11,.02,1.15,.48,.95));
   [-1,1].forEach(function(s){var l=tap(.115,.075,.8,sheet);l.rotation.x=Math.PI/2;l.position.set(s*.12,.09,.0+(s>0?.02:0));body.add(l);body.add(sph(.075,M(.06),s*.12,.06,.9+(s>0?.05:0),1,.7,1.5))});
   body.add(sph(.34,sheet,0,.1,-.15,1,.35,2.6));
@@ -2157,9 +2707,9 @@ function applyCam(a,b,u,focus){
 var LAST_NOW=0;
 function setViewShift(){var sh=((D.free&&!FL.on&&!VIS.on?$('#ui').offsetHeight:0)||0)*.4;camera.updateProjectionMatrix();camera.setViewOffset(innerWidth,innerHeight,0,sh,innerWidth,innerHeight)}
 
-var ROOMMAP={c01:'office',c02:'warehouse',c03:'darkroom',c04:'club',c05:'bar',c06:'yard',c07:'locker',c08:'warehouse',c09:'bar',c10:'apartment',c11:'shop',c12:'locker',c13:'hospital',c14:'studio',c15:'office',c16:'server',c17:'gas',c18:'shop',c19:'theater',c20:'library'};
+var ROOMMAP={c01:'office',c02:'warehouse',c03:'darkroom',c04:'club',c05:'bar',c06:'yard',c07:'locker',c08:'warehouse',c09:'bar',c10:'apartment',c11:'shop',c12:'locker',c13:'hospital',c14:'studio',c15:'office',c16:'server',c17:'gas',c18:'shop',c19:'theater',c20:'library',c21:'bar',c22:'studio',c23:'yard',c24:'apartment',c25:'gas',c26:'yard',c27:'yard',c28:'warehouse',c29:'library',c30:'office'};
 var G={C:null,ci:-1,SUS:[],S:{},cur:0};
-function getScene(n){if(!SCN[n]){var f={rua:buildRua,mesa:function(){return buildMesa(G.C)},interro:function(){var I=buildInterro();I.setSus(G.SUS.map(function(s){return s.look}));return I},crime:function(){return buildCrime(ROOMMAP[G.C.id]||'office')},cctv:buildCCTV,aereo:buildAereo}[n];SCN[n]=f()}return SCN[n]}
+function getScene(n){if(!SCN[n]){var f={rua:buildRua,mesa:function(){return buildMesa(G.C)},interro:function(){var I=buildInterro();I.setSus(G.SUS.map(function(s){return s.look}));return I},crime:function(){var c=buildCrime(ROOMMAP[G.C.id]||'office');if(G.C.nobody&&c.body)c.body.visible=false;return c},cctv:buildCCTV,aereo:buildAereo}[n];SCN[n]=f()}return SCN[n]}
 function dropCase(){['mesa','crime','interro'].forEach(function(k){delete SCN[k]})}
 
 /* ---------- progresso ---------- */
@@ -2220,7 +2770,7 @@ function makeBeats(C){
    {id:'pensa2',scene:'aereo',tag:'Pensamento · '+C.where,stamp:dt+' · '+fmt(hm(C.start)-20),cam:[iso(30-az,0,-30,230,-20-az,50,32),iso(-20+az,0,-10,170,-60-az,44,32)],
     lines:['Cada um dos três tem uma versão da mesma noite.','Só uma delas não fecha. É nela que eu vou apertar.']},
    {id:'lembranca',scene:'crime',mode:1,tag:'Lembrança',stamp:dt+' · '+fmt(hm(C.start)-60),cam:[iso(-.3,.4,-1.0,21,36,46,36),iso(.1,.2,-1.0,16,18,52,34)],
-    lines:['Eu estive lá primeiro. O lençol branco, o chão frio, o cheiro de ferrugem.',(ph?C.ev[ph].text:'Nada fora do lugar. E é isso que incomoda.')]},
+    lines:[C.mem||'Eu estive lá primeiro. O lençol branco, o chão frio, o cheiro de ferrugem.',(ph?C.ev[ph].text:'Nada fora do lugar. E é isso que incomoda.')]},
    {id:'sala',scene:'interro',free:true,tag:'Sala dois',stamp:dt+' · '+C.start,cam:[iso(0,1,0,11.5,-34,38,30),iso(0,1,0,11.5,-34,38,30)],
     lines:['Sala dois. Lâmpada nua, café frio. Todo mundo mente. A questão é como.']}
   ];
@@ -2504,7 +3054,7 @@ function startHearing(who){
   SND.fx('gavel');SND.amb('menu');var S=G.S,imlId=null;
   S.ev.forEach(function(id){if(/^Laudo do IML/.test(G.C.ev[id].name))imlId=id});
   var tainted=false;S.exposed.forEach(function(key){var c=CONF[key],ev=key.split('|')[0];if(c&&c.nel&&S.tainted[ev])tainted=true});
-  var X={iml:!!imlId,tainted:tainted,coer:S.coer>0,leak:S.leaked,debt:S.m.pol>=25};
+  var X={nobody:!!G.C.nobody,iml:!!imlId,tainted:tainted,coer:S.coer>0,leak:S.leaked,debt:S.m.pol>=25};
   var rs=Legal.rounds(X).slice(0,4);
   rs.forEach(function(r,i){var o=r.opts.slice(),h=hashStr(G.C.id+i);o.sort(function(a,b){return hashStr(a.t+h)-hashStr(b.t+h)});r.opts=o});
   S.hear={rs:rs,i:0,lost:0,who:who};
@@ -2614,8 +3164,8 @@ function verdict(who,H){var S=G.S,C=G.C;if(S.over)return;S.over=true;closeSheet(
   $('#ag').onclick=function(){e.style.display='none';startCase(G.ci)};$('#ls').onclick=function(){e.style.display='none';showMenu()}}
 
 /* ---------- menu de casos ---------- */
-function showMenu(){resetVis();SND.amb('menu');var m=$('#menu');var h='<h1>Interrogatório \'94</h1><p>Diário do inspetor · São Paulo, 1990–1999. Escolha o caso.</p><div class="grid">';
-  CASES.forEach(function(c,i){var d=PROG.done[c.id];h+='<button class="cs'+(d?' done':'')+'" data-i="'+i+'"><em>'+(d?'✓':'')+'</em><b>'+(i+1)+'. '+esc(c.title)+'</b><span>'+esc(c.where)+' · '+c.year+'</span><span>'+'★'.repeat(c.diff)+'☆'.repeat(5-c.diff)+'</span></button>'});
+function showMenu(){resetVis();SND.amb('menu');var m=$('#menu');var h='<h1>Interrogatório \'94</h1><p>Diário do inspetor · São Paulo. Escolha o caso.</p>',sea=-1;
+  CASES.forEach(function(c,i){var ns=c.year>=2000?1:0;if(ns!==sea){h+=(sea>=0?'</div>':'')+'<p class="sea">'+(ns?'Temporada 2 · 2000–2006 · inspirados em casos reais':'Temporada 1 · 1990–1999')+'</p><div class="grid">';sea=ns}var d=PROG.done[c.id];h+='<button class="cs'+(d?' done':'')+'" data-i="'+i+'"><em>'+(d?'✓':'')+'</em><b>'+(i+1)+'. '+esc(c.title)+'</b><span>'+esc(c.where)+' · '+c.year+'</span><span>'+'★'.repeat(c.diff)+'☆'.repeat(5-c.diff)+'</span></button>'});
   m.innerHTML=h+'</div>';m.style.display='block';m.scrollTop=0;$('#ui').style.display='none';$('#title').style.display='none';D.beat=-1;setText(null);$('#top').style.display='none';$('#stamp').style.display='none';$('#skip').style.display='none';$('#hint').style.display='none';$('#ins').style.display='none';closeSheet();
   m.onclick=function(ev){var b=ev.target.closest('.cs');if(!b)return;m.style.display='none';startCase(+b.dataset.i)}}
 function startCase(i){$('#menu').style.display='none';loadCase(i);var I=getScene('interro');go(0)}
