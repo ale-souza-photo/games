@@ -46,11 +46,24 @@ button.on{background:#c9dcff;color:#13285e;border-color:#c9dcff}
 #end .stamp{display:inline-block;border:2px solid #c9dcff;color:#c9dcff;padding:2px 8px;font-size:12px;margin-bottom:10px;transform:rotate(-2deg)}
 #end .stats{display:flex;gap:8px;margin:14px 0}#end .stats div{flex:1;border:2px solid #8f8489;border-radius:9px;padding:6px;text-align:center;font-size:11px;color:#8f8489}#end .stats b{display:block;color:#fff;font-size:18px}
 #end button,#menu>button{display:block;width:100%;margin:0 0 8px;padding:10px}
+#end button.ho{text-align:left;font-size:13px;line-height:1.3;padding:11px 12px;white-space:normal}
+#end .law{color:#c9dcff;margin:0 0 6px}
+#end .obj{font-family:'Old Standard TT',Georgia,serif;font-size:17px;line-height:1.3;color:#efeadc;margin:0 0 14px}
+#end .mtr{display:flex;gap:6px;margin:12px 0}
+#end .mtr div{flex:1;border:2px solid #8f8489;border-radius:9px;padding:5px 4px;text-align:center;font-size:10px;color:#8f8489}#end .mtr b{display:block;color:#fff;font-size:17px}
+#spots{position:absolute;inset:0;display:none;z-index:4;pointer-events:none}
+#spots button{position:absolute;transform:translate(-50%,-50%);width:32px;height:32px;min-height:0;padding:0;border-radius:50%;background:#000c;border:2px solid #f0b020;color:#f0b020;font:700 14px 'Special Elite','Courier New',monospace;pointer-events:auto;box-shadow:0 0 0 2px #0009}
+#spots button.on{background:#f0b020;color:#2a1b00;border-color:#fff8e0}
+#spots button.dcy{border-color:#8f8489;color:#8f8489}
+#spots button.lk{border-color:#c06060;color:#e0a0a0}
+#scbar{position:absolute;left:8px;right:8px;top:calc(10px + env(safe-area-inset-top,0px));display:none;gap:5px;z-index:6;align-items:center;overflow-x:auto;white-space:nowrap;scrollbar-width:none}#scbar::-webkit-scrollbar{display:none}
+#scbar .lab{background:#000c;border-radius:8px;padding:5px 9px;color:#efeadc;flex:none}
 </style></head><body>
 <canvas id="c"></canvas>
 <div class="tag" id="top"></div><div class="tag" id="stamp"></div><div id="rec"></div><div id="ins"><i>ROSTO</i></div>
 <div id="vo"></div><div id="hint">toque para avançar</div><button id="skip">Pular ▶▶</button>
 <div id="title"><h1></h1><p></p></div>
+<div id="spots"></div><div class="row" id="scbar"></div>
 <div id="sheet"></div><div id="menu"></div><div id="end"></div>
 <div id="ui"><div class="row" id="r1"></div><div class="row" id="r2"></div><div class="row" id="r3"></div></div>
 <script>/**
@@ -1104,6 +1117,99 @@ CASES.push({
 })();
 
 </script>
+<script>(function(W){
+var DEC={
+ office:['Gavetas reviradas, mas só papel velho e clipes.','Uma xícara de café frio. Ninguém aqui bebeu nela hoje.','Calendário de parede com compromissos antigos. Nada da noite.'],
+ warehouse:['Caixas empilhadas. Poeira intacta, ninguém mexeu.','Uma lanterna caída. A pilha está fraca, está lá há semanas.','Pegadas de botina por toda parte. Os funcionários andam aqui o dia inteiro.'],
+ darkroom:['Cubas de revelação com químico velho. Nada ligado ao caso.','Rolos virgens na gaveta. Nenhum negativo da noite.','Um cinzeiro cheio. Marcas de vários fumantes, nenhuma fresca.'],
+ club:['Copos plásticos espalhados. Metade do bairro passou por aqui.','Um isqueiro perdido no chão. Sem marca, sem dono.','Cartazes de shows. Nenhum rasgado hoje.'],
+ bar:['Copos sujos no balcão. Ninguém tocou neles depois do fechamento.','Um guardanapo com um telefone. Número de pizzaria.','Garrafas arrumadas no lugar. Nada fora do normal.'],
+ yard:['Pegadas misturadas na lama, de bem antes do crime.','Uma lata amassada junto à cerca. Lixo comum.','Marca de pneu de uma moto. Passa por aqui todo dia.'],
+ gas:['Manchas de óleo por todo o piso. Normal em posto.','Uma garrafa de água vazia. Nada nela.','Cupom de abastecimento amassado. De dias atrás.'],
+ locker:['Armários trancados com cadeado. Os policiais já olharam.','Uma toalha úmida num banco. Sem relação.','Chaves de armário sem etiqueta. Nenhuma abre algo útil.'],
+ hospital:['Prancheta com prontuários. Nada anotado na hora do crime.','Luvas descartáveis na lixeira. Rotina do plantão.','Um copo de café de máquina. Sem digitais úteis.'],
+ studio:['Fitas com o programa dos últimos dias. Nada do dia.','Fones de ouvido pendurados. Ninguém os usou hoje.','Um bilhete de recado antigo. Sem importância.'],
+ shop:['Prateleiras em ordem. Nenhuma falta além do esperado.','Sacola plástica vazia. Nada dentro.','Nota fiscal amassada. Compra do dia anterior.'],
+ apartment:['Almofadas no lugar. Nada revirado.','Um porta-retrato da família. Sem relação com o caso.','Correspondência fechada na mesinha.'],
+ server:['Cabos organizados nos racks. Nada solto.','Uma caneca de café fria. Sem digitais úteis.','Manual de rede aberto. Anotações do dia a dia.'],
+ theater:['Figurinos pendurados. Nenhum faltando.','Programa da peça jogado num assento. Sem relação.','Cadeiras empoeiradas. Ninguém sentou ali.'],
+ library:['Livros alinhados. Nenhum fora do lugar.','Uma poltrona com marca de uso antigo.','Chá esfriado numa bandeja. Sem relevância.']
+};
+W.DEC=DEC;
+function isScene(e){return e.kind==='photo'||/^Laudo do IML/.test(e.name)||/^Impress[aã]o/.test(e.name)}
+W.isScene=isScene;
+var LAWYERS=['Dr. Cláudio Ferraz','Dra. Beatriz Montenegro','Dr. Osvaldo Teixeira','Dra. Helga Prandi','Dr. Murilo Castanho','Dr. Fausto Barreto','Dra. Irene Sallum','Dr. Plínio Vasconcelos','Dr. Ademar Quintão','Dra. Valéria Sobral'];
+var LAW=[
+ ['CF art. 5º, XI','A casa é asilo inviolável. Só entra sem consentimento em flagrante, desastre, para socorro, ou por ordem judicial de dia. Quem entra sem ordem contamina a prova.'],
+ ['CF art. 5º, LVI','São inadmissíveis, no processo, as provas obtidas por meios ilícitos. Prova ilícita não conta, mesmo que seja verdadeira.'],
+ ['CF art. 5º, LXIII','O preso será informado de seus direitos, entre eles o de permanecer calado e o de ter assistência de advogado.'],
+ ['CF art. 5º, III','Ninguém será submetido a tortura nem a tratamento desumano ou degradante. Pressão que vira coação derruba confissão.'],
+ ['CF art. 5º, LXI','Ninguém será preso senão em flagrante ou por ordem escrita e fundamentada de autoridade judiciária.'],
+ ['CPP art. 158','Quando a infração deixar vestígios, o exame de corpo de delito é indispensável, e a confissão não o substitui. Sem laudo, não há condenação.'],
+ ['CPP art. 386, VI','O juiz absolve quando não existir prova suficiente para a condenação. Na dúvida, a favor do réu.'],
+ ['Lei 7.960/89','Prisão temporária: 5 dias, prorrogáveis por mais 5, só nos casos previstos, para investigação.'],
+ ['Lei 5.250/67 (Imprensa)','A imprensa é livre, mas responde por calúnia e difamação. Vazar nome de suspeito antes da hora vira prejulgamento.'],
+ ['CP art. 325','Revelar fato de que se tem ciência em razão do cargo, e que deva permanecer em segredo, é violação de sigilo funcional.']
+];
+var D={
+ c01:{cl:'O delegado Moura, seu ex-colega de plantão, pede um favor: o dono da casa de câmbio era amigo da família e o caso cheira a dinheiro grande.',o:'Tribuna Paulistana',r:'Sandra Bittar',pn:'Vereador Hélio Santoro',pr:'presidente da Comissão de Finanças',pk:'Ele quer que a investigação não mexa com os doleiros do Centro.',rest:'A caixa de entrada da casa de câmbio, com chave particular. Para abrir, o gerente pede ordem.'},
+ c02:{cl:'A viúva de um dos sócios aparece na sua porta e pede que você descubra quem matou o marido antes que o inquérito vá para a gaveta.',o:'Diário da Capital',r:'Márcio Veloso',pn:'Deputado Ney Bastos',pr:'deputado federal',pk:'O deputado tinha dinheiro guardado no depósito e não quer o nome dele nos jornais.',rest:'O depósito dos fundos, trancado pelo dono, que não está presente.'},
+ c03:{cl:'Uma fotógrafa assustada procura você: o editor foi morto com negativos de manifestação na gaveta. A polícia está lenta.',o:'Tribuna Paulistana',r:'Sandra Bittar',pn:'Secretário Anselmo Coutinho',pr:'secretário estadual de Segurança',pk:'O secretário quer o caso fechado antes do fim do impeachment.',rest:'A sala de revelação, lacrada pelo laboratório. O dono do prédio só abre com ordem.'},
+ c04:{cl:'O delegado Moura admite que a Polícia Civil não dá conta e pede que você olhe a cabine do clube com olhos de ex-colega.',o:'Rádio Metrópole 940',r:'Edu Camargo',pn:'Vereador Hélio Santoro',pr:'dono de duas casas noturnas',pk:'Ele teme o fechamento da casa e quer influir na interdição.',rest:'A cabine do DJ, na parte privativa do clube, trancada pelo dono.'},
+ c05:{cl:'A família do dono do bar contrata você por fora. O inquérito oficial só quer saber de briga de torcida.',o:'Diário da Capital',r:'Márcio Veloso',pn:'Vereador Lauro Pacheco',pr:'vereador da região',pk:'Ele frequentava o bar e não quer ser visto como cliente fiel.',rest:'A câmara fria nos fundos, com cadeado. Só o dono tem a chave, mas ele está morto.'},
+ c06:{cl:'Um conhecido do ferro-velho pede sua ajuda: a polícia tem pressa em fechar o caso como acerto de contas.',o:'Jornal da Mooca',r:'Dirceu Antunes',pn:'Secretário Anselmo Coutinho',pr:'secretário estadual de Segurança',pk:'Ele não quer escândalo em ano de eleição.',rest:'O galpão dos fundos, fechado por cadeado particular.'},
+ c07:{cl:'A viúva do vigilante procura você. A rodoviária não quer saber de investigação própria.',o:'Tribuna Paulistana',r:'Sandra Bittar',pn:'Vereador Hélio Santoro',pr:'dono da concessionária de guarda-volumes',pk:'O contrato do guarda-volumes é dele e qualquer escândalo derruba a licitação.',rest:'O guarda-volumes número 14, trancado pela concessionária.'},
+ c08:{cl:'O sindicato dos metalúrgicos procura você: um operário morreu e a fábrica pressiona para ser acidente.',o:'Diário da Capital',r:'Márcio Veloso',pn:'Deputado Ney Bastos',pr:'deputado e dono de empresa terceirizada',pk:'Ele não quer que a investigação olhe os contratos da terceirizada.',rest:'A sala de ferramentas, lacrada pela diretoria.'},
+ c09:{cl:'A família Ferrante teme que a cantina vá à falência com o escândalo. A viúva paga para você descobrir a verdade em silêncio.',o:'Notícias do Bixiga',r:'Teresa Marchetti',pn:'Vereador Lauro Pacheco',pr:'vereador amigo da família',pk:'Ele quer que a cantina saia do caso sem arranhão.',rest:'A adega, trancada pelo sócio, que não está presente.'},
+ c10:{cl:'Moradores do Copan se reúnem e contratam você. A síndica morreu e ninguém confia na delegacia.',o:'Tribuna Paulistana',r:'Sandra Bittar',pn:'Vereador Hélio Santoro',pr:'candidato apoiado pelo prédio',pk:'Ele quer a síndica como mártir de campanha e não gosta de perguntas sobre o fundo de obras.',rest:'O apartamento 1210, fechado pelo morador ausente.'},
+ c11:{cl:'O dono da locadora paga você por fora: a polícia só quer saber de pirataria e ignora o crime.',o:'Rádio Metrópole 940',r:'Edu Camargo',pn:'Secretário Anselmo Coutinho',pr:'secretário estadual de Segurança',pk:'Ele quer o caso resolvido como operação contra pirataria.',rest:'A sala dos fundos, com o estoque de fitas piratas, trancada pelo dono.'},
+ c12:{cl:'A diretoria do clube pede sigilo absoluto e contrata você. O dinheiro do borderô sumiu antes do crime.',o:'Diário da Capital',r:'Márcio Veloso',pn:'Deputado Ney Bastos',pr:'conselheiro do clube e deputado',pk:'Ele quer o caso abafado antes da eleição interna do clube.',rest:'A sala do borderô, lacrada pela diretoria.'},
+ c13:{cl:'A administração da Santa Casa pede discrição. Um paciente morreu e uma doutora está sob suspeita.',o:'Tribuna Paulistana',r:'Sandra Bittar',pn:'Secretário Anselmo Coutinho',pr:'secretário da Saúde',pk:'Ele não quer um escândalo no hospital em ano de verba.',rest:'O armário do estoque, trancado pela administração.'},
+ c14:{cl:'A rádio pede que você apure em silêncio, antes que os concorrentes descubram.',o:'Rádio Metrópole 940',r:'Edu Camargo',pn:'Deputado Ney Bastos',pr:'dono de anunciante',pk:'Ele não quer a marca dele associada a crime.',rest:'A sala do comercial, trancada pela direção.'},
+ c15:{cl:'Um investidor da Faria Lima procura você: o sócio morreu logo depois do leilão e a polícia desconfia de crime financeiro.',o:'Gazeta da Bolsa',r:'Laura Veiga',pn:'Deputado Ney Bastos',pr:'deputado federal',pk:'Ele aplicou no leilão e teme investigação.',rest:'O cofre do escritório, trancado pelo sócio morto.'},
+ c16:{cl:'A empresa de TI contrata você em segredo na virada do ano: um crime aconteceu em plena sala de servidores.',o:'Gazeta da Bolsa',r:'Laura Veiga',pn:'Secretário Anselmo Coutinho',pr:'secretário de Ciência e Tecnologia',pk:'Ele quer a empresa fora das manchetes de ano novo.',rest:'A sala de servidores, trancada por crachá.'},
+ c17:{cl:'A viúva de um caminhoneiro procura você. O posto não quer câmera e a polícia rodoviária não quer papelada.',o:'Rádio Metrópole 940',r:'Edu Camargo',pn:'Vereador Lauro Pacheco',pr:'dono da rede de postos',pk:'Ele quer o posto fora do caso.',rest:'A sala do escritório do posto, fechada pelo dono.'},
+ c18:{cl:'A família Karam quer discrição: o patriarca morreu no Mercadão e há herança em jogo.',o:'Notícias do Bixiga',r:'Teresa Marchetti',pn:'Vereador Hélio Santoro',pr:'vereador amigo do comércio',pk:'Ele quer proteger a família do comércio.',rest:'A sala de contabilidade dos fundos, trancada.'},
+ c19:{cl:'A direção do teatro pede ajuda: um músico morreu em pleno ensaio e a temporada pode ser cancelada.',o:'Tribuna Paulistana',r:'Sandra Bittar',pn:'Secretário Anselmo Coutinho',pr:'secretário municipal de Cultura',pk:'Ele não quer a estreia cancelada.',rest:'O camarim principal, lacrado pela produção.'},
+ c20:{cl:'A família pede discrição: a viúva do casarão está sob suspeita e há herança milionária em jogo.',o:'Diário da Capital',r:'Márcio Veloso',pn:'Deputado Ney Bastos',pr:'deputado e amigo do advogado da família',pk:'Ele quer o caso fechado em silêncio.',rest:'O escritório do casarão, trancado pela governanta.'}
+};
+function hh(s){var h=7;for(var i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))|0;return Math.abs(h)}
+W.Legal={
+ LAW:LAW,
+ data:function(C){
+  var d=D[C.id]||{cl:'O delegado Moura pede sua ajuda extraoficial.',o:'Tribuna Paulistana',r:'Sandra Bittar',pn:'Vereador Hélio Santoro',pr:'vereador',pk:'Ele quer o caso fechado depressa.',rest:'Um local trancado, sem autorização.'};
+  var lw=[0,1,2].map(function(i){return LAWYERS[(hh(C.id)+i*3)%LAWYERS.length]});
+  return {cl:d.cl,press:{o:d.o,r:d.r},pol:{n:d.pn,r:d.pr,k:d.pk},rest:d.rest,lawyers:lw};
+ },
+ /* manchetes dinâmicas */
+ head:function(C,key,L){
+  var t=C.title;
+  var H={
+   leak:['Fontes da investigação','Suspeitos ouvidos: polícia já tem ‘nome na manga’ no caso '+t],
+   noc:['Delegacia em silêncio','Silêncio da polícia no caso '+t+' alimenta rumores'],
+   ctl:['Entrevista controlada','Investigador pede cautela: ‘ninguém foi acusado’ no caso '+t],
+   pol:['Política','Autoridade cobra rapidez no caso '+t],
+   late:['Prazo curto','Delegado-geral cobra resultado no caso '+t]
+  };
+  return H[key];
+ },
+ /* rodadas da audiência */
+ rounds:function(X){
+  var R=[];
+  function opt(t,ok,eff){return {t:t,ok:!!ok,eff:eff||''}}
+  /* corpo de delito */
+  if(!X.iml)R.push({law:'CPP art. 158',obj:'O advogado de defesa: Excelência, a infração deixou vestígios e não há exame de corpo de delito juntado. A confissão não supre o laudo.',opts:[opt('Admitir que o laudo do IML não foi juntado.',false),opt('Alegar que o corpo foi visto por testemunhas.',false),opt('Insistir que a confissão basta.',false)],lost:true});
+  else R.push({law:'CPP art. 158',obj:'O advogado de defesa: Excelência, a acusação precisa de exame de corpo de delito. A confissão não basta.',opts:[opt('Juntar o laudo do IML já anexado ao caderno e demonstrar a causa da morte.',true),opt('Alegar que a causa da morte é evidente a olho nu.',false),opt('Argumentar que o laudo é desnecessário diante da confissão.',false)]});
+  if(X.tainted)R.push({law:'CF art. 5º, XI e LVI',obj:'O advogado de defesa: Excelência, parte da prova foi obtida sem autorização, em local trancado. Prova ilícita, inadmissível.',opts:[opt('Reconhecer o erro, retirar a prova ilícita e sustentar o caso nas demais.',true),opt('Alegar que o dono do local nunca ia perceber.',false),opt('Dizer que o fim justifica o meio.',false)]});
+  if(X.coer)R.push({law:'CF art. 5º, III e LXIII',obj:'O advogado de defesa: Excelência, meu cliente foi pressionado até o limite. Isso é coação. A confissão deve ser anulada.',opts:[opt('Mostrar que o suspeito foi ouvido com advogado à disposição, sem violência, e que o caso se sustenta nas contradições documentadas.',true),opt('Dizer que interrogatório é assim mesmo.',false),opt('Negar que houve pressão.',false)]});
+  if(X.leak)R.push({law:'Lei 5.250/67 e CP art. 325',obj:'O advogado de defesa: Excelência, o nome do meu cliente saiu no jornal antes da denúncia. Houve vazamento e prejulgamento.',opts:[opt('Demonstrar que a acusação independe do que saiu na imprensa e que as provas foram produzidas antes da matéria.',true),opt('Alegar que a imprensa é livre para publicar o que quiser.',false),opt('Dizer que não sabe quem vazou.',false)]});
+  if(X.debt)R.push({law:'Princípio da impessoalidade',obj:'O advogado de defesa: Excelência, há indícios de que a investigação foi conduzida sob influência política.',opts:[opt('Mostrar que o apoio recebido foi apenas administrativo e que todas as provas foram produzidas de forma independente.',true),opt('Dizer que um favor político nunca fez mal a ninguém.',false),opt('Calar e esperar que o juiz não pergunte.',false)]});
+  if(R.length<3)R.push({law:'CPP art. 386, VI',obj:'O advogado de defesa: Excelência, não há prova suficiente. Na dúvida, em favor do réu.',opts:[opt('Expor, em ordem, as contradições comprovadas e como elas se encaixam na linha do tempo do crime.',true),opt('Pedir que o juiz confie na experiência do investigador.',false),opt('Dizer que o réu é culpado por ter mentido.',false)]});
+  return R;
+ }
+};
+})(window);
+</script>
 <script>
 (function(){'use strict';
 var V3=THREE.Vector3,Col=THREE.Color,V2=THREE.Vector2,TAU=Math.PI*2,UP=new V3(0,1,0);
@@ -1790,8 +1896,17 @@ function buildCrime(room){
   [-1,1].forEach(function(s){var l=tap(.115,.075,.8,sheet);l.rotation.x=Math.PI/2;l.position.set(s*.12,.09,.0+(s>0?.02:0));body.add(l);body.add(sph(.075,M(.06),s*.12,.06,.9+(s>0?.05:0),1,.7,1.5))});
   body.add(sph(.34,sheet,0,.1,-.15,1,.35,2.6));
   var ped=Lam({color:0x8a6a20});var peso=cyl(.05,.07,ped,.82,.04,-.5);body.add(peso);
-  // marcadores de evidência
-  [[1.0,.5],[-.4,-.5],[-1.6,-1.7],[.9,-1.5]].forEach(function(p,i){var m=box(.13,.1,.08,Lam({color:0xffffff,map:ctexNum(i+1),emissive:0x884400}),p[0],.05,p[1]);m.rotation.y=.5*i;G.add(m)});
+  // marcadores de evidência (plaquinhas numeradas da perícia)
+  var MK=new THREE.Group();G.add(MK);C.marks=MK;
+  C.setMarks=function(list){
+    while(MK.children.length)MK.remove(MK.children[0]);
+    (list||[]).forEach(function(p,i){
+      if(p.kind==='body')return;
+      var m=box(.14,.11,.08,Lam({color:0xffffff,map:ctexNum(p.n),emissive:0x884400}),p.p[0],Math.max(.055,p.p[1]-.42),p.p[2]);
+      m.rotation.y=.5*i;MK.add(m);
+    });
+  };
+  C.setMarks([[1.0,.5],[-.4,-.5],[-1.6,-1.7],[.9,-1.5]].map(function(p,i){return {n:i+1,p:[p[0],.47,p[1]]}}));
   var tp=box(1.3,.05,.004,EM(1,.8,.1),0,1.05,2.9,false);G.add(tp);G.add(box(1.3,.05,.004,EM(1,.8,.1),0,.7,2.9,false));
   var lamp=new THREE.PointLight(0xffffff,1.0,10,1.4);lamp.position.set(0,2.8,-.4);lamp.castShadow=true;lamp.shadow.mapSize.set(1024,1024);lamp.shadow.bias=-.002;sc.add(lamp);C.lamp=lamp;
   var key=new THREE.PointLight(0xffffff,0,12,1.2);key.position.set(2.8,2.4,2.4);sc.add(key);C.key=key;
@@ -1884,7 +1999,7 @@ function applyCam(a,b,u,focus){
   camera.fov=f;
 }
 var LAST_NOW=0;
-function setViewShift(){var sh=((D.free&&!FL.on?$('#ui').offsetHeight:0)||0)*.4;camera.updateProjectionMatrix();camera.setViewOffset(innerWidth,innerHeight,0,sh,innerWidth,innerHeight)}
+function setViewShift(){var sh=((D.free&&!FL.on&&!VIS.on?$('#ui').offsetHeight:0)||0)*.4;camera.updateProjectionMatrix();camera.setViewOffset(innerWidth,innerHeight,0,sh,innerWidth,innerHeight)}
 
 var ROOMMAP={c01:'office',c02:'warehouse',c03:'darkroom',c04:'club',c05:'bar',c06:'yard',c07:'locker',c08:'warehouse',c09:'bar',c10:'apartment',c11:'shop',c12:'locker',c13:'hospital',c14:'studio',c15:'office',c16:'server',c17:'gas',c18:'shop',c19:'theater',c20:'library'};
 var G={C:null,ci:-1,SUS:[],S:{},cur:0};
@@ -1915,7 +2030,13 @@ function loadCase(idx){
   G.SUS=C.sus.map(function(su,si){var tps=su.tp.map(function(t,ti){return {id:'s'+si+'t'+ti,q:t.q,says:t.says,short:t.short,lie:t.lie,ck:t.ck,cs:t.cs,ul:t.ul,claim:'s'+si+'t'+ti,cclaim:'s'+si+'t'+ti+'c'}});
     return {name:su.name,role:su.role,temper:su.temper,weak:WEAK[su.temper],look:lookFromSpec(su),intro:su.intro,clear:su.clear,topics:tps}});
   C.conf.forEach(function(f,k){var m=f.ref.split('.'),claim='s'+m[0]+'t'+m[1];CONF[f.ev+'|'+claim]={d:f.d,nel:f.nel,narr:f.narr,say:f.say,si:+m[0],rev:f.rev?{claim:'s'+m[0]+'r'+k,short:f.rev}:null};if(f.nel)NEL++});
-  var S=G.S={cur:0,el:0,stress:[0,0,0],strikes:[0,0,0],shut:[false,false,false],asked:{},tests:[[],[],[]],ev:Object.keys(C.ev).filter(function(k){return !C.ev[k].hidden}),exposed:[],confessed:false,over:false,lawyers:0,met:[false,false,false]};
+  C.limit=C._lim0||(C._lim0=C.limit);
+  LG=Legal.data(C);CSPOTS=buildSpots(C);
+  var S=G.S={cur:0,el:0,stress:[0,0,0],strikes:[0,0,0],shut:[false,false,false],asked:{},tests:[[],[],[]],
+    ev:Object.keys(C.ev).filter(function(k){return !C.ev[k].hidden&&!isScene(C.ev[k])}),
+    exposed:[],confessed:false,over:false,lawyers:0,met:[false,false,false],
+    m:{imp:10,pol:0,jur:0},scn:{},auth:{},tainted:{},dusted:{},leaked:false,coer:0,favors:0,lawyN:[0,0,0],evt:{},evtOpen:false,clips:[],hear:null,visited:false};
+  resetVis();
   G.cur=0;D.who=0;D.st=0;D.shotI=0;D.auto=true;D.press=0;D.sayDone=0;
   BEATS=makeBeats(C);
 }
@@ -1966,7 +2087,17 @@ function go(i,t0){
   setText(null);if(B.free)onFree();
 }
 function onFree(){var I=getScene('interro');I.who='s'+G.cur;I.st=D.st;buildUI();var v=$('#vo');v.style.bottom=($('#ui').offsetHeight+10)+'px';D.sayDone=0;D.sayT=0;
-  if(!G.S.met[G.cur]){G.S.met[G.cur]=true;dlg(G.SUS[G.cur].name,G.SUS[G.cur].intro,'')}}
+  if(!G.S.briefed){G.S.briefed=true;briefSheet();return}
+  meetCur()}
+function meetCur(){if(!G.S.met[G.cur]){G.S.met[G.cur]=true;dlg(G.SUS[G.cur].name,G.SUS[G.cur].intro,'')}}
+function briefSheet(){
+  var C=G.C,h='<b>Quem contratou você</b>'+esc(LG.cl)+'\n\n<b>O que você é</b>\nEx-inspetor da Polícia Civil, aposentado. Sem distintivo: ninguém é obrigado a falar, você não pode arrombar nada, e prova obtida de forma ilícita não vale no fórum.'
+   +'\n\n<b>Prazo</b>\n'+Math.floor(C.limit/60)+'h'+(C.limit%60?String(C.limit%60).padStart(2,'0'):'')+'. Perguntar gasta 10 minutos, vistoriar a cena gasta 5.'
+   +'\n\n<b>Por onde começar</b>\nVá à cena do crime antes de interrogar. As fotos, o laudo do IML e as digitais só entram no caderno se você for lá buscar.'
+   +'\n\n<b>No fim</b>\nSe a acusação se sustentar, tem audiência. A defesa vai atacar tudo o que você fez pelo caminho.';
+  sheet('Antes de entrar na sala',[{t:'Ir à cena do crime',sub:'Recomendado: as provas começam lá.',fn:function(){closeSheet();openVistoria()}},
+    {t:'Entrar direto na sala dois',fn:function(){closeSheet();meetCur()}}],{html:h});
+}
 function next(){var B=BEATS[D.beat];if(B.free)return;if(D.beat<BEATS.length-1)go(D.beat+1)}
 function tapAdvance(){
   if(FL.on||!BEATS[D.beat])return;var B=BEATS[D.beat];if(B.free)return;
@@ -2016,9 +2147,11 @@ function unlock(id){if(G.S.ev.indexOf(id)<0){G.S.ev.push(id);return true}return 
 function setStressView(){D.st=G.S.stress[G.cur]/100;var I=getScene('interro');I.st=D.st}
 function afterAction(){
   var S=G.S;setStressView();stampNow();buildUI();
-  if(S.over)return;
+  if(S.over||S.hear)return;
+  lawyerWatch();
   if(S.shut.every(function(x){return x})){setTimeout(function(){openAccuse(true,'Os três pediram advogado. O delegado Moura bate na porta: quem eu indicio?')},1800);return}
-  if(S.el>=G.C.limit)setTimeout(function(){openAccuse(true,'O prazo acabou. O delegado Moura bate na porta: quem eu indicio?')},1800);
+  if(S.el>=G.C.limit){setTimeout(function(){openAccuse(true,'O prazo acabou. O delegado Moura bate na porta: quem eu indicio?')},1800);return}
+  setTimeout(function(){if(!G.S.over&&!G.S.hear&&!FL.on)legalEvents()},1500);
 }
 function breakCheck(i){var S=G.S,sp=G.SUS[i],T=sp.temper,C=G.C;
   if(S.stress[i]>=100){
@@ -2047,6 +2180,214 @@ function doConfront(ev,claim){var S=G.S,i=G.cur,sp=G.SUS[i],T=sp.temper,key=ev+'
   breakCheck(i);afterAction()}
 function doRest(){var S=G.S,i=G.cur,sp=G.SUS[i];S.el+=10;S.stress[i]=clamp01(S.stress[i]-12);dlg(sp.name,'Você traz um copo de café de máquina. '+first(sp.name)+' respira fundo.','Obrigado. Pode perguntar.');emote('sigh');afterAction()}
 
+/* ================= CAMADA JURÍDICA ================= */
+/* vistoria da cena, imprensa, política, advogados e audiência */
+var LG=null,CSPOTS=[];
+var SPOTA=[[0,.55,-.5],[1.5,.5,.9],[-1.5,.5,.2],[-2.1,.5,-1.9],[1.25,.5,-1.6],[2.45,1.3,-2.25],[-2.45,1.55,-2.7],[2.7,.95,-.5],[-2.7,.85,-1.1],[1.9,.6,1.5]];
+function buildSpots(C){
+  var ids=Object.keys(C.ev),out=[],room=ROOMMAP[C.id]||'office';
+  var photos=ids.filter(function(k){return C.ev[k].kind==='photo'});
+  var iml=ids.filter(function(k){return /^Laudo do IML/.test(C.ev[k].name)});
+  var pr=ids.filter(function(k){return /^Impress[aã]o/.test(C.ev[k].name)});
+  iml.forEach(function(k){out.push({id:'sp_'+k,ev:k,kind:'body',label:'Corpo coberto'})});
+  photos.forEach(function(k){out.push({id:'sp_'+k,ev:k,kind:'photo',label:C.ev[k].name})});
+  pr.forEach(function(k){
+    var host=photos.length?photos[0]:null;
+    if(host)out.forEach(function(s){if(s.ev===host)(s.prints=s.prints||[]).push(k)});
+    else out.push({id:'sp_'+k,ev:k,kind:'print',label:'Superfície com marcas'});
+  });
+  var d=DEC[room]||DEC.office;
+  for(var i=0;i<3;i++)out.push({id:'dc'+i,ev:null,kind:'decoy',label:'Detalhe da cena',text:d[i]});
+  var rs=null;out.forEach(function(s){if(!rs&&(s.kind==='photo'||s.kind==='print'))rs=s});if(rs)rs.restricted=true;
+  var pi=0;out.forEach(function(s,i){s.num=i+1;s.p=s.kind==='body'?SPOTA[0]:SPOTA[(pi++)%(SPOTA.length-1)+1]});
+  return out;
+}
+function bump(k,v){G.S.m[k]=clamp01(G.S.m[k]+v)}
+function addTime(min){G.S.el+=min;if(VIS.on)buildScBar()}
+function scnDone(){var n=0;CSPOTS.forEach(function(s){if(G.S.scn[s.id])n++});return n}
+
+/* ----- vistoria: andar pela cena do crime em 3D ----- */
+var VIS={on:false,azi:1,sel:null,u:1,prev:null};
+var VAZ=[-20,12,40,68];
+function visWide(){return iso(0,.6,-.45,14,VAZ[VIS.azi],34,38)}
+function resetVis(){VIS.on=false;VIS.sel=null;VIS.u=1;VIS.prev=null;var h=$('#spots');if(h){h.innerHTML='';h.style.display='none'}var c=$('#scbar');if(c){c.innerHTML='';c.style.display='none'}}
+function visNear(s){return iso(s.p[0],s.p[1]+.15,s.p[2],7.8,VAZ[VIS.azi],38,30)}
+function curCam(){return {t:CAMS.t.clone(),d:CAMS.d,az:CAMS.az,el:CAMS.el,f:CAMS.f}}
+function visMove(){VIS.prev=curCam();VIS.u=0}
+function openVistoria(){
+  if(G.S.over||VIS.on)return;
+  VIS.on=true;VIS.sel=null;VIS.u=0;VIS.prev=visWide();G.S.visited=true;closeSheet();
+  var sc=getScene('crime');
+  if(sc.setMarks)sc.setMarks(CSPOTS.map(function(s){return {n:s.num,p:s.p,kind:s.kind}}));
+  $('#ui').style.display='none';$('#vo').style.display='none';$('#top').style.display='none';
+  $('#stamp').style.display='none';
+  $('#spots').style.display='block';$('#scbar').style.display='flex';
+  layoutSpots(true);buildScBar();
+}
+function closeVistoria(){
+  VIS.on=false;VIS.sel=null;$('#spots').style.display='none';$('#scbar').style.display='none';closeSheet();
+  var B=BEATS[D.beat];
+  if(B&&B.free){$('#ui').style.display='grid';setHead(B);stampNow();buildUI();
+    if(!G.S.met[G.cur])meetCur();else if(D.lastDlg)setText(D.lastDlg.html,'say',null)}
+  afterSceneTime();
+}
+function buildScBar(){
+  if(!VIS.on)return;
+  var it=[{lab:'⏱ '+clockNow()},{lab:scnDone()+'/'+CSPOTS.length},
+    {t:'◀',fn:function(){visMove();VIS.azi=(VIS.azi+VAZ.length-1)%VAZ.length}},
+    {t:'▶',fn:function(){visMove();VIS.azi=(VIS.azi+1)%VAZ.length}}];
+  if(VIS.sel)it.push({t:'Afastar',fn:function(){visMove();VIS.sel=null;closeSheet();buildScBar()}});
+  it.push({t:'Sair',fn:closeVistoria});
+  mk('#scbar',it);
+}
+var _pv=new V3();
+function layoutSpots(rebuild){
+  var h=$('#spots'),S=G.S;
+  if(rebuild){h.innerHTML='';CSPOTS.forEach(function(s){var b=document.createElement('button');s.el=b;b.onclick=function(){tapSpot(s)};h.appendChild(b)})}
+  var w=innerWidth,ht=innerHeight;
+  CSPOTS.forEach(function(s){
+    var b=s.el;if(!b)return;
+    _pv.set(s.p[0],s.p[1],s.p[2]).project(camera);
+    var x=(_pv.x*.5+.5)*w,y=(-_pv.y*.5+.5)*ht,ok=_pv.z<1&&x>18&&x<w-18&&y>54&&y<ht-18;
+    b.style.display=ok?'block':'none';if(!ok)return;
+    b.style.left=x+'px';b.style.top=y+'px';
+    var got=!!S.scn[s.id],lk=s.restricted&&!S.auth[s.id];
+    b.className=(got?'on ':'')+(s.kind==='decoy'?'dcy ':'')+(lk?'lk':'');
+    b.textContent=lk?'!':(got?(s.kind==='decoy'?'·':String(s.num)):'?');
+  });
+}
+function tapSpot(s){
+  if(s.restricted&&!G.S.auth[s.id]){visMove();VIS.sel=s;restrictedPrompt(s);buildScBar();return}
+  visMove();VIS.sel=s;
+  var first=!G.S.scn[s.id];
+  if(first){G.S.scn[s.id]=1;addTime(5)}
+  spotSheet(s,first);buildScBar();
+}
+function backToScene(){closeSheet();visMove();VIS.sel=null;buildScBar()}
+function spotSheet(s,first){
+  if(s.kind==='decoy'){
+    sheet(s.label,[{t:'← Voltar à cena',fn:backToScene}],s.text+(first?' (+5 min)':''));return;
+  }
+  var e=G.C.ev[s.ev],nw=unlock(s.ev),items=[],extra='';
+  if(nw)extra+='\n<i>Nova prova no caderno: '+esc(e.name)+'.</i>';
+  if(first)extra+='\n<i>Vistoria: +5 min.</i>';
+  if(G.S.tainted[s.ev])extra+='\n<i>Prova obtida sem autorização. Pode ser anulada na audiência (CF art. 5º, LVI).</i>';
+  if(['cctv','photo','lab'].indexOf(e.kind)>=0)items.push({t:'Examinar de perto',fn:function(){closeSheet();flashFor(s.ev)}});
+  if(s.prints&&s.prints.length&&!G.S.dusted[s.id])items.push({t:'Passar pó revelador',sub:'+5 min · pode revelar digitais',fn:function(){dustSpot(s)}});
+  items.push({t:'← Voltar à cena',fn:backToScene});
+  sheet(s.label,items,{html:evCard(e)+extra});
+}
+function dustSpot(s){
+  var got=[];G.S.dusted[s.id]=1;addTime(5);
+  s.prints.forEach(function(k){if(unlock(k))got.push(G.C.ev[k].name);if(G.S.tainted[s.ev])G.S.tainted[k]=1});
+  var e=G.C.ev[s.ev];
+  sheet('Pó revelador',[{t:'← Voltar à cena',fn:backToScene}],
+    {html:evCard(e)+'\n<i>'+(got.length?'O pó revela digitais. Nova prova: '+esc(got.join(', '))+'.':'O pó não revela nada novo.')+'</i>'});
+  buildScBar();
+}
+function restrictedPrompt(s){
+  sheet('Local restrito',[
+    {t:'Pedir autorização formal',sub:'Gasta 15 minutos. Prova lícita.',fn:function(){addTime(15);G.S.auth[s.id]=1;closeSheet();tapSpot(s)}},
+    {t:'Pedir um favor a '+LG.pol.n,sub:'Sem demora. Dívida política +25. Prova lícita.',fn:function(){bump('pol',25);G.S.favors++;G.S.auth[s.id]=1;closeSheet();tapSpot(s)}},
+    {t:'Entrar mesmo assim',sub:'Sem demora. Prova ilícita, pode ser anulada. Risco jurídico +18.',fn:function(){G.S.auth[s.id]=2;bump('jur',18);if(s.ev)G.S.tainted[s.ev]=1;closeSheet();tapSpot(s)}},
+    {t:'← Deixar para depois',fn:backToScene}
+  ],LG.rest+' Você é um ex-inspetor aposentado, sem distintivo. O que faz?');
+}
+function afterSceneTime(){
+  var S=G.S;if(S.over)return;
+  setStressView();stampNow();if(!VIS.on)buildUI();
+  legalEvents();
+  if(S.el>=G.C.limit&&!S.over){if(VIS.on)closeVistoria();setTimeout(function(){openAccuse(true,'O prazo acabou. O delegado Moura bate na porta: quem eu indicio?')},600)}
+}
+
+/* ----- imprensa e política ----- */
+function clip(key){var h=Legal.head(G.C,key);if(h)G.S.clips.push({o:LG.press.o,t:h[0],h:h[1],at:clockNow()})}
+function evtSheet(tag,title,body,opts){
+  G.S.evtOpen=true;
+  sheet(title,opts.map(function(o){return {t:o.t,sub:o.s,fn:function(){closeSheet();G.S.evtOpen=false;o.fn();if(VIS.on){buildScBar();}else buildUI();afterSceneTime()}}}),tag+' — '+body);
+}
+function legalEvents(){
+  var S=G.S,C=G.C;if(S.evtOpen||S.over||S.hear)return;
+  var p=S.el/C.limit,E=S.evt;
+  if(!E.p1&&p>=0.22){E.p1=1;
+    evtSheet('Imprensa · '+LG.press.o,LG.press.r+' quer uma declaração',
+      LG.press.r+', do(a) '+LG.press.o+', cerca você na calçada do distrito. Sem distintivo, você pode falar ou não, mas tudo o que disser vira manchete.',
+      [{t:'Sem comentários',s:'Imprensa fica hostil (+12). Nenhum risco jurídico.',fn:function(){bump('imp',12);clip('noc')}},
+       {t:'Passar um detalhe em off',s:'Assusta os três suspeitos (+8 de tensão), mas vira prejulgamento (+14 de risco).',fn:function(){S.leaked=true;bump('jur',14);bump('imp',-6);for(var i=0;i<3;i++)S.stress[i]=clamp01(S.stress[i]+8);clip('leak')}},
+       {t:'Entrevista controlada',s:'Imprensa acalma (−10), pequeno risco (+4).',fn:function(){bump('imp',-10);bump('jur',4);clip('ctl')}}]);
+    return}
+  if(!E.p2&&p>=0.40){E.p2=1;
+    evtSheet('Política · '+LG.pol.n,LG.pol.n+' ligou para você',
+      LG.pol.n+', '+LG.pol.r+', liga no seu telefone fixo. '+LG.pol.k+' Ele oferece ajuda, o que na política nunca é de graça.',
+      [{t:'Aceitar o favor',s:'Ganha 20 minutos de prazo. Dívida política +25.',fn:function(){C.limit+=20;bump('pol',25);S.favors++;clip('pol')}},
+       {t:'Recusar educadamente',s:'Ele fica irritado e a imprensa sente (+10).',fn:function(){bump('imp',10)}},
+       {t:'Enrolar a conversa',s:'Perde 10 minutos, sem efeito.',fn:function(){S.el+=10}}]);
+    return}
+  if(!E.p3&&p>=0.58){E.p3=1;var hot=S.m.imp>=40;
+    evtSheet('Imprensa · '+LG.press.o,hot?'A imprensa aperta o cerco':'Matéria de segunda página',
+      hot?'O(a) '+LG.press.o+' publica que o caso está parado. O delegado-geral antecipa o prazo em 20 minutos.':'O(a) '+LG.press.o+' dedica uma coluna ao caso '+C.title+'. Pressão tolerável.',
+      [{t:'Ler a matéria e seguir',s:hot?'Prazo encurtado em 20 minutos.':'Nada muda.',fn:function(){if(hot)C.limit=Math.max(S.el+20,C.limit-20);clip('late')}}]);
+    return}
+}
+function lawyerWatch(){
+  var S=G.S;
+  for(var i=0;i<3;i++){
+    if(!S.lawyN[i]&&(S.strikes[i]>=2||S.stress[i]>=85)&&!S.shut[i]){
+      S.lawyN[i]=1;S.coer++;bump('jur',10);
+      setTimeout((function(j){return function(){if(!G.S.over&&!VIS.on)dlg(LG.lawyers[j],'entra na sala e abre a pasta','Meu cliente está sendo coagido. Registre isso.')}})(i),900);
+    }
+  }
+}
+
+/* ----- audiência no Fórum Criminal ----- */
+function startHearing(who){
+  var S=G.S,imlId=null;
+  S.ev.forEach(function(id){if(/^Laudo do IML/.test(G.C.ev[id].name))imlId=id});
+  var tainted=false;S.exposed.forEach(function(key){var c=CONF[key],ev=key.split('|')[0];if(c&&c.nel&&S.tainted[ev])tainted=true});
+  var X={iml:!!imlId,tainted:tainted,coer:S.coer>0,leak:S.leaked,debt:S.m.pol>=25};
+  var rs=Legal.rounds(X).slice(0,4);
+  rs.forEach(function(r,i){var o=r.opts.slice(),h=hashStr(G.C.id+i);o.sort(function(a,b){return hashStr(a.t+h)-hashStr(b.t+h)});r.opts=o});
+  S.hear={rs:rs,i:0,lost:0,who:who};
+  $('#ui').style.display='none';$('#vo').style.display='none';
+  hearingScreen();
+}
+function hashStr(s){var h=7;for(var i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))|0;return Math.abs(h)%997}
+function hearingScreen(){
+  var H=G.S.hear,r=H.rs[H.i];
+  var h='<div class="stamp">Fórum Criminal · Barra Funda · Audiência</div><h1>Objeção '+(H.i+1)+' de '+H.rs.length+'</h1>';
+  h+='<p class="law">Base legal em jogo: '+esc(r.law)+'</p><p class="obj">'+esc(r.obj)+'</p>';
+  r.opts.forEach(function(o,i){h+='<button class="ho" data-ho="'+i+'">'+esc(o.t)+'</button>'});
+  var e=$('#end');e.innerHTML=h;e.style.display='block';e.scrollTop=0;
+  e.querySelectorAll('[data-ho]').forEach(function(b){b.onclick=function(){hearingAnswer(+b.dataset.ho)}});
+}
+function hearingAnswer(i){
+  var H=G.S.hear,r=H.rs[H.i],o=r.opts[i],win=o.ok&&!r.lost;
+  if(!win)H.lost++;
+  var h='<div class="stamp">Fórum Criminal · Barra Funda</div><h1>'+(win?'Objeção rejeitada':'Objeção aceita')+'</h1>';
+  h+='<p>'+esc(win?'O juiz anota a sua resposta e mantém a prova nos autos.':(r.lost?'Sem o laudo do IML, o juiz não tem como aceitar a denúncia nesse ponto.':'O juiz não se convence. A defesa marca um ponto.'))+'</p>';
+  h+='<button id="hnx">'+(H.i+1<H.rs.length?'Próxima objeção':'Ouvir a sentença')+'</button>';
+  var e=$('#end');e.innerHTML=h;e.scrollTop=0;$('#hnx').onclick=hearingNext;
+}
+function hearingNext(){
+  var S=G.S,H=S.hear;H.i++;
+  if(H.i<H.rs.length){hearingScreen();return}
+  var valid=0;S.exposed.forEach(function(key){var c=CONF[key],ev=key.split('|')[0];if(c&&c.nel&&!S.tainted[ev])valid++});
+  var conv=valid>=G.C.need&&H.lost<=1,who=H.who;
+  S.hear=null;
+  verdict(who,{conv:conv,valid:valid,lost:H.lost,rounds:H.rs.length});
+}
+function epilogue(conv){
+  var L=[],m=G.S.m;
+  if(m.imp>=50)L.push('A imprensa já tinha condenado e absolvido meia cidade antes do juiz. O(a) '+LG.press.o+' vive do barulho que o caso fez.');
+  else if(m.imp<=15)L.push('O caso saiu quieto nos jornais. Pouca gente soube o que você fez.');
+  if(m.pol>=50)L.push(LG.pol.n+' cobrou o favor com juros. Seu nome agora é lembrado em gabinetes, nem sempre pelo melhor motivo.');
+  else if(m.pol===0)L.push('Você não deve favor a ninguém. Isso custa caro e vale muito.');
+  if(m.jur>=50)L.push('O Ministério Público abriu representação por conduta imprópria na investigação. A OAB acompanha.');
+  else if(m.jur<=10)L.push('Sua conduta foi impecável. Os advogados saíram sem o que reclamar.');
+  if(!conv)L.push('A defesa saiu comemorando na escadaria do fórum.');
+  return L;
+}
+
 /* ---------- menus do interrogatório ---------- */
 function curShut(){return G.S.shut[G.cur]}
 function askMenu(){var S=G.S,sp=G.SUS[G.cur];if(curShut()||S.over){dlg(sp.name,'Pediu advogado. Não responde mais.','');return}
@@ -2062,21 +2403,49 @@ function claimMenu(k){var L=G.S.tests[G.cur];if(!L.length){sheet('Mostrar prova'
 function notebook(){var S=G.S,out=[];
   G.SUS.forEach(function(sp,i){var L=S.tests[i];out.push({t:sp.name+' · '+sp.role,sub:L.length?L.map(function(t){return (t.tell?'● ':'– ')+t.short}).join('\n'):'Nada anotado ainda.',fn:function(){switchTo(i);closeSheet()}})});
   out.push({t:'Contradições provadas: '+proofs()+'/'+NEL+' (precisa '+G.C.need+')',fn:function(){}});
+  out.push({t:'Cena do crime: '+scnDone()+'/'+CSPOTS.length+' vistoriados',sub:'Ir à cena e procurar provas.',fn:function(){closeSheet();openVistoria()}});
   out.push({t:'Provas no caderno',sub:'Toque em "Provas" para examinar.',fn:evMenu});
+  out.push({t:'Pressões: imprensa '+Math.round(S.m.imp)+' · política '+Math.round(S.m.pol)+' · risco '+Math.round(S.m.jur),sub:'Toque para ver o que pesa na audiência.',fn:pressMenu});
+  out.push({t:'A lei que vale aqui',sub:'Os artigos que a defesa vai usar contra você.',fn:lawMenu});
   sheet('Caderno',out)}
+function pressMenu(){
+  var S=G.S,out=[];
+  out.push({t:'Imprensa: '+Math.round(S.m.imp),sub:'O(a) '+LG.press.o+', de '+LG.press.r+'. Alta pressão encurta o prazo.'});
+  out.push({t:'Política: '+Math.round(S.m.pol),sub:LG.pol.n+', '+LG.pol.r+'. Acima de 25, a defesa alega influência política.'});
+  out.push({t:'Risco jurídico: '+Math.round(S.m.jur),sub:'Prova ilícita, coação e vazamento somam aqui.'});
+  if(S.leaked)out.push({t:'● Vazamento registrado',sub:'Você passou um detalhe em off para a imprensa.'});
+  if(S.coer)out.push({t:'● Alegação de coação',sub:S.coer+' advogado(s) registraram pressão excessiva.'});
+  S.clips.forEach(function(c){out.push({t:c.t,sub:c.o+' · '+c.at+' — '+c.h})});
+  out.push({t:'← Voltar ao caderno',fn:notebook});
+  sheet('Pressões',out.map(function(o){o.fn=o.fn||function(){};return o}))}
+function lawMenu(){
+  sheet('A lei que vale aqui',Legal.LAW.map(function(a){return {t:a[0],sub:a[1],fn:function(){}}})
+    .concat([{t:'← Voltar ao caderno',fn:notebook}]),
+    'Você é ex-inspetor aposentado, sem distintivo. Prova obtida de qualquer jeito não vale no fórum.')}
 function openAccuse(forced,msg){if(G.S.over)return;sheet('Indiciamento',G.SUS.map(function(sp,i){return {t:sp.name,sub:sp.role,fn:function(){closeSheet();finish(i)}}}).concat(forced?[]:[{t:'Voltar ao interrogatório',fn:closeSheet}]),msg||'O delegado Moura espera o seu nome. Só dá para indiciar uma pessoa.')}
 function switchTo(i){if(i===G.cur)return;G.cur=i;D.who=i;var I=getScene('interro');I.who='s'+i;D.fade=-.2;setStressView();buildUI();var sp=G.SUS[i];
   if(G.S.shut[i])dlg(sp.name,SHUT[sp.temper][0],'');else if(!G.S.met[i]){G.S.met[i]=true;dlg(sp.name,sp.intro,'')}else dlg(sp.name,'Você retoma com '+first(sp.name)+'.','')}
 
 /* ---------- final ---------- */
-function finish(who){var S=G.S,C=G.C;if(S.over)return;S.over=true;closeSheet();var p=proofs(),k,t,body,cu=G.SUS[C.culprit];
-  if(who===C.culprit){if(S.confessed){k='win';t='Caso resolvido';body=cu.name+' confessou às '+clockNow()+'. '+C.truth+' Os demais foram liberados.'}
-    else if(p>=C.need){k='ok';t='Indiciamento aceito';body='Sem confissão, mas o delegado Moura aceita a papelada: as provas levam a '+cu.name+'. '+C.truth}
-    else{k='weak';t='Indiciamento rejeitado';body='Você apontou a pessoa certa, mas só tem '+p+' contradição'+(p===1?'':'ões')+' contra ela. Moura rasga o pedido: isso não segura no juiz. '+C.getaway}}
+function finish(who){var S=G.S,C=G.C;if(S.over||S.hear)return;closeSheet();
+  if(VIS.on)closeVistoria();
+  if(who===C.culprit&&proofs()>=C.need){startHearing(who);return}
+  verdict(who,null);
+}
+function verdict(who,H){var S=G.S,C=G.C;if(S.over)return;S.over=true;closeSheet();var p=proofs(),k,t,body,cu=G.SUS[C.culprit];
+  if(who===C.culprit){
+    if(H&&!H.conv){k='weak';t='Absolvição';body='A defesa derrubou a acusação no fórum. '+(H.valid<C.need?('Das suas contradições, '+(H.valid===1?'só uma sobreviveu':'só '+H.valid+' sobreviveram')+' ao crivo do juiz.'):('Você perdeu '+H.lost+' das '+H.rounds+' objeções.'))+' '+cu.name+' sai livre pela porta da frente. '+C.getaway}
+    else if(S.confessed){k='win';t='Caso resolvido';body=cu.name+' confessou às '+clockNow()+'. '+C.truth+' Os demais foram liberados.'}
+    else if(p>=C.need){k='ok';t='Denúncia aceita';body='Sem confissão, mas o juiz aceita a denúncia: as provas levam a '+cu.name+'. '+C.truth}
+    else{k='weak';t='Indiciamento rejeitado';body='Você apontou a pessoa certa, mas só tem '+p+' contradição'+(p===1?'':'ões')+' contra ela. Moura rasga o pedido: isso não segura no juiz. '+C.getaway}
+    if(H&&H.conv)body+=' No fórum: '+H.valid+' prova'+(H.valid===1?'':'s')+' válida'+(H.valid===1?'':'s')+' e '+(H.rounds-H.lost)+' de '+H.rounds+' objeções superadas.';}
   else{k='lose';t='Culpado solto';var sp=G.SUS[who];body=sp.name+' mentiu ou escondeu coisas, mas não cometeu o crime. '+(sp.clear||'')+' '+C.getaway}
   if(k==='win'||k==='ok'){if(PROG.done[C.id]!=='win')PROG.done[C.id]=k;saveProg()}
   var h='<div class="stamp">'+(k==='lose'||k==='weak'?'Relatório · Caso arquivado':'Relatório · Caso encerrado')+'</div><h1>'+esc(t)+'</h1><p>'+esc(body)+'</p>';
-  h+='<div class="stats"><div>Relógio<b>'+clockNow()+'</b></div><div>Contradições<b>'+p+'/'+NEL+'</b></div><div>Advogados<b>'+S.lawyers+'</b></div></div>';
+  h+='<div class="stats"><div>Relógio<b>'+clockNow()+'</b></div><div>Contradições<b>'+p+'/'+NEL+'</b></div><div>Cena<b>'+scnDone()+'/'+CSPOTS.length+'</b></div></div>';
+  h+='<div class="mtr"><div>Imprensa<b>'+Math.round(S.m.imp)+'</b></div><div>Política<b>'+Math.round(S.m.pol)+'</b></div><div>Risco jurídico<b>'+Math.round(S.m.jur)+'</b></div></div>';
+  epilogue(k==='win'||k==='ok').forEach(function(l){h+='<p>'+esc(l)+'</p>'});
+  if(S.clips.length){h+='<p style="color:#c9dcff">O que saiu nos jornais</p>';S.clips.forEach(function(c){h+='<div class="paper"><b>'+esc(c.o)+' · '+esc(c.at)+'</b>'+esc(c.h)+'</div>'})}
   if((k==='win'||k==='ok')&&G.ci<CASES.length-1)h+='<button id="nx">Próximo caso</button>';
   h+='<button id="ag">Jogar este caso de novo</button><button id="ls">Lista de casos</button>';
   var e=$('#end');e.innerHTML=h;e.style.display='block';e.scrollTop=0;
@@ -2084,7 +2453,7 @@ function finish(who){var S=G.S,C=G.C;if(S.over)return;S.over=true;closeSheet();v
   $('#ag').onclick=function(){e.style.display='none';startCase(G.ci)};$('#ls').onclick=function(){e.style.display='none';showMenu()}}
 
 /* ---------- menu de casos ---------- */
-function showMenu(){var m=$('#menu');var h='<h1>Interrogatório \'94</h1><p>Diário do inspetor · São Paulo, 1990–1999. Escolha o caso.</p><div class="grid">';
+function showMenu(){resetVis();var m=$('#menu');var h='<h1>Interrogatório \'94</h1><p>Diário do inspetor · São Paulo, 1990–1999. Escolha o caso.</p><div class="grid">';
   CASES.forEach(function(c,i){var d=PROG.done[c.id];h+='<button class="cs'+(d?' done':'')+'" data-i="'+i+'"><em>'+(d?'✓':'')+'</em><b>'+(i+1)+'. '+esc(c.title)+'</b><span>'+esc(c.where)+' · '+c.year+'</span><span>'+'★'.repeat(c.diff)+'☆'.repeat(5-c.diff)+'</span></button>'});
   m.innerHTML=h+'</div>';m.style.display='block';m.scrollTop=0;$('#ui').style.display='none';$('#title').style.display='none';D.beat=-1;setText(null);$('#top').style.display='none';$('#stamp').style.display='none';$('#skip').style.display='none';$('#hint').style.display='none';$('#ins').style.display='none';closeSheet();
   m.onclick=function(ev){var b=ev.target.closest('.cs');if(!b)return;m.style.display='none';startCase(+b.dataset.i)}}
@@ -2095,7 +2464,7 @@ function mk(id,items){var r=$(id);r.innerHTML='';items.forEach(function(it){if(i
 var SHOTS=[['Aberto',iso(0,1,0,11.5,-34,38,30)],['Mesa',iso(0,.95,-.25,7.6,-30,36,26)],['Suspeito',iso(0,1.15,-.7,4.9,-24,30,22)],['Detetive',iso(0,1.1,.7,5.6,-150,34,24)]];
 function buildUI(){var S=G.S;if(!S||!S.shut)return;
   mk('#r1',[{lab:'Suspeito'}].concat(G.SUS.map(function(sp,i){return {t:(S.shut[i]?'✕ ':'')+first(sp.name),on:G.cur===i,fn:function(){switchTo(i)}}})).concat([{lab:'Tensão '+Math.round(S.stress[G.cur])+'%'},{lab:'⏱ '+clockNow()+' / '+fmt(hm(G.C.start)+G.C.limit)}]));
-  mk('#r2',[{t:'Perguntar',fn:askMenu},{t:'Provas',fn:evMenu},{t:'Caderno',fn:notebook},{t:'Café',fn:function(){if(!curShut()&&!S.over)doRest()}},{t:'Indiciar',fn:function(){openAccuse(false)}}]);
+  mk('#r2',[{t:'Perguntar',fn:askMenu},{t:'Cena'+(S.visited?'':' ●'),fn:openVistoria},{t:'Provas',fn:evMenu},{t:'Caderno',fn:notebook},{t:'Café',fn:function(){if(!curShut()&&!S.over)doRest()}},{t:'Indiciar',fn:function(){openAccuse(false)}}]);
   mk('#r3',[{lab:'Ângulo'}].concat(SHOTS.map(function(s,i){return {t:s[0],on:!D.auto&&D.shotI===i,fn:function(){D.auto=false;D.shotI=i;buildUI()}}})).concat([{t:'Auto',on:D.auto,fn:function(){D.auto=!D.auto;buildUI()}},{t:'Casos',fn:showMenu}]))}
 
 /* ---------- loop ---------- */
@@ -2112,6 +2481,20 @@ function frame(){
   if(B.title&&D.t>B.dur){next()}
   if(B.free&&!D.sayDone&&!D.lastDlgShown&&!D.lastDlg&&G.S.met[G.cur]){D.sayDone=1}
   var ctx={t:D.t,id:B.id,dur:D.dur},scn,mode=0,ins=false;
+  if(VIS.on&&!FL.on){
+    scn=getScene('crime');mode=0;ctx.id='vistoria';
+    VIS.u=Math.min(1,VIS.u+dt*1.6);
+    var tgt=VIS.sel?visNear(VIS.sel):visWide();
+    applyCam(VIS.prev,tgt,VIS.u);
+    if(VIS.u>=1)VIS.prev=tgt;
+    if(scn.upd){ctx.cx=camera.position.x;ctx.cz=camera.position.z;scn.upd(ctx,now,dt)}
+    setViewShift();
+    if(D.fade<0)D.fade=Math.min(0,D.fade+dt);post.uniforms.fade.value=D.fade<0?1-Math.abs(D.fade)/.3:1;
+    post.uniforms.flash.value=0;post.uniforms.time.value=now;post.uniforms.tilt.value=.45;
+    draw(scn.sc,camera,0,false);
+    layoutSpots(false);
+    requestAnimationFrame(frame);return;
+  }
   if(FL.on){
     FL.t+=dt;var f=FLK[FL.kind];scn=getScene(f.scene);mode=f.mode;ctx.t=FL.t;ctx.id=FL.kind;ctx.flash=FL.t<.25?1.4:0;
     if(FL.t>f.dur)endFlash();
@@ -2145,7 +2528,9 @@ function frame(){
   if(!B.title)draw(scn.sc,camera,mode,ins);else{renderer.setRenderTarget(null);renderer.setClearColor(0x000000,1);renderer.clear()}
   requestAnimationFrame(frame);
 }
-window.__V={D:D,G:G,start:startCase,jump:function(i,t,li){go(i,t||0);if(li!=null){D.li=li}var B=BEATS[i];if(B.lines&&!B.free){D.typed=9999}},flash:flash,flashFor:flashFor,endFlash:endFlash,ask:function(si,ti,tone){switchTo(si);doAsk(G.SUS[si].topics[ti],tone)},conf:doConfront,menu:showMenu,shot:function(i){D.auto=false;D.shotI=i;buildUI()},go:go,finish:finish,sw:switchTo,askMenu:askMenu,evMenu:evMenu,notebook:notebook,evDetail:evDetail};
+window.__V={D:D,G:G,start:startCase,jump:function(i,t,li){go(i,t||0);if(li!=null){D.li=li}var B=BEATS[i];if(B.lines&&!B.free){D.typed=9999}},flash:flash,flashFor:flashFor,endFlash:endFlash,ask:function(si,ti,tone){switchTo(si);doAsk(G.SUS[si].topics[ti],tone)},conf:doConfront,menu:showMenu,shot:function(i){D.auto=false;D.shotI=i;buildUI()},go:go,finish:finish,sw:switchTo,askMenu:askMenu,evMenu:evMenu,notebook:notebook,evDetail:evDetail,
+ vis:openVistoria,closeVis:closeVistoria,spots:function(){return CSPOTS},tap:function(i){tapSpot(CSPOTS[i])},
+ azi:function(i){visMove();VIS.azi=i},evt:legalEvents,hear:startHearing,S:function(){return G.S},LG:function(){return LG}};
 resize();$('#vo').style.display='none';showMenu();frame();
 })();
 </script><script>if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0){addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}</script></body></html>
