@@ -629,6 +629,8 @@ html[data-skin="crimson"] #vp{background-image:radial-gradient(ellipse 60% 50% a
           <div class="tabs">
             <button class="tab on" id="tabAud"><span class="dot load" id="audDot"></span>AUDIUS</button>
             <button class="tab" id="tabJam">JAMENDO</button>
+            <button class="tab" id="tabIA">ARCHIVE</button>
+            <button class="tab" id="tabOV">OPENVERSE</button>
             <button class="tab" id="tabLoc">ARQUIVO LOCAL</button>
             <button class="tab" id="tabFav">★ FAVORITAS</button>
           </div>
@@ -644,6 +646,7 @@ html[data-skin="crimson"] #vp{background-image:radial-gradient(ellipse 60% 50% a
         <h3>ARQUIVO LOCAL</h3>
         <p>Arraste MP3, WAV ou FLAC aqui, ou direto sobre um deck</p>
         <button class="btn" id="pick">ESCOLHER ARQUIVOS</button>
+        <button class="btn" id="pickDir">PASTA INTEIRA</button>
       </div>
     </section>
   </div>
@@ -687,6 +690,7 @@ html[data-skin="crimson"] #vp{background-image:radial-gradient(ellipse 60% 50% a
     <div class="lfoot"><span id="lStatus"></span><button type="button" class="btn" id="lStop">DESCONECTAR</button></div>
   </div>
 </aside>
+<input type="file" id="dirIn" webkitdirectory multiple hidden>
 <input type="file" id="fileIn" multiple accept="audio/*,.mp3,.wav,.flac,.ogg,.m4a,.aac,.opus" hidden>
 <div id="keys" hidden role="dialog" aria-label="Atalhos de teclado">
   <div class="ah"><span>ATALHOS DE TECLADO</span><button class="btn sq" id="keysClose" aria-label="Fechar">✕</button></div>
@@ -1261,8 +1265,8 @@ chipsEl.addEventListener('click', e => {
   audSearch(searchEl.value.trim());
 });
 function setTab(t) {
-  tab = t; $('#tabAud').classList.toggle('on', t === 'aud'); $('#tabJam').classList.toggle('on', t === 'jam'); $('#tabLoc').classList.toggle('on', t === 'loc'); $('#tabFav').classList.toggle('on', t === 'fav');
-  searchEl.placeholder = t === 'aud' ? 'Buscar no Audius' : t === 'jam' ? 'Buscar na Jamendo' : t === 'fav' ? 'Filtrar favoritas' : 'Filtrar arquivos'; searchEl.value = ''; $('#chips').hidden = t !== 'aud'; renderList();
+  tab = t; $('#tabAud').classList.toggle('on', t === 'aud'); $('#tabJam').classList.toggle('on', t === 'jam'); $('#tabLoc').classList.toggle('on', t === 'loc'); $('#tabIA').classList.toggle('on', t === 'ia'); $('#tabOV').classList.toggle('on', t === 'ov'); $('#tabFav').classList.toggle('on', t === 'fav');
+  searchEl.placeholder = t === 'ia' ? 'Buscar no Internet Archive' : t === 'ov' ? 'Buscar no Openverse' : t === 'aud' ? 'Buscar no Audius' : t === 'jam' ? 'Buscar na Jamendo' : t === 'fav' ? 'Filtrar favoritas' : 'Filtrar arquivos'; searchEl.value = ''; $('#chips').hidden = t !== 'aud'; renderList();
 }
 let rowItems = [];
 let favs = []; try { favs = JSON.parse(lsGet('nd_favs', '[]')) || []; } catch (_) { favs = []; }
@@ -1306,6 +1310,60 @@ async function jamSearch(query) {
   } finally { clearTimeout(to); }
   renderList();
 }
+/* ---------- Internet Archive (netlabels CC) e Openverse (Jamendo/Wikimedia sem chave) ---------- */
+const ia = { status: 'idle', items: [], msg: '' }, ov = { status: 'idle', items: [], msg: '' };
+const IA_CACHE = new Map();
+async function getJSON(url, ms) {
+  const ac = new AbortController(), to = setTimeout(() => ac.abort(), ms || 15000);
+  try { const r = await fetch(url, { signal: ac.signal }); if (!r.ok) throw new Error('HTTP ' + r.status); return await r.json(); } finally { clearTimeout(to); }
+}
+function netErr(src, err) { return err.name === 'AbortError' ? src + ' demorou demais. Tente de novo.' : err.name === 'TypeError' ? 'Não consegui conectar ao ' + src + ' (sem internet ou bloqueado).' : src + ' recusou o pedido: ' + esc(err.message); }
+const fetchBuf = async (url, src) => {
+  let r; try { r = await fetch(url); } catch (_) { throw new Error(src + ' bloqueou o download desta faixa. Tente outra.'); }
+  if (!r.ok) throw new Error(src + ' respondeu ' + r.status + ' para o áudio.');
+  const len = +r.headers.get('content-length') || 0; if (len > MAX_FILE) throw new Error('Arquivo grande demais (' + Math.round(len / 1e6) + ' MB).');
+  return { buf: await decode(await r.arrayBuffer()) };
+};
+const parseLen = v => { if (v == null) return null; if (/:/.test(v)) return String(v).split(':').reduce((a, b) => a * 60 + (+b || 0), 0); return +v || null; };
+async function iaSearch(query) {
+  const my = ia.seq = (ia.seq || 0) + 1; ia.items = []; ia.msg = ''; ia.status = 'load'; renderList();
+  const qq = query ? '(' + query.replace(/[()":]/g, ' ') + ')' : 'subject:(electronic OR techno OR house OR dance)';
+  const q = new URLSearchParams({ q: 'collection:(netlabels) AND mediatype:(audio) AND ' + qq, rows: '14', output: 'json' });
+  ['identifier', 'title', 'creator', 'subject'].forEach(f => q.append('fl[]', f)); q.append('sort[]', 'downloads desc');
+  try {
+    const j = await getJSON('https://archive.org/advancedsearch.php?' + q.toString());
+    const docs = (j.response && j.response.docs) || [];
+    const lists = await Promise.all(docs.map(async doc => {
+      try {
+        let m = IA_CACHE.get(doc.identifier); if (!m) { m = await getJSON('https://archive.org/metadata/' + encodeURIComponent(doc.identifier) + '/files', 12000); IA_CACHE.set(doc.identifier, m); }
+        const files = (m.result || []).filter(f => /\.mp3$/i.test(f.name) && /mp3/i.test(f.format || '') && !/64kbps|_vbr\.m3u/i.test(f.name));
+        const seen = new Set();
+        return files.filter(f => { const k = (f.title || f.name).toLowerCase(); if (seen.has(k)) return false; seen.add(k); return true; }).slice(0, 6).map(f => {
+          const dur = parseLen(f.length), genre = [].concat(doc.subject || [])[0] || 'netlabel';
+          return { id: 'ia' + doc.identifier + '/' + f.name, name: f.title || f.name.replace(/\.mp3$/i, '').replace(/^\d+[\s._-]*/, ''), artist: f.creator || [].concat(doc.creator || [])[0] || doc.title || '—', genre: String(genre).slice(0, 18), key: '', bpm: null, dur,
+            loader: () => fetchBuf('https://archive.org/cors/' + encodeURIComponent(doc.identifier) + '/' + f.name.split('/').map(encodeURIComponent).join('/'), 'O Internet Archive') };
+        });
+      } catch (_) { return []; }
+    }));
+    if (my !== ia.seq) return;
+    ia.items = lists.flat().filter(it => !it.dur || it.dur <= MAX_SEC); ia.status = 'ok'; if (!ia.items.length) ia.msg = 'Nada encontrado nesta busca.';
+  } catch (err) { if (my !== ia.seq) return; ia.status = 'err'; ia.msg = netErr('Internet Archive', err); }
+  renderList();
+}
+async function ovSearch(query) {
+  const my = ov.seq = (ov.seq || 0) + 1; ov.items = []; ov.msg = ''; ov.status = 'load'; renderList();
+  const q = new URLSearchParams({ q: query || 'electronic', category: 'music', page_size: '20', source: 'jamendo,wikimedia_audio,ccmixter' });
+  try {
+    let j; try { j = await getJSON('https://api.openverse.org/v1/audio/?' + q.toString()); }
+    catch (e) { q.delete('source'); j = await getJSON('https://api.openverse.org/v1/audio/?' + q.toString()); }
+    if (my !== ov.seq) return;
+    ov.items = (j.results || []).filter(t => t.url && (!t.duration || t.duration / 1000 <= MAX_SEC)).map(t => ({
+      id: 'ov' + t.id, name: t.title || 'Sem título', artist: t.creator || '—', genre: (t.genres && t.genres[0]) || t.source || '', key: '', bpm: null, dur: t.duration ? t.duration / 1000 : null,
+      loader: async () => { try { return await fetchBuf(t.url, 'A fonte (' + t.source + ')'); } catch (e) { const alt = t.alt_files && t.alt_files.find(a => /mp3/i.test(a.filetype || a.url)); if (alt) return fetchBuf(alt.url, 'A fonte'); throw e; } } }));
+    ov.status = 'ok'; if (!ov.items.length) ov.msg = 'Nada encontrado nesta busca.';
+  } catch (err) { if (my !== ov.seq) return; ov.status = 'err'; ov.msg = /429/.test(err.message) ? 'Limite de buscas do Openverse atingido. Espere um minuto.' : netErr('Openverse', err); }
+  renderList();
+}
 function toggleFav(it) {
   if (!it || !it.aid) return;
   const i = favs.findIndex(f => f.aid === it.aid);
@@ -1317,6 +1375,8 @@ function renderList() {
   $('#audDot').className = 'dot ' + (aud.status === 'ok' ? 'ok' : aud.status === 'err' ? 'err' : 'load');
   let items, msg = '';
   if (tab === 'aud') { items = aud.items; msg = aud.status === 'load' ? 'Buscando no Audius…' : aud.msg; }
+  else if (tab === 'ia') { items = ia.items; msg = ia.status === 'load' ? 'Buscando no Internet Archive…' : ia.msg; }
+  else if (tab === 'ov') { items = ov.items; msg = ov.status === 'load' ? 'Buscando no Openverse…' : ov.msg; }
   else if (tab === 'jam') { items = jam.items; msg = jam.status === 'load' ? 'Buscando na Jamendo…' : jam.msg; }
   else if (tab === 'fav') { const q = searchEl.value.trim().toLowerCase(); items = favs.map(mkAudItem).filter(i => !q || (i.name + ' ' + i.artist).toLowerCase().includes(q)); if (!items.length) msg = 'Nenhuma favorita ainda. Toque na estrela de uma faixa do Audius.'; }
   else { const q = searchEl.value.trim().toLowerCase(); items = local.filter(i => !q || (i.name + ' ' + i.artist).toLowerCase().includes(q)); if (!items.length) msg = 'Nenhum arquivo ainda. Arraste músicas para a caixa ao lado.'; }
@@ -1338,11 +1398,15 @@ $('#sortBpm').setAttribute('aria-pressed', sortBpm);
 $('#tabAud').addEventListener('click', () => { setTab('aud'); if (aud.status === 'err' || (aud.status === 'ok' && !aud.items.length)) audSearch(''); });
 $('#tabJam').addEventListener('click', () => { setTab('jam'); if (jam.status === 'idle' || jam.status === 'err') jamSearch(''); });
 $('#tabLoc').addEventListener('click', () => setTab('loc'));
+$('#tabIA').addEventListener('click', () => { setTab('ia'); if (ia.status === 'idle' || ia.status === 'err') iaSearch(''); });
+$('#tabOV').addEventListener('click', () => { setTab('ov'); if (ov.status === 'idle' || ov.status === 'err') ovSearch(''); });
 $('#tabFav').addEventListener('click', () => setTab('fav'));
 let sT = 0;
-searchEl.addEventListener('input', () => { clearTimeout(sT); sT = setTimeout(() => { if (tab === 'aud') audSearch(searchEl.value.trim()); else if (tab === 'jam') jamSearch(searchEl.value.trim()); else renderList(); }, 420); });
+searchEl.addEventListener('input', () => { clearTimeout(sT); sT = setTimeout(() => { if (tab === 'aud') audSearch(searchEl.value.trim()); else if (tab === 'jam') jamSearch(searchEl.value.trim()); else if (tab === 'ia') iaSearch(searchEl.value.trim()); else if (tab === 'ov') ovSearch(searchEl.value.trim()); else renderList(); }, 420); });
 const fileIn = $('#fileIn');
 $('#pick').addEventListener('click', () => fileIn.click());
+$('#pickDir').addEventListener('click', () => $('#dirIn').click());
+$('#dirIn').addEventListener('change', e => { const fs = [...e.target.files].sort((a, b) => (a.webkitRelativePath || a.name).localeCompare(b.webkitRelativePath || b.name)); addLocal(fs); e.target.value = ''; });
 fileIn.addEventListener('change', () => { addLocal([...fileIn.files]); fileIn.value = ''; });
 const dropEl = $('#drop');
 ['dragenter', 'dragover'].forEach(ev => dropEl.addEventListener(ev, e => { e.preventDefault(); dropEl.classList.add('over'); }));
