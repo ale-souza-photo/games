@@ -737,6 +737,7 @@ html[data-skin="crimson"] #vp{background-image:radial-gradient(ellipse 60% 50% a
     <label for="sKey">Chave de API do Audius (opcional)<input id="sKey" type="text" autocomplete="off" placeholder="cole aqui se tiver uma"></label>
     <label for="sJam">Client ID da Jamendo (grátis em devportal.jamendo.com)<input id="sJam" type="text" autocomplete="off" placeholder="cole aqui"></label>
     <label for="sBg">Animação de fundo<select id="sBg"><option value="auto">Automático</option><option value="3">Alta</option><option value="2">Média</option><option value="1">Baixa</option><option value="0">Desligada</option></select></label>
+    <label for="sLat">Buffer de áudio<select id="sLat"><option value="auto">Automático (estável no tablet)</option><option value="stable">Estável (sem engasgo)</option><option value="fast">Rápido (menos atraso)</option></select></label>
     <label for="sGl">Vidro<select id="sGl"><option value="0">Leve (recomendado)</option><option value="1">Blur real (mais pesado)</option></select></label>
     <p>Os ajustes ficam só neste navegador. O Audius só responde quando o arquivo é aberto direto no navegador ou hospedado em um site próprio.</p>
     <p id="sTest" role="status"></p>
@@ -787,7 +788,9 @@ function toast(html, ms = 4500) {
 
 /* ---------- audio: grafo principal ---------- */
 const AC = window.AudioContext || window.webkitAudioContext;
-const ctx = new AC({ latencyHint: 'interactive' });
+const LAT_PREF = (() => { try { return localStorage.getItem('nd_lat') || 'auto'; } catch (_) { return 'auto'; } })();
+const IS_TOUCH = matchMedia('(pointer:coarse)').matches || /Android|iPad|iPhone/i.test(navigator.userAgent);
+const ctx = new AC({ latencyHint: LAT_PREF === 'fast' ? 'interactive' : LAT_PREF === 'stable' ? 'playback' : (IS_TOUCH ? 'playback' : 'interactive') });
 const bus = ctx.createGain();
 const masterGain = ctx.createGain(); masterGain.gain.value = 0.8;
 const limiter = ctx.createDynamicsCompressor();
@@ -1524,6 +1527,7 @@ function drawWave(d) {
   if (d.loop.on) { const x1 = (d.loop.start - t0) * pps, x2 = (d.loop.end - t0) * pps; g.fillStyle = 'rgba(138,92,255,.25)'; g.fillRect(x1, 0, x2 - x1, H); }
   const i0 = Math.max(0, Math.floor(t0 / tsec)), i1 = Math.floor((t0 + secs) / tsec), tiles = [];
   for (let i = i0; i <= i1; i++) tiles.push([waveTile(d, cv, i), (i * tsec - t0) * pps]);
+  if (d.playing && !d._pre) { const nx = i1 + 1; d._pre = 1; (window.requestIdleCallback || setTimeout)(() => { d._pre = 0; if (d.buf && nx * tsec < d.buf.duration) waveTile(d, cv, nx); }); }
   // metade ja tocada (esquerda) mais apagada, metade a tocar (direita) cheia
   g.save(); g.beginPath(); g.rect(0, 0, W / 2, H); g.clip(); g.globalAlpha = 0.4; for (const [t, x] of tiles) g.drawImage(t, x, 0); g.restore();
   g.save(); g.beginPath(); g.rect(W / 2, 0, W / 2, H); g.clip(); for (const [t, x] of tiles) g.drawImage(t, x, 0); g.restore();
@@ -1587,7 +1591,8 @@ function updateDeck(d, half) {
   const lv = Math.round(d.kick * 5);
   drawWave(d);
 }
-function frame() {
+function frame(now) {
+  if (layout !== 'desk' && now - (frame._t || 0) < 31) { requestAnimationFrame(frame); return; } frame._t = now;
   fpsN++;
   const A = decks.a, B = decks.b, odd = (fpsN & 1) === 1;
   updateDeck(A, odd); updateDeck(B, !odd);
@@ -1651,6 +1656,7 @@ const bg = (() => {
   setLevel(lvl);
   return { tick, set(v) { pref = v; lsSet('nd_bg', v); slow = 0; setLevel(v === 'auto' ? 3 : +v); } };
 })();
+$('#sLat').value = LAT_PREF; $('#sLat').addEventListener('change', e => { lsSet('nd_lat', e.target.value); toast('Buffer de áudio alterado. Recarregue a página para aplicar.'); });
 $('#sGl').value = lsGet('nd_gl', '0'); document.body.classList.toggle('blur', $('#sGl').value === '1');
 $('#sGl').addEventListener('change', e => { lsSet('nd_gl', e.target.value); document.body.classList.toggle('blur', e.target.value === '1'); });
 $('#sBg').value = lsGet('nd_bg', '0');
@@ -2272,7 +2278,7 @@ const xyHP = ctx.createBiquadFilter(), xyLP = ctx.createBiquadFilter(), rollG = 
 xyHP.type = 'highpass'; xyHP.frequency.value = 20; xyHP.Q.value = 0.9; xyLP.type = 'lowpass'; xyLP.frequency.value = 22000; xyLP.Q.value = 0.9;
 masterGain.connect(xyHP); xyHP.connect(xyLP); xyLP.connect(rollG); rollG.connect(post);
 /* isolador (LR4 em 2 cortes) com bypass quando neutro */
-const isoD = ctx.createGain(), isoB = ctx.createGain(); isoB.gain.value = 0; post.connect(isoD); post.connect(isoB); isoD.connect(limiter);
+const isoD = ctx.createGain(), isoB = ctx.createGain(); isoB.gain.value = 0; post.connect(isoD); isoD.connect(limiter); let isoLive = false, isoOffT = 0;
 const bq = (t, f) => { const n = ctx.createBiquadFilter(); n.type = t; n.frequency.value = f; n.Q.value = 0.7071; return n; };
 const isoV = { low: ctx.createGain(), mid: ctx.createGain(), hi: ctx.createGain() };
 { const l1 = bq('lowpass', 250), l2 = bq('lowpass', 250); isoB.connect(l1); l1.connect(l2); l2.connect(isoV.low);
@@ -2287,16 +2293,19 @@ function isoApply() {
     const v = iso[k], g = kill[k] ? 0 : (v <= 0.5 ? Math.pow(v / 0.5, 2) : 1 + (v - 0.5) * 2);
     isoV[k].gain.setTargetAtTime(g, t, 0.015); if (kill[k] || Math.abs(v - 0.5) > 0.02) neutral = false;
   }
+  clearTimeout(isoOffT);
+  if (!neutral && !isoLive) { isoLive = true; post.connect(isoB); }
+  if (neutral && isoLive) isoOffT = setTimeout(() => { isoLive = false; try { post.disconnect(isoB); } catch (_) {} }, 300);
   isoD.gain.setTargetAtTime(neutral ? 1 : 0, t, 0.02); isoB.gain.setTargetAtTime(neutral ? 0 : 1, t, 0.02);
 }
 /* sampler: sai direto para o master (depois do roll) */
 const smpOut = ctx.createGain(); smpOut.gain.value = 0.8; smpOut.connect(post);
 /* envios de eco e reverb do XY FX */
 const xyEcoS = ctx.createGain(), xyEco = ctx.createDelay(2), xyEcoF = ctx.createGain(), xyEcoW = ctx.createGain();
-xyEcoS.gain.value = 0; xyEcoF.gain.value = 0.5; xyEcoW.gain.value = 0.9; xyLP.connect(xyEcoS); xyEcoS.connect(xyEco); xyEco.connect(xyEcoF); xyEcoF.connect(xyEco); xyEco.connect(xyEcoW); xyEcoW.connect(post);
+xyEcoS.gain.value = 0; xyEcoF.gain.value = 0.5; xyEcoW.gain.value = 0.9; xyEcoS.connect(xyEco); xyEco.connect(xyEcoF); xyEcoF.connect(xyEco); xyEco.connect(xyEcoW); xyEcoW.connect(post);
 const xyRevS = ctx.createGain(), xyRev = ctx.createConvolver(), xyRevW = ctx.createGain(); xyRevS.gain.value = 0; xyRevW.gain.value = 1.1;
 { const len = Math.floor(SR * 2.2), ib = ctx.createBuffer(2, len, SR); for (let c = 0; c < 2; c++) { const dd = ib.getChannelData(c); for (let i = 0; i < len; i++) dd[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3); } xyRev.buffer = ib; }
-xyLP.connect(xyRevS); xyRevS.connect(xyRev); xyRev.connect(xyRevW); xyRevW.connect(post);
+xyRevS.connect(xyRev); xyRev.connect(xyRevW); xyRevW.connect(post);
 
 /* ---- sons do sampler (sintetizados, sem arquivos) ---- */
 const mk = (sec, fn) => () => { const n = Math.floor(SR * sec), b = ctx.createBuffer(1, n, SR), d = b.getChannelData(0); const st = {}; for (let i = 0; i < n; i++) d[i] = fn(i / SR, i / n, st); return b; };
@@ -2356,14 +2365,17 @@ makeKnob($('#smpVol'), 0.8, v => { smpOut.gain.setTargetAtTime(v * 1.1, ctx.curr
 /* ---- XY FX ---- */
 const xyPad = $('#xyPad'), xyDot = $('#xyDot'); let xyMode = 'eco', xyOn = false, xyLatch = false;
 const lerpExp = (a, b, t) => a * Math.pow(b / a, t);
+let xySend = null, xyOffT = 0;
+function xyWire(m) { clearTimeout(xyOffT); if (xySend === m) return; if (xySend) { try { xyLP.disconnect(xySend === 'eco' ? xyEcoS : xyRevS); } catch (_) {} } xySend = m; if (m) xyLP.connect(m === 'eco' ? xyEcoS : xyRevS); }
 function xyApply(x, y) {
+  xyWire(xyMode);
   const t = ctx.currentTime, bpm = Math.max(70, masterBpm() || 120);
   xyLP.frequency.setTargetAtTime(x < 0.45 ? lerpExp(180, 20000, x / 0.45) : 22000, t, 0.02);
   xyHP.frequency.setTargetAtTime(x > 0.55 ? lerpExp(25, 6500, (x - 0.55) / 0.45) : 20, t, 0.02);
   xyEco.delayTime.setTargetAtTime(clamp(60 / bpm * 0.75, 0.05, 1.9), t, 0.05);
   xyEcoS.gain.setTargetAtTime(xyMode === 'eco' ? y : 0, t, 0.02); xyRevS.gain.setTargetAtTime(xyMode === 'rev' ? y * 0.9 : 0, t, 0.02);
 }
-function xyOff() { const t = ctx.currentTime; xyLP.frequency.setTargetAtTime(22000, t, 0.04); xyHP.frequency.setTargetAtTime(20, t, 0.04); xyEcoS.gain.setTargetAtTime(0, t, 0.03); xyRevS.gain.setTargetAtTime(0, t, 0.03); }
+function xyOff() { clearTimeout(xyOffT); xyOffT = setTimeout(() => xyWire(null), 4000); const t = ctx.currentTime; xyLP.frequency.setTargetAtTime(22000, t, 0.04); xyHP.frequency.setTargetAtTime(20, t, 0.04); xyEcoS.gain.setTargetAtTime(0, t, 0.03); xyRevS.gain.setTargetAtTime(0, t, 0.03); }
 function xyMove(e) { const r = xyPad.getBoundingClientRect(), x = clamp((e.clientX - r.left) / r.width, 0, 1), y = clamp(1 - (e.clientY - r.top) / r.height, 0, 1); xyDot.style.left = (x * 100) + '%'; xyDot.style.top = ((1 - y) * 100) + '%'; xyApply(x, y); }
 xyPad.addEventListener('pointerdown', e => { e.preventDefault(); xyPad.setPointerCapture(e.pointerId); xyOn = true; xyPad.classList.add('on'); xyMove(e); });
 xyPad.addEventListener('pointermove', e => { if (xyOn) xyMove(e); });
@@ -2398,16 +2410,16 @@ function rollStop(btn) { const t = ctx.currentTime; rollG.gain.cancelScheduledVa
 /* ---- microfone / MC ---- */
 const micG = ctx.createGain(), micHP = ctx.createBiquadFilter(), micDl = ctx.createDelay(1), micFb = ctx.createGain(), micEw = ctx.createGain();
 micHP.type = 'highpass'; micHP.frequency.value = 110; micG.gain.value = 0.8; micDl.delayTime.value = 0.32; micFb.gain.value = 0.4; micEw.gain.value = 0;
-micHP.connect(micG); micG.connect(post); micG.connect(micDl); micDl.connect(micFb); micFb.connect(micDl); micDl.connect(micEw); micEw.connect(post);
+micHP.connect(micG); micG.connect(post); micDl.connect(micFb); micFb.connect(micDl); micDl.connect(micEw); micEw.connect(post);
 let micSrc = null, micStream = null, micDuck = false;
 const micMsg = $('#micMsg');
 function duckApply() { const on = micDuck && micStream; bus.gain.setTargetAtTime(on ? 0.55 : 1, ctx.currentTime, 0.12); }
 $('#micBtn').addEventListener('click', async e => {
   const b = e.currentTarget;
-  if (micStream) { micStream.getTracks().forEach(t => t.stop()); try { micSrc.disconnect(); } catch (_) {} micStream = micSrc = null; b.textContent = 'LIGAR MIC'; b.classList.remove('eon'); b.setAttribute('aria-pressed', false); duckApply(); return; }
+  if (micStream) { micStream.getTracks().forEach(t => t.stop()); try { micSrc.disconnect(); } catch (_) {} try { micG.disconnect(micDl); } catch (_) {} micStream = micSrc = null; b.textContent = 'LIGAR MIC'; b.classList.remove('eon'); b.setAttribute('aria-pressed', false); duckApply(); return; }
   try {
     micStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: false } });
-    micSrc = ctx.createMediaStreamSource(micStream); micSrc.connect(micHP); b.textContent = 'MIC LIGADO'; b.classList.add('eon'); b.setAttribute('aria-pressed', true); duckApply();
+    micSrc = ctx.createMediaStreamSource(micStream); micSrc.connect(micHP); micG.connect(micDl); b.textContent = 'MIC LIGADO'; b.classList.add('eon'); b.setAttribute('aria-pressed', true); duckApply();
     micMsg.textContent = 'Mic no ar. Use fone de ouvido no monitor para evitar microfonia.';
   } catch (_) { micStream = null; micMsg.textContent = 'Sem acesso ao microfone. Libere a permissão no navegador.'; }
 });
